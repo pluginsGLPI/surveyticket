@@ -30,6 +30,9 @@ function plugin_init_surveyticket() {
          // Icons add, search...
          $PLUGIN_HOOKS['submenu_entry']['surveyticket']['add']['questions'] = 'front/question.form.php?add=1';
          $PLUGIN_HOOKS['submenu_entry']['surveyticket']['search']['questions'] = 'front/question.php';
+         
+         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['add']['survey'] = 'front/survey.form.php?add=1';
+         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['search']['survey'] = 'front/survey.php';
 
          $PLUGIN_HOOKS['submenu_entry']['surveyticket']['add']['answers'] = 'front/answer.form.php?add=1';
          
@@ -40,6 +43,9 @@ function plugin_init_surveyticket() {
 
          $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['answers']['title'] = "Answers";
          $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['answers']['page']  = '/plugins/surveyticket/front/answer.php';
+         
+         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['survey']['title'] = "Surveys";
+         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['survey']['page']  = '/plugins/surveyticket/front/survey.php';
 
       }
 }

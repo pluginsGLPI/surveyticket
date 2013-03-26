@@ -6,7 +6,79 @@ if (!defined('GLPI_ROOT')) {
 
 class PluginSurveyticketSurvey extends CommonDBTM {
    
+   /**
+   * Get name of this type
+   *
+   * @return text name of this type by language of the user connected
+   *
+   **/
+   static function getTypeName() {
+      return "Questionnaire";
+   }
+
+
+
+   function canCreate() {
+      return true;
+   }
+
+
+   function canView() {
+      return true;
+   }
    
+   
+   
+   function defineTabs($options=array()){
+
+      $ong = array();
+      if ((isset($this->fields['id'])) 
+              && ($this->fields['id'] > 0)) {
+         
+         $ong[1] = $this->getTypeName();
+         $this->addStandardTab('PluginSurveyticketSurveyQuestion', $ong, $options);
+         $this->addStandardTab('PluginSurveyticketTicketTemplate', $ong, $options);
+      }
+      return $ong;
+   }
+   
+   
+   
+   function showForm($items_id, $options=array()) {
+      global $LANG;
+
+      if ($items_id!='') {
+         $this->getFromDB($items_id);
+      } else {
+         $this->getEmpty();
+      }
+
+      $this->showTabs($options);
+      $this->showFormHeader($options);
+
+      echo "<tr class='tab_bg_1'>";
+      echo "<td>".$LANG['common'][16]."&nbsp;:</td>";
+      echo "<td>";
+      echo '<input type="text" name="name" value="'.$this->fields["name"].'" size="50"/>';
+      echo "</td>";
+      echo "<td>".$LANG['common'][60]."&nbsp;:</td>";
+      echo "<td>";
+      Dropdown::showYesNo("is_active", $this->fields['is_active']);
+      echo "</td>";
+      echo "</tr>";
+      
+      echo "<tr class='tab_bg_1'>";
+      echo "<td>".$LANG['common'][25]."&nbsp;:</td>";
+      echo "<td colspan='2' class='middle'>";
+      echo "<textarea cols='110' rows='3' name='comment' >".$this->fields["comment"]."</textarea>";
+      echo "</td>";
+      echo "</tr>";
+      
+      $this->showFormButtons($options);
+      $this->addDivForTabs();
+
+      return true;
+   }
    
    
    

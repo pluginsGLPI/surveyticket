@@ -92,7 +92,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       echo "+ champ";
       echo "</th>";
       echo "<th>";
-      echo "Lien vers question";
+      echo "Dirige vers question";
       echo "</th>";
       echo "</tr>";
       
@@ -118,8 +118,10 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          echo $texttype[$data['answertype']];
          echo "</td>";
          echo "<td>";
-         $psQuetion->getFromDB($data['link']);
-         echo $psQuetion->getLink();
+         if ($data['link'] > 0) {
+            $psQuetion->getFromDB($data['link']);
+            echo $psQuetion->getLink(1);
+         }
          echo "</td>";
          echo "</tr>";         
       }
@@ -190,7 +192,8 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          echo "<td colspan='3'>";
          Dropdown::show("PluginSurveyticketQuestion", array(
              'name'=>'link',
-             'value'=>$this->fields['link']
+             'value'=>$this->fields['link'],
+             'used' => array($psQuestion->getID())
             ));
          echo "</td>";
          echo "</tr>";

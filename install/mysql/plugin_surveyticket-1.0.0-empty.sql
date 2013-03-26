@@ -44,12 +44,27 @@ CREATE TABLE `glpi_plugin_surveyticket_surveys` (
 
 
 
+DROP TABLE IF EXISTS `glpi_plugin_surveyticket_surveyquestions`;
+
+CREATE TABLE `glpi_plugin_surveyticket_surveyquestions` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `plugin_surveyticket_surveys_id` int(11) NOT NULL DEFAULT '0',
+   `plugin_surveyticket_questions_id` int(11) NOT NULL DEFAULT '0',
+   `order` tinyint(2) NOT NULL DEFAULT '0',
+   PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
+
+
+
 DROP TABLE IF EXISTS `glpi_plugin_surveyticket_tickettemplates`;
 
 CREATE TABLE `glpi_plugin_surveyticket_tickettemplates` (
    `id` int(11) NOT NULL AUTO_INCREMENT,
-   `tickettemplates_id` tinyint(1) NOT NULL DEFAULT '0',
    `plugin_surveyticket_surveys_id` tinyint(1) NOT NULL DEFAULT '0',
+   `tickettemplates_id_incident` int(11) NOT NULL DEFAULT '0',
+   `tickettemplates_id_demand` int(11) NOT NULL DEFAULT '0',
+   `is_helpdesk` tinyint(1) NOT NULL DEFAULT '0',
+   `is_central` tinyint(1) NOT NULL DEFAULT '0',
    PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
