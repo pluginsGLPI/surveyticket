@@ -15,7 +15,7 @@ function plugin_init_surveyticket() {
          if ($plugin->isActivated('surveyticket')) {
             if ($_SESSION["glpiactiveprofile"]["interface"] == "helpdesk") {
                if (isset($_GET['create_ticket'])) {
-                  Html::redirect($CFG_GLPI['root_doc']."/plugins/surveyticket/front/survey.php");
+                  Html::redirect($CFG_GLPI['root_doc']."/plugins/surveyticket/front/displaysurvey.php");
                   exit;
                }
             }

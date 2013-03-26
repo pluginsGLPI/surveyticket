@@ -6,6 +6,18 @@ if (!defined('GLPI_ROOT')) {
 
 class PluginSurveyticketSurvey extends CommonDBTM {
    
+   
+   
+   
+   
+   
+   
+   
+   
+// ************************************************************************************ //   
+// *************************** Display survey in the ticket *************************** // 
+// ************************************************************************************ // 
+   
    function startSurvey() {
       global $DB,$CFG_GLPI;
       
@@ -241,7 +253,7 @@ class PluginSurveyticketSurvey extends CommonDBTM {
       ob_end_clean();
       
       $ticketdisplay = str_replace("/front/tracking.injector.php", 
-              "/plugins/surveyticket/front/survey.form.php", $ticketdisplay);
+              "/plugins/surveyticket/front/displaysurvey.form.php", $ticketdisplay);
       
       $split = explode("<td><textarea name='content' cols='80' rows='14'></textarea>", $ticketdisplay);
       

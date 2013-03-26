@@ -7,10 +7,10 @@ Session::checkLoginUser();
 
 if ($_SESSION["glpiactiveprofile"]["interface"] == "helpdesk") {
    Html::helpHeader("survey", $_SERVER["PHP_SELF"], "plugins", 
-             "surveyticket", "survey");
+             "surveyticket", "displaysurvey");
 } else {
    Html::header("survey", $_SERVER["PHP_SELF"], "plugins", 
-             "surveyticket", "survey");
+             "surveyticket", "displaysurvey");
 }
 
 
