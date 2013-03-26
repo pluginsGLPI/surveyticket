@@ -61,8 +61,8 @@ DROP TABLE IF EXISTS `glpi_plugin_surveyticket_tickettemplates`;
 CREATE TABLE `glpi_plugin_surveyticket_tickettemplates` (
    `id` int(11) NOT NULL AUTO_INCREMENT,
    `plugin_surveyticket_surveys_id` tinyint(1) NOT NULL DEFAULT '0',
-   `tickettemplates_id_incident` int(11) NOT NULL DEFAULT '0',
-   `tickettemplates_id_demand` int(11) NOT NULL DEFAULT '0',
+   `tickettemplates_id` int(11) NOT NULL DEFAULT '0',
+   `type` tinyint(1) NOT NULL DEFAULT '0',
    `is_helpdesk` tinyint(1) NOT NULL DEFAULT '0',
    `is_central` tinyint(1) NOT NULL DEFAULT '0',
    PRIMARY KEY (`id`)

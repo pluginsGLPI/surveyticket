@@ -61,7 +61,7 @@ class PluginSurveyticketTicketTemplate extends CommonDBTM {
       $ticketTemplate = new TicketTemplate();
       
       echo "<form method='post' name='form_addquestion' action='".$CFG_GLPI['root_doc'].
-             "/plugins/surveyticket/front/surveyquestion.form.php'>";
+             "/plugins/surveyticket/front/tickettemplate.form.php'>";
 
       echo "<table class='tab_cadre' width='700'>";
       
@@ -94,12 +94,6 @@ class PluginSurveyticketTicketTemplate extends CommonDBTM {
       echo "</td>";
       echo "</tr>";
       
-/*      
-   `tickettemplates_id_incident` int(11) NOT NULL DEFAULT '0',
-   `tickettemplates_id_demand` int(11) NOT NULL DEFAULT '0',
-   `is_helpdesk` tinyint(1) NOT NULL DEFAULT '0',
-   `is_central` tinyint(1) NOT NULL DEFAULT '0',    
-*/
       echo "<tr>";
       echo "<td class='tab_bg_2 top' colspan='4'>";
       echo "<input type='hidden' name='plugin_surveyticket_surveys_id' value='".$items_id."'>";
@@ -111,42 +105,56 @@ class PluginSurveyticketTicketTemplate extends CommonDBTM {
       Html::closeForm();
       
       
-      // list questions
+      // list templates
       
       
-//      echo "<table class='tab_cadre_fixe'>";
-//      
-//      echo "<tr class='tab_bg_1'>";
-//      echo "<th>";
-//      echo "Question";
-//      echo "</th>";
-//      echo "<th>";
-//      echo "Order";
-//      echo "</th>";
-//      echo "<th>";
-//      echo "</th>";
-//      echo "</tr>";    
-//      
-//      foreach ($a_questions as $data) {
-//         echo "<tr class='tab_bg_1'>";
-//         echo "<td>";
-//         $psQuestion->getFromDB($data['plugin_surveyticket_questions_id']);
-//         echo $psQuestion->getLink(1);
-//         echo "</td>";
-//         echo "<td>";
-//         echo $data['order'];
-//         echo "</td>";
-//         echo "<td align='center'>";
-//         echo "<form method='post' name='form_addquestion' action='".$CFG_GLPI['root_doc'].
-//             "/plugins/surveyticket/front/surveyquestion.form.php'>";
-//         echo "<input type='hidden' name='id' value='".$data['id']."'>";
-//         echo "<input type='submit' name='delete' value=\"".$LANG['buttons'][6]."\" class='submit'>";
-//         Html::closeForm();
-//         echo "</td>";
-//         echo "</tr>";    
-//      }
-//      
-//      echo "</table>";
+      echo "<table class='tab_cadre_fixe'>";
+      
+      echo "<tr class='tab_bg_1'>";
+      echo "<th>";
+      echo $LANG['job'][58];
+      echo "</th>";
+      echo "<th>";
+      echo $LANG['common'][17];
+      echo "</th>";
+      echo "<th>";
+      echo $LANG['Menu'][31];
+      echo "</th>";
+      echo "<th>";
+      echo $LANG['common'][56];
+      echo "</th>";
+      echo "<th>";
+      echo "</th>";
+      echo "</tr>";    
+      
+      $_tickettempaltes = $this->find("`plugin_surveyticket_surveys_id`='".$items_id."'");
+      foreach ($_tickettempaltes as $data) {
+         echo "<tr class='tab_bg_1'>";
+         echo "<td>";
+         $ticketTemplate->getFromDB($data['tickettemplates_id']);
+         echo $ticketTemplate->getLink(1);
+         echo "</td>";
+         echo "<td>";
+         echo Ticket::getTicketTypeName($data['type']);
+         echo "</td>";
+         echo "<td>";
+         echo Dropdown::getYesNo($data['is_helpdesk']);
+         echo "</td>";   
+         echo "<td>";
+         echo Dropdown::getYesNo($data['is_central']);
+         echo "</td>";
+         
+         echo "<td align='center'>";
+         echo "<form method='post' name='form_delettickettemplate' action='".$CFG_GLPI['root_doc'].
+             "/plugins/surveyticket/front/tickettemplate.form.php'>";
+         echo "<input type='hidden' name='id' value='".$data['id']."'>";
+         echo "<input type='submit' name='delete' value=\"".$LANG['buttons'][6]."\" class='submit'>";
+         Html::closeForm();
+         echo "</td>";
+         echo "</tr>";    
+      }
+      
+      echo "</table>";
    }
    
    

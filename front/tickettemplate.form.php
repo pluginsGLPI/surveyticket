@@ -5,15 +5,18 @@ define('GLPI_ROOT', '../../..');
 include (GLPI_ROOT . "/inc/includes.php");
 
 Html::header("surveyticket", $_SERVER["PHP_SELF"], "plugins", 
-             "surveyticket", "surveyquestion");
+             "surveyticket", "tickettemplate");
 
-$psSurveyQuestion = new PluginSurveyticketSurveyQuestion();
+$psticketTemplate = new PluginSurveyticketTicketTemplate();
 
 if (isset ($_POST["add"])) {
-   $psSurveyQuestion->add($_POST);
+   if ($_POST['tickettemplates_id'] == 0) {
+      Html::back();
+   }
+   $psticketTemplate->add($_POST);
    Html::back();
 } else if (isset ($_POST["delete"])) {
-   $psSurveyQuestion->delete($_POST);
+   $psticketTemplate->delete($_POST);
    Html::back();
 }
 
