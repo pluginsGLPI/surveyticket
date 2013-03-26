@@ -24,7 +24,7 @@ function plugin_init_surveyticket() {
             $PLUGIN_HOOKS['menu_entry']['surveyticket'] = true;
 //            $PLUGIN_HOOKS['helpdesk_menu_entry']['surveyticket'] = true;
             
-            $PLUGIN_HOOKS['config_page']['surveyticket'] = 'front/question.php';
+            $PLUGIN_HOOKS['config_page']['surveyticket'] = 'front/menu.php';
          }
          
          // Icons add, search...
