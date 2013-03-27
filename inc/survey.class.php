@@ -90,15 +90,225 @@ class PluginSurveyticketSurvey extends CommonDBTM {
 // *************************** Display survey in the ticket *************************** // 
 // ************************************************************************************ // 
    
-   function startSurvey() {
-      global $DB,$CFG_GLPI;
+
+   static function getCentral($out) {
       
-      $query= "SELECT * FROM `glpi_plugin_surveyticket_questions`
-         WHERE `is_start` = '1'
-         LIMIT 1";
-      $result = $DB->query($query);
-      while ($data=$DB->fetch_array($result)) {
-         $this->displaySurvey($data['id']);
+
+
+      $ticket = new Ticket();
+
+      $default_values = Ticket::getDefaultValues();
+
+      $values = $_REQUEST;
+
+      // Restore saved value or override with page parameter
+      foreach ($default_values as $name => $value) {
+         if (!isset($values[$name])) {
+            if (isset($_SESSION["plugin_surveyticket_helpdeskSaved"][$name])) {
+               $values[$name] = $_SESSION["plugin_surveyticket_helpdeskSaved"][$name];
+            } else {
+               $values[$name] = $value;
+            }
+         }
+      }   
+      $ticket->userentities = array();
+      if ($values["_users_id_requester"]) {
+         //Get all the user's entities
+         $all_entities = Profile_User::getUserEntities($values["_users_id_requester"], true, true);
+         //For each user's entity, check if the technician which creates the ticket have access to it
+         foreach ($all_entities as $tmp => $ID_entity) {
+            if (Session::haveAccessToEntity($ID_entity)) {
+               $ticket->userentities[] = $ID_entity;
+            }
+         }
+      }
+      $ticket->countentitiesforuser = count($ticket->userentities);
+
+      if ($ticket->countentitiesforuser>0
+          && !in_array($ticket->fields["entities_id"], $ticket->userentities)) {
+         // If entity is not in the list of user's entities,
+         // then use as default value the first value of the user's entites list
+         $this->fields["entities_id"] = $ticket->userentities[0];
+         // Pass to values
+         $values['entities_id'] = $ticket->userentities[0];
+      }
+
+      // Load ticket template if available :
+      $tt = new TicketTemplate();
+
+      // First load default entity one
+      if ($template_id = EntityData::getUsedConfig('tickettemplates_id', $values['entities_id'])) {
+         // with type and categ
+         $tt->getFromDBWithDatas($template_id, true);
+      }
+
+      if ($values['type'] && $values['itilcategories_id']) {
+         $categ = new ITILCategory();
+         if ($categ->getFromDB($values['itilcategories_id'])) {
+            $field = '';
+            switch ($values['type']) {
+               case self::INCIDENT_TYPE :
+                  $field = 'tickettemplates_id_incident';
+                  break;
+
+               case self::DEMAND_TYPE :
+                  $field = 'tickettemplates_id_demand';
+                  break;
+            }
+
+            if (!empty($field) && $categ->fields[$field]) {
+               // without type and categ
+               $tt->getFromDBWithDatas($categ->fields[$field], false);
+            }
+         }
+      }
+      if (isset($tt->fields['id'])) {
+
+         $psTicketTemplate = new PluginSurveyticketTicketTemplate();
+         $psSurvey = new PluginSurveyticketSurvey();
+         $plugin_surveyticket_surveys_id = 0;
+
+         $a_tickettemplates = current($psTicketTemplate->find("`tickettemplates_id`='".$tt->fields['id']."'
+                                                               AND `type`='".$values['type']."'
+                                                               AND `is_central`='1'"));
+         if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
+            $plugin_surveyticket_surveys_id = $a_tickettemplates['plugin_surveyticket_surveys_id'];
+
+         $out = str_replace("/front/ticket.form.php'><div class='spaced' id='tabsbody'>", 
+                 "/plugins/surveyticket/front/displaysurvey.form.php'><div class='spaced' id='tabsbody'>", $out);
+            $split = explode('function showDesc', $out);
+
+            echo $split[0];
+            echo "</script>";
+
+            $psSurvey = new PluginSurveyticketSurvey();
+            $psSurvey->startSurvey($plugin_surveyticket_surveys_id); 
+            $split2 = explode("</script>", $split[1]);
+            unset($split2[0]);
+            unset($split2[1]);
+            echo implode("</script>", $split2);            
+         }
+
+         if ($plugin_surveyticket_surveys_id == 0) {
+            echo $out;
+         }
+      } else {
+         echo $out;
+      }
+   }
+   
+   
+   
+   static function getHelpdesk($out) {
+
+      $email  = UserEmail::getDefaultForUser(Session::getLoginUserID());
+      
+      $default_values = array('_users_id_requester_notif' => array('use_notification'  => ($email==""?0:1),
+                                                           'alternative_email' => ''),
+                      'nodelegate'                => 1,
+                      '_users_id_requester'       => 0,
+                      'name'                      => '',
+                      'content'                   => '',
+                      'itilcategories_id'         => 0,
+                      'urgency'                   => 3,
+                      'itemtype'                  => '',
+                      'entities_id'               => $_SESSION['glpiactive_entity'],
+                      'items_id'                  => 0,
+                      'plan'                      => array(),
+                      'global_validation'         => 'none',
+                      'due_date'                  => 'NULL',
+                      'slas_id'                   => 0,
+                      '_add_validation'           => 0,
+                      'type'                      => EntityData::getUsedConfig('tickettype',
+                                                                               $_SESSION['glpiactive_entity'],
+                                                                               '', Ticket::INCIDENT_TYPE),
+                      '_right'                    => "id");
+
+      $options = $_REQUEST;
+      
+      // Restore saved value or override with page parameter
+      foreach ($default_values as $name => $value) {
+         if (!isset($options[$name])) {
+            if (isset($_SESSION["plugin_surveyticket_helpdeskSaved"][$name])) {
+               $options[$name] = $_SESSION["plugin_surveyticket_helpdeskSaved"][$name];
+            } else {
+               $options[$name] = $value;
+            }
+         }
+      }
+
+      // Load ticket template if available :
+      $tt = new TicketTemplate();
+
+      // First load default entity one
+      if ($template_id = EntityData::getUsedConfig('tickettemplates_id', $_SESSION["glpiactive_entity"])) {
+         // with type and categ
+         $tt->getFromDBWithDatas($template_id, true);
+      }
+
+      $field = '';
+      if ($options['type'] && $options['itilcategories_id']) {
+         $categ = new ITILCategory();
+         if ($categ->getFromDB($options['itilcategories_id'])) {
+            switch ($options['type']) {
+               case self::INCIDENT_TYPE :
+                  $field = 'tickettemplates_id_incident';
+                  break;
+
+               case self::DEMAND_TYPE :
+                  $field = 'tickettemplates_id_demand';
+                  break;
+            }
+
+            if (!empty($field) && $categ->fields[$field]) {
+               // without type and categ
+               $tt->getFromDBWithDatas($categ->fields[$field], false);
+            }
+         }
+      }
+      
+      if (isset($tt->fields['id'])) {
+
+         $psTicketTemplate = new PluginSurveyticketTicketTemplate();
+         $psSurvey = new PluginSurveyticketSurvey();
+         $plugin_surveyticket_surveys_id = 0;
+
+         $a_tickettemplates = current($psTicketTemplate->find("`tickettemplates_id`='".$tt->fields['id']."'
+                                                               AND `type`='".$options['type']."'
+                                                               AND `is_helpdesk`='1'"));
+         if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
+            $plugin_surveyticket_surveys_id = $a_tickettemplates['plugin_surveyticket_surveys_id'];
+
+         $out = str_replace("/front/tracking.injector.php", 
+                 "/plugins/surveyticket/front/displaysurvey.form.php", $out);
+            
+            $split = explode("<td><textarea name='content' cols='80' rows='14'></textarea>", $out);
+            echo $split[0];
+            echo "<td height='120'>";
+            $psSurvey = new PluginSurveyticketSurvey();
+            $psSurvey->startSurvey($plugin_surveyticket_surveys_id); 
+            echo $split[1];
+         }
+         if ($plugin_surveyticket_surveys_id == 0) {
+            echo $out;
+         }
+      } else {
+         echo $out;
+      }      
+   }
+   
+   
+   
+   function startSurvey($plugin_surveyticket_surveys_id) {
+      
+      $psSurveyQuestion = new PluginSurveyticketSurveyQuestion();
+      
+      $a_questions = $psSurveyQuestion->find(
+              "`plugin_surveyticket_surveys_id`='".$plugin_surveyticket_surveys_id."'",
+              "`order`");
+      
+      foreach ($a_questions as $data) {
+         $this->displaySurvey($data['plugin_surveyticket_questions_id']);
       }
    }
    
@@ -110,41 +320,42 @@ class PluginSurveyticketSurvey extends CommonDBTM {
 
       $psQuestion = new PluginSurveyticketQuestion();
       
-      $psQuestion->getFromDB($questions_id);
+      if ($psQuestion->getFromDB($questions_id)) {
       
-      echo "<table class='tab_cadre' align='left' width='700' >";
-      
-      echo "<tr class='tab_bg_1'>";
-      echo "<th colspan='3'>";
-      echo $psQuestion->fields['name'];
-      echo "&nbsp;";
-      Html::showToolTip($psQuestion->fields['comment']);
-      echo "</th>";
-      echo "</tr>";
-      
-      $nb_answer = $this->displayAnswers($questions_id);
-      
-      echo "</table>";
-      
-      $params=array("question".$questions_id=>'__VALUE__',
-            'rand'=>$questions_id,
-            'myname'=>"question".$questions_id);
-      
-      
-      if ($psQuestion->fields['type'] == 'radio'
-              OR $psQuestion->fields['type'] == 'yesno') {
-         $a_ids = array();
-         for ($i=0; $i< $nb_answer; $i++) {
-            array_push($a_ids, 'question'.$questions_id."_".$i);
+         echo "<table class='tab_cadre' align='left' width='700' >";
+
+         echo "<tr class='tab_bg_1'>";
+         echo "<th colspan='3'>";
+         echo $psQuestion->fields['name'];
+         echo "&nbsp;";
+         Html::showToolTip($psQuestion->fields['comment']);
+         echo "</th>";
+         echo "</tr>";
+
+         $nb_answer = $this->displayAnswers($questions_id);
+
+         echo "</table>";
+
+         $params=array("question".$questions_id=>'__VALUE__',
+               'rand'=>$questions_id,
+               'myname'=>"question".$questions_id);
+
+
+         if ($psQuestion->fields['type'] == 'radio'
+                 OR $psQuestion->fields['type'] == 'yesno') {
+            $a_ids = array();
+            for ($i=0; $i< $nb_answer; $i++) {
+               array_push($a_ids, 'question'.$questions_id."_".$i);
+            }
+         } else {
+            $a_ids = 'question'.$questions_id;
          }
-      } else {
-         $a_ids = 'question'.$questions_id;
+         self::UpdateItemOnSelectEvent($a_ids,
+                                       "nextquestion".$questions_id,
+                                       $CFG_GLPI["root_doc"]."/plugins/surveyticket/ajax/displaysurvey.php",
+                                       $params);
+         echo "<br/><div id='nextquestion".$questions_id."'></div>";
       }
-      self::UpdateItemOnSelectEvent($a_ids,
-                                    "nextquestion".$questions_id,
-                                    $CFG_GLPI["root_doc"]."/plugins/surveyticket/ajax/displaysurvey.php",
-                                    $params);
-      echo "<br/><div id='nextquestion".$questions_id."'></div>";
       
    }
    

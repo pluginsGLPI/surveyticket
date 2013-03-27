@@ -5,13 +5,13 @@ include (GLPI_ROOT."/inc/includes.php");
 
 Session::checkLoginUser();
 
-if ($_SESSION["glpiactiveprofile"]["interface"] == "helpdesk") {
-   Html::helpHeader("survey", $_SERVER["PHP_SELF"], "plugins", 
-             "surveyticket", "displaysurvey");
-} else {
-   Html::header("survey", $_SERVER["PHP_SELF"], "plugins", 
-             "surveyticket", "displaysurvey");
-}
+//if ($_SESSION["glpiactiveprofile"]["interface"] == "helpdesk") {
+//   Html::helpHeader("survey", $_SERVER["PHP_SELF"], "plugins", 
+//             "surveyticket", "displaysurvey");
+//} else {
+//   Html::header("survey", $_SERVER["PHP_SELF"], "plugins", 
+//             "surveyticket", "displaysurvey");
+//}
 
 
 
@@ -127,9 +127,28 @@ if ($_SESSION["glpiactiveprofile"]["interface"] == "helpdesk") {
 //   $_SESSION["helpdeskSaved"]['content'] = $description;
 //   Html::redirect($CFG_GLPI['root_doc']."/front/helpdesk.public.php?create_ticket=1");
 } else {
-   $_SESSION["helpdeskSaved"]['content'] = $description;
-   Html::redirect($CFG_GLPI['root_doc']."/front/ticket.form.php");
-   Html::footer();
+//   $_SESSION["helpdeskSaved"]['content'] = $description;
+   $_POST['content'] = Toolbox::addslashes_deep($description);
+//   include(GLPI_ROOT."/front/ticket.form.php"); 
+//   Html::redirect($CFG_GLPI['root_doc']."/front/ticket.form.php");
+//   Html::footer();
+   
+   $_GET['id'] = "";
+
+   if (isset($_POST["add"])) {
+      $track = new Ticket();
+      $track->check(-1,'w',$_POST);
+
+      if (isset($_POST["_my_items"]) && !empty($_POST["_my_items"])) {
+         $splitter = explode("_",$_POST["_my_items"]);
+         if (count($splitter) == 2) {
+            $_POST["itemtype"] = $splitter[0];
+            $_POST["items_id"] = $splitter[1];
+         }
+      }
+      $track->add($_POST);
+      Html::back();
+   }
 }
 
 

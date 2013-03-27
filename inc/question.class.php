@@ -84,9 +84,9 @@ class PluginSurveyticketQuestion extends CommonDBTM {
       echo "</tr>";
       
       echo "<tr class='tab_bg_1'>";
-      echo "<td>Question de démarrage&nbsp;:</td>";
+      echo "<td></td>";
       echo "<td>";
-      Dropdown::showYesNo("is_start", $this->fields['is_start']);
+
       echo "</td>";
       echo "</tr>";
       
