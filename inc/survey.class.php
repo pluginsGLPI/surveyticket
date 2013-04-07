@@ -172,21 +172,25 @@ class PluginSurveyticketSurvey extends CommonDBTM {
                                                                AND `type`='".$values['type']."'
                                                                AND `is_central`='1'"));
          if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
-            $plugin_surveyticket_surveys_id = $a_tickettemplates['plugin_surveyticket_surveys_id'];
-
-         $out = str_replace("/front/ticket.form.php'><div class='spaced' id='tabsbody'>", 
-                 "/plugins/surveyticket/front/displaysurvey.form.php'><div class='spaced' id='tabsbody'>", $out);
-            $split = explode('function showDesc', $out);
-
-            echo $split[0];
-            echo "</script>";
-
             $psSurvey = new PluginSurveyticketSurvey();
-            $psSurvey->startSurvey($plugin_surveyticket_surveys_id); 
-            $split2 = explode("</script>", $split[1]);
-            unset($split2[0]);
-            unset($split2[1]);
-            echo implode("</script>", $split2);            
+            $psSurvey->getFromDB($a_tickettemplates['plugin_surveyticket_surveys_id']);
+            if ($psSurvey->fields['is_active'] == 1) {
+               $plugin_surveyticket_surveys_id = $a_tickettemplates['plugin_surveyticket_surveys_id'];
+
+               $out = str_replace("/front/ticket.form.php'><div class='spaced' id='tabsbody'>", 
+                    "/plugins/surveyticket/front/displaysurvey.form.php'><div class='spaced' id='tabsbody'>", $out);
+               $split = explode('function showDesc', $out);
+
+               echo $split[0];
+               echo "</script>";
+
+               $psSurvey = new PluginSurveyticketSurvey();
+               $psSurvey->startSurvey($plugin_surveyticket_surveys_id); 
+               $split2 = explode("</script>", $split[1]);
+               unset($split2[0]);
+               unset($split2[1]);
+               echo implode("</script>", $split2);            
+            }
          }
 
          if ($plugin_surveyticket_surveys_id == 0) {
@@ -277,17 +281,21 @@ class PluginSurveyticketSurvey extends CommonDBTM {
                                                                AND `type`='".$options['type']."'
                                                                AND `is_helpdesk`='1'"));
          if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
-            $plugin_surveyticket_surveys_id = $a_tickettemplates['plugin_surveyticket_surveys_id'];
-
-         $out = str_replace("/front/tracking.injector.php", 
-                 "/plugins/surveyticket/front/displaysurvey.form.php", $out);
-            
-            $split = explode("<td><textarea name='content' cols='80' rows='14'></textarea>", $out);
-            echo $split[0];
-            echo "<td height='120'>";
             $psSurvey = new PluginSurveyticketSurvey();
-            $psSurvey->startSurvey($plugin_surveyticket_surveys_id); 
-            echo $split[1];
+            $psSurvey->getFromDB($a_tickettemplates['plugin_surveyticket_surveys_id']);
+            if ($psSurvey->fields['is_active'] == 1) {
+               $plugin_surveyticket_surveys_id = $a_tickettemplates['plugin_surveyticket_surveys_id'];
+
+               $out = str_replace("/front/tracking.injector.php", 
+                    "/plugins/surveyticket/front/displaysurvey.form.php", $out);
+
+               $split = explode("<td><textarea name='content' cols='80' rows='14'></textarea>", $out);
+               echo $split[0];
+               echo "<td height='120'>";
+               $psSurvey = new PluginSurveyticketSurvey();
+               $psSurvey->startSurvey($plugin_surveyticket_surveys_id); 
+               echo $split[1];
+            }
          }
          if ($plugin_surveyticket_surveys_id == 0) {
             echo $out;
