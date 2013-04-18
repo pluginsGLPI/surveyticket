@@ -351,18 +351,23 @@ class PluginSurveyticketSurvey extends CommonDBTM {
 
          if ($psQuestion->fields['type'] == 'radio'
                  OR $psQuestion->fields['type'] == 'yesno') {
+            $event = array("click");
             $a_ids = array();
             for ($i=0; $i< $nb_answer; $i++) {
-               array_push($a_ids, 'question'.$questions_id."_".$i);
+               //array_push($a_ids, 'question'.$questions_id."_".$i);
+               $a_ids[] = 'question'.$questions_id."-".$i;
             }
          } else {
+            $event = array("change");
             $a_ids = 'question'.$questions_id;
          }
+         
          self::UpdateItemOnSelectEvent($a_ids,
                                        "nextquestion".$questions_id,
                                        $CFG_GLPI["root_doc"]."/plugins/surveyticket/ajax/displaysurvey.php",
-                                       $params);
-         echo "<br/><div id='nextquestion".$questions_id."'></div>";
+                                       $params,
+                                       $event);
+         echo "<br/>nextquestion".$questions_id."<div id='nextquestion".$questions_id."'></div>";
       }
       
    }
@@ -396,7 +401,7 @@ class PluginSurveyticketSurvey extends CommonDBTM {
             foreach ($a_answers as $data_answer) {
                echo "<tr class='tab_bg_1'>";
                echo "<td width='40' align='center'>";
-               echo "<input type='checkbox' name='question".$questions_id."[]' id='question".$questions_id."_".$i."' 
+               echo "<input type='checkbox' name='question".$questions_id."[]' id='question".$questions_id."-".$i."' 
                   value='".$data_answer['id']."' />";
                echo "</td>";
                echo "<td>";
@@ -414,11 +419,12 @@ class PluginSurveyticketSurvey extends CommonDBTM {
             foreach ($a_answers as $data_answer) {
                echo "<tr class='tab_bg_1'>";
                echo "<td width='40' align='center'>";
-               echo "<input type='radio' name='question".$questions_id."' id='question".$questions_id."_".$i."' 
+               echo "<input type='radio' name='question".$questions_id."' id='question".$questions_id."-".$i."' 
                   value='".$data_answer['id']."' />";
                echo "</td>";
                echo "<td>";
                echo $psAnswer->getAnswer($data_answer);
+               echo "(".$data_answer['id']." => ".$data_answer['link'];
                echo "</td>";
                $this->displayAnswertype($data_answer['answertype'], "text-".$questions_id."-".$data_answer['id']);
                echo "</tr>";
@@ -478,9 +484,9 @@ class PluginSurveyticketSurvey extends CommonDBTM {
    
    
    
-   static function updateItemOnSelectEvent($toobserve, $toupdate, $url, $parameters=array()) {
+   static function updateItemOnSelectEvent($toobserve, $toupdate, $url, $parameters=array(),$events) {
 
-      self::updateItemOnEvent($toobserve, $toupdate, $url, $parameters, array("change"));
+      self::updateItemOnEvent($toobserve, $toupdate, $url, $parameters, $events);
    }
    
    static function updateItemOnEvent($toobserve, $toupdate, $url, $parameters=array(),
