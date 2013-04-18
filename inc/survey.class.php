@@ -147,11 +147,11 @@ class PluginSurveyticketSurvey extends CommonDBTM {
          if ($categ->getFromDB($values['itilcategories_id'])) {
             $field = '';
             switch ($values['type']) {
-               case self::INCIDENT_TYPE :
+               case Ticket::INCIDENT_TYPE :
                   $field = 'tickettemplates_id_incident';
                   break;
 
-               case self::DEMAND_TYPE :
+               case Ticket::DEMAND_TYPE :
                   $field = 'tickettemplates_id_demand';
                   break;
             }
@@ -255,11 +255,11 @@ class PluginSurveyticketSurvey extends CommonDBTM {
          $categ = new ITILCategory();
          if ($categ->getFromDB($options['itilcategories_id'])) {
             switch ($options['type']) {
-               case self::INCIDENT_TYPE :
+               case Ticket::INCIDENT_TYPE :
                   $field = 'tickettemplates_id_incident';
                   break;
 
-               case self::DEMAND_TYPE :
+               case Ticket::DEMAND_TYPE :
                   $field = 'tickettemplates_id_demand';
                   break;
             }

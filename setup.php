@@ -101,6 +101,10 @@ function plugin_surveyticket_on_exit() {
 
    $a_match = array();
    preg_match("/select name='type' id='dropdown_type(?:\d+)' (?:.*)option value\='(\d)' selected /", $out, $a_match);
+   if (!isset($a_match[1])) {
+      echo $out;
+      return;
+   }
    $type = $a_match[1];
    
    include_once 'inc/tickettemplate.class.php';
