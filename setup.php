@@ -21,9 +21,12 @@ function plugin_init_surveyticket() {
             if ((strpos($_SERVER['PHP_SELF'],"ticket.form.php") 
                         && !isset($_GET['id']))
                  || (strpos($_SERVER['PHP_SELF'],"helpdesk.public.php")
-                        && isset($_GET['create_ticket']))) {
+                        && isset($_GET['create_ticket']))
+                 || (strpos($_SERVER['PHP_SELF'],"tracking.injector.php"))) {
                
-               register_shutdown_function('plugin_surveyticket_on_exit');
+//               register_shutdown_function('plugin_surveyticket_on_exit');
+               $profile_User = new Profile_User();
+               register_shutdown_function(array('Plugin', 'doOneHook'), 'surveyticket', 'on_exit');
                if (isset($_SESSION["helpdeskSaved"])) {
                   $_SESSION["plugin_surveyticket_helpdeskSaved"] = $_SESSION["helpdeskSaved"];
                }
@@ -90,34 +93,34 @@ function plugin_surveyticket_haveTypeRight($type,$right) {
 }
 
 
-function plugin_surveyticket_on_exit() {
-   global $DB;
-   
-   $DB->connect();
-   
-   $out = ob_get_contents();
-   ob_end_clean();
-//echo $out;
-
-   $a_match = array();
-   preg_match("/select name='type' id='dropdown_type(?:\d+)' (?:.*)option value\='(\d)' selected /", $out, $a_match);
-   if (!isset($a_match[1])) {
-      echo $out;
-      return;
-   }
-   $type = $a_match[1];
-   
-   include_once 'inc/tickettemplate.class.php';
-   include_once 'inc/survey.class.php';
-   include_once 'inc/surveyquestion.class.php';
-   include_once 'inc/question.class.php';
-   include_once 'inc/answer.class.php';
-   
-   if ($_SESSION['glpiactiveprofile']['interface'] == 'central') {
-      PluginSurveyticketSurvey::getCentral($out);
-   } else {
-      PluginSurveyticketSurvey::getHelpdesk($out);
-   }   
-}
+//function plugin_surveyticket_on_exit() {
+//   global $DB;
+//   
+//   $DB->connect();
+//   
+//   $out = ob_get_contents();
+//   ob_end_clean();
+////echo $out;
+//
+//   $a_match = array();
+//   preg_match("/select name='type' id='dropdown_type(?:\d+)' (?:.*)option value\='(\d)' selected /", $out, $a_match);
+//   if (!isset($a_match[1])) {
+//      echo $out;
+//      return;
+//   }
+//   $type = $a_match[1];
+//   
+//   include_once 'inc/tickettemplate.class.php';
+//   include_once 'inc/survey.class.php';
+//   include_once 'inc/surveyquestion.class.php';
+//   include_once 'inc/question.class.php';
+//   include_once 'inc/answer.class.php';
+//   
+//   if ($_SESSION['glpiactiveprofile']['interface'] == 'central') {
+//      PluginSurveyticketSurvey::getCentral($out);
+//   } else {
+//      PluginSurveyticketSurvey::getHelpdesk($out);
+//   }   
+//}
 
 ?>

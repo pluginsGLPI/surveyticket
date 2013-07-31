@@ -93,8 +93,6 @@ class PluginSurveyticketSurvey extends CommonDBTM {
 
    static function getCentral($out) {
       
-
-
       $ticket = new Ticket();
 
       $default_values = Ticket::getDefaultValues();
@@ -124,14 +122,15 @@ class PluginSurveyticketSurvey extends CommonDBTM {
       }
       $ticket->countentitiesforuser = count($ticket->userentities);
 
-      if ($ticket->countentitiesforuser>0
-          && !in_array($ticket->fields["entities_id"], $ticket->userentities)) {
-         // If entity is not in the list of user's entities,
-         // then use as default value the first value of the user's entites list
-         $this->fields["entities_id"] = $ticket->userentities[0];
-         // Pass to values
-         $values['entities_id'] = $ticket->userentities[0];
-      }
+//      if ($ticket->countentitiesforuser > 0
+//          && (!isset($ticket->fields["entities_id"])
+//            || !in_array($ticket->fields["entities_id"], $ticket->userentities))) {
+//         // If entity is not in the list of user's entities,
+//         // then use as default value the first value of the user's entites list
+////         $this->fields["entities_id"] = $ticket->userentities[0];
+//         // Pass to values
+//         $values['entities_id'] = $ticket->userentities[0];
+//      }
 
       // Load ticket template if available :
       $tt = new TicketTemplate();
@@ -254,6 +253,7 @@ class PluginSurveyticketSurvey extends CommonDBTM {
       if ($options['type'] && $options['itilcategories_id']) {
          $categ = new ITILCategory();
          if ($categ->getFromDB($options['itilcategories_id'])) {
+            $field = '';
             switch ($options['type']) {
                case Ticket::INCIDENT_TYPE :
                   $field = 'tickettemplates_id_incident';
@@ -270,7 +270,7 @@ class PluginSurveyticketSurvey extends CommonDBTM {
             }
          }
       }
-      
+
       if (isset($tt->fields['id'])) {
 
          $psTicketTemplate = new PluginSurveyticketTicketTemplate();
@@ -280,7 +280,9 @@ class PluginSurveyticketSurvey extends CommonDBTM {
          $a_tickettemplates = current($psTicketTemplate->find("`tickettemplates_id`='".$tt->fields['id']."'
                                                                AND `type`='".$options['type']."'
                                                                AND `is_helpdesk`='1'"));
+         
          if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
+
             $psSurvey = new PluginSurveyticketSurvey();
             $psSurvey->getFromDB($a_tickettemplates['plugin_surveyticket_surveys_id']);
             if ($psSurvey->fields['is_active'] == 1) {
@@ -367,7 +369,7 @@ class PluginSurveyticketSurvey extends CommonDBTM {
                                        $CFG_GLPI["root_doc"]."/plugins/surveyticket/ajax/displaysurvey.php",
                                        $params,
                                        $event);
-         echo "<br/>nextquestion".$questions_id."<div id='nextquestion".$questions_id."'></div>";
+         echo "<br/><div id='nextquestion".$questions_id."'></div>";
       }
       
    }
@@ -557,7 +559,7 @@ class PluginSurveyticketSurvey extends CommonDBTM {
       echo $split[0];
       echo "<td height='120'>";
       $psSurvey = new PluginSurveyticketSurvey();
-      $psSurvey->startSurvey(); 
+//      $psSurvey->startSurvey(); 
       echo $split[1];
       
       

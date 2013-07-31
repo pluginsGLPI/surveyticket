@@ -13,8 +13,6 @@ Session::checkLoginUser();
 //             "surveyticket", "displaysurvey");
 //}
 
-
-
 $psQuestion = new PluginSurveyticketQuestion();
 $psAnswer = new PluginSurveyticketAnswer();
 //print_r($_POST);exit;
@@ -130,9 +128,7 @@ if ($_SESSION["glpiactiveprofile"]["interface"] == "helpdesk") {
 //   $_SESSION["helpdeskSaved"]['content'] = $description;
    $_POST['content'] = Toolbox::addslashes_deep($description);
 //   include(GLPI_ROOT."/front/ticket.form.php"); 
-//   Html::redirect($CFG_GLPI['root_doc']."/front/ticket.form.php");
-//   Html::footer();
-   
+
    $_GET['id'] = "";
 
    if (isset($_POST["add"])) {
@@ -148,6 +144,10 @@ if ($_SESSION["glpiactiveprofile"]["interface"] == "helpdesk") {
       }
       $track->add($_POST);
       Html::back();
+   } else {
+      $_SESSION["helpdeskSaved"] = $_POST;
+      Html::redirect($CFG_GLPI['root_doc']."/front/ticket.form.php");
+      Html::footer();
    }
 }
 

@@ -39,4 +39,34 @@ function plugin_surveyticket_uninstall() {
 }
 
 
+function plugin_surveyticket_on_exit() {
+   global $DB;
+
+   $DB->connect();
+   
+   $out = ob_get_contents();
+   ob_end_clean();
+//echo $out;
+
+   $a_match = array();
+   preg_match("/select name='type' id='dropdown_type(?:\d+)' (?:.*)option value\='(\d)' selected /", $out, $a_match);
+   if (!isset($a_match[1])) {
+      echo $out;
+      return;
+   }
+   $type = $a_match[1];
+
+   include_once 'inc/tickettemplate.class.php';
+   include_once 'inc/survey.class.php';
+   include_once 'inc/surveyquestion.class.php';
+   include_once 'inc/question.class.php';
+   include_once 'inc/answer.class.php';
+   
+   if ($_SESSION['glpiactiveprofile']['interface'] == 'central') {
+      PluginSurveyticketSurvey::getCentral($out);
+   } else {
+      PluginSurveyticketSurvey::getHelpdesk($out);
+   }   
+}
+
 ?>
