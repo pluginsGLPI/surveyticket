@@ -1,7 +1,44 @@
 <?php
 
+/*
+   ------------------------------------------------------------------------
+   Surveyticket
+   Copyright (C) 2012-2013 by the Surveyticket plugin Development Team.
 
-define ("PLUGIN_SURVEYTICKET_VERSION","1.0.0");
+   https://forge.indepnet.net/projects/surveyticket
+   ------------------------------------------------------------------------
+
+   LICENSE
+
+   This file is part of Surveyticket plugin project.
+
+   Surveyticket plugin is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Affero General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Surveyticket plugin is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+   GNU Affero General Public License for more details.
+
+   You should have received a copy of the GNU Affero General Public License
+   along with Surveyticket plugin. If not, see <http://www.gnu.org/licenses/>.
+
+   ------------------------------------------------------------------------
+
+   @package   Surveyticket plugin
+   @author    David Durieux
+   @copyright Copyright (c) 2012-2013 Surveyticket plugin team
+   @license   AGPL License 3.0 or (at your option) any later version
+              http://www.gnu.org/licenses/agpl-3.0-standalone.html
+   @link      https://forge.indepnet.net/projects/surveyticket
+   @since     2012
+
+   ------------------------------------------------------------------------
+ */
+
+define ("PLUGIN_SURVEYTICKET_VERSION","0.84+1.0");
 
 // Init the hooks of surveyticket
 function plugin_init_surveyticket() {
@@ -69,19 +106,32 @@ function plugin_version_surveyticket() {
                 'version'        => PLUGIN_SURVEYTICKET_VERSION,
                 'author'         =>'<a href="mailto:d.durieux@siprossii.com">David DURIEUX</a>',
                 'homepage'       =>'',
-                'minGlpiVersion' => '0.83'
+                'minGlpiVersion' => '0.84'
    );
 }
 
 
 // Optional : check prerequisites before install : may print errors or add to message after redirect
 function plugin_surveyticket_check_prerequisites() {
-   global $LANG;
-   if (GLPI_VERSION >= '0.83') {
-      return true;
-   } else {
-      echo "error";
+   global $DB;
+
+   if (!isset($_SESSION['glpi_plugins'])) {
+      $_SESSION['glpi_plugins'] = array();
    }
+
+   if (version_compare(GLPI_VERSION, '0.84', 'lt') || version_compare(GLPI_VERSION, '0.85', 'ge')) {
+      echo __('Your GLPI version not compatible, require 0.84', 'surveyticket');
+      return FALSE;
+   }
+   
+
+//   $plugin = new Plugin();
+//   if ($plugin->isActivated("surveyticket")
+//           && !TableExists("glpi_plugin_surveyticket_configs")) {
+//      return FALSE;
+//   }
+
+   return TRUE;
 }
 
 function plugin_surveyticket_check_config() {
@@ -91,36 +141,5 @@ function plugin_surveyticket_check_config() {
 function plugin_surveyticket_haveTypeRight($type,$right) {
    return true;
 }
-
-
-//function plugin_surveyticket_on_exit() {
-//   global $DB;
-//   
-//   $DB->connect();
-//   
-//   $out = ob_get_contents();
-//   ob_end_clean();
-////echo $out;
-//
-//   $a_match = array();
-//   preg_match("/select name='type' id='dropdown_type(?:\d+)' (?:.*)option value\='(\d)' selected /", $out, $a_match);
-//   if (!isset($a_match[1])) {
-//      echo $out;
-//      return;
-//   }
-//   $type = $a_match[1];
-//   
-//   include_once 'inc/tickettemplate.class.php';
-//   include_once 'inc/survey.class.php';
-//   include_once 'inc/surveyquestion.class.php';
-//   include_once 'inc/question.class.php';
-//   include_once 'inc/answer.class.php';
-//   
-//   if ($_SESSION['glpiactiveprofile']['interface'] == 'central') {
-//      PluginSurveyticketSurvey::getCentral($out);
-//   } else {
-//      PluginSurveyticketSurvey::getHelpdesk($out);
-//   }   
-//}
 
 ?>
