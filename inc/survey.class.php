@@ -90,7 +90,7 @@ class PluginSurveyticketSurvey extends CommonDBTM {
          $this->getEmpty();
       }
       
-      $this->initForm($ID, $options);
+      $this->initForm($items_id, $options);
       $this->showTabs($options);
       $this->showFormHeader($options);
 
