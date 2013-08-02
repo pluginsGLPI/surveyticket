@@ -53,7 +53,7 @@ class PluginSurveyticketQuestion extends CommonDBTM {
    *
    **/
    static function getTypeName($nb = 0) {
-      return __('Question', 'surveyticket');
+      return _n('Question', 'Questions', $nb, 'surveyticket');
    }
 
 

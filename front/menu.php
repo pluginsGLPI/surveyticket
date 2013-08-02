@@ -54,14 +54,14 @@ echo "</tr>";
 echo "<tr class='tab_bg_1'>";
 echo "<td>";
 echo "<a href='".$CFG_GLPI['root_doc']."/plugins/surveyticket/front/survey.php'>".
-        __('Surveys', 'surveyticket')."</a>";
+        _n('Survey', 'Surveys', 2, 'surveyticket')."</a>";
 echo "</td>";
 echo "</tr>";
 
 echo "<tr class='tab_bg_1'>";
 echo "<td>";
 echo "<a href='".$CFG_GLPI['root_doc']."/plugins/surveyticket/front/question.php'>".
-        __('Questions', 'surveyticket')."</a>";
+        _n('Question', 'Questions', 2, 'surveyticket')."</a>";
 echo "</td>";
 echo "</tr>";
 

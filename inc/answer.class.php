@@ -53,7 +53,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
    *
    **/
    static function getTypeName($nb = 0) {
-      return __('Answer', 'surveyticket');
+      return _n('Answer', 'Answers', $nb, 'surveyticket');
    }
 
 
@@ -118,7 +118,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       
       echo "<tr class='tab_bg_1'>";
       echo "<th colspan='4'>";
-      echo __('Answer', 'Answers', 2, 'surveyticket')." ";
+      echo _n('Answer', 'Answers', 2, 'surveyticket')." ";
       echo "<a href='".Toolbox::getItemTypeFormURL('PluginSurveyticketAnswer')."?add=1'>
          <img src='".$CFG_GLPI["root_doc"]."/pics/add_dropdown.png'/></a>";
       echo "</th>";
@@ -189,7 +189,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       $this->showFormHeader($options);
 
       echo "<tr class='tab_bg_1'>";
-      echo "<td>".__('Answer', 'surveyticket')."&nbsp;:</td>";
+      echo "<td>"._n('Answer', 'Answers', 1, 'surveyticket')."&nbsp;:</td>";
       echo "<td colspan='3'>";
       $psQuestion = new PluginSurveyticketQuestion();
       $psQuestion->getFromDB($this->fields['plugin_surveyticket_questions_id']);

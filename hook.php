@@ -103,10 +103,10 @@ function plugin_surveyticket_post_init() {
                $psQuestion->getFromDB(str_replace("question", "", $question));
                if (is_array($answer)) {
                   // Checkbox
-                  $description .= __('Question', 'surveyticket')." : ".$psQuestion->fields['name']."\n";
+                  $description .= _n('Question', 'Questions', 1, 'surveyticket')." : ".$psQuestion->fields['name']."\n";
                   foreach ($answer as $answers_id) {
                      if ($psAnswer->getFromDB($answers_id)) {               
-                        $description .= __('Answer', 'surveyticket')." : ".$psAnswer->fields['name']."\n";
+                        $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$psAnswer->fields['name']."\n";
                         $qid = str_replace("question", "", $question);
                         if (isset($_POST["text-".$qid."-".$answers_id])
                                 AND $_POST["text-".$qid."-".$answers_id] != '') {
@@ -124,11 +124,11 @@ function plugin_surveyticket_post_init() {
                      $real = 1;
                   }
                   if ($psAnswer->getFromDB($answer)) {
-                     $description .= __('Question', 'surveyticket')." : ".$psQuestion->fields['name']."\n";
+                     $description .= _n('Question', 'Questions', 1, 'surveyticket')." : ".$psQuestion->fields['name']."\n";
                      if ($real == 1) {
-                        $description .= __('Answer', 'surveyticket')." : ".$realanswer."\n";
+                        $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$realanswer."\n";
                      } else {
-                        $description .= __('Answer', 'surveyticket')." : ".$psAnswer->fields['name']."\n";
+                        $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$psAnswer->fields['name']."\n";
                      }
                      $qid = str_replace("question", "", $question);
                      if (isset($_POST["text-".$qid."-".$answer])

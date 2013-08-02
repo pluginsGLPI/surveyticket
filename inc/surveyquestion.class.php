@@ -45,7 +45,7 @@ if (!defined('GLPI_ROOT')) {
 class PluginSurveyticketSurveyQuestion extends CommonDBTM {
    
    static function getTypeName($nb = 0) {
-      return __('Question', 'Questions', $nb, 'surveyticket');
+      return _n('Question', 'Questions', $nb, 'surveyticket');
    }
 
 
@@ -64,7 +64,7 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
 
       if ($item->getType()=='PluginSurveyticketSurvey') {
-         return __('Question', 'Questions', 2, 'surveyticket');
+         return _n('Question', 'Questions', 2, 'surveyticket');
       }
       return '';
    }
@@ -101,7 +101,7 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       echo "<table class='tab_cadre' width='700'>";
       
       echo "<tr class='tab_bg_1'>";
-      echo "<td>".__('Question', 'Questions', 1, 'surveyticket')."&nbsp;:</td>";
+      echo "<td>"._n('Question', 'Questions', 1, 'surveyticket')."&nbsp;:</td>";
       echo "<td>";
       $a_questions = $this->find("`plugin_surveyticket_surveys_id`='".$items_id."'", "`order`");
       $a_used = array();
@@ -139,7 +139,7 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       
       echo "<tr class='tab_bg_1'>";
       echo "<th>";
-      echo __('Question', 'surveyticket');
+      echo _n('Question', 'Questions', 1, 'surveyticket');
       echo "</th>";
       echo "<th>";
       echo __('Type');

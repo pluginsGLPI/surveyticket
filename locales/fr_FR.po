@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI_surveyticket\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-08-01 22:17+0200\n"
-"PO-Revision-Date: 2013-08-01 20:32+0000\n"
+"POT-Creation-Date: 2013-08-02 09:19+0200\n"
+"PO-Revision-Date: 2013-08-02 07:24+0000\n"
 "Last-Translator: David Durieux <d.durieux@siprossii.com>\n"
 "Language-Team: French (France) (http://www.transifex.com/projects/p/glpi_surveyticket/language/fr_FR/)\n"
 "MIME-Version: 1.0\n"
@@ -18,21 +18,30 @@ msgstr ""
 "Language: fr_FR\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
+#: hook.php:106 hook.php:127 front/menu.php:64 inc/question.class.php:56
+#: inc/surveyquestion.class.php:48 inc/surveyquestion.class.php:67
+#: inc/surveyquestion.class.php:104 inc/surveyquestion.class.php:142
+msgid "Question"
+msgid_plural "Questions"
+msgstr[0] ""
+msgstr[1] "Question"
+
+#: hook.php:109 hook.php:129 hook.php:131 inc/answer.class.php:56
+#: inc/answer.class.php:121 inc/answer.class.php:192
+msgid "Answer"
+msgid_plural "Answers"
+msgstr[0] ""
+msgstr[1] "Réponse"
+
 #: setup.php:113
 msgid "Your GLPI version not compatible, require 0.84"
 msgstr "Votre version de GLPI n'est pas compatible, la version 0.84 est requise"
 
-#: front/menu.php:57
-msgid "Surveys"
-msgstr "Questionnaires"
-
-#: front/menu.php:64
-msgid "Questions"
-msgstr "Questions"
-
-#: inc/answer.class.php:56 inc/answer.class.php:192
-msgid "Answer"
-msgstr "Réponse"
+#: front/menu.php:57 inc/survey.class.php:54
+msgid "Survey"
+msgid_plural "Surveys"
+msgstr[0] "Questionnaire"
+msgstr[1] "Questionnaires"
 
 #: inc/answer.class.php:135 inc/answer.class.php:217
 msgid "+ field"
@@ -50,10 +59,6 @@ msgstr "Texte court"
 msgid "Linked to question"
 msgstr "Lié à la question"
 
-#: inc/question.class.php:56 inc/surveyquestion.class.php:142
-msgid "Question"
-msgstr "Question"
-
 #: inc/question.class.php:122
 msgid "dropdown"
 msgstr "Liste déroulante"
@@ -65,9 +70,3 @@ msgstr "case à cocher"
 #: inc/question.class.php:124
 msgid "radio"
 msgstr "bouton radio"
-
-#: inc/survey.class.php:54
-msgid "Survey"
-msgid_plural "Surveys"
-msgstr[0] "Questionnaire"
-msgstr[1] "Questionnaires"
