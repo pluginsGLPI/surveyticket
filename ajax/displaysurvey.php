@@ -38,10 +38,10 @@
    ------------------------------------------------------------------------
  */
 
-define('GLPI_ROOT','../../..');
-include (GLPI_ROOT."/inc/includes.php");
-header("Content-Type: text/html; charset=UTF-8");
+include ("../../../inc/includes.php");
 
+header("Content-Type: text/html; charset=UTF-8");
+//print_r($_POST);
 $psSurvey = new PluginSurveyticketSurvey();
 $psAnswer = new PluginSurveyticketAnswer();
 if ($psAnswer->getFromDB($_POST[$_POST['myname']])) {

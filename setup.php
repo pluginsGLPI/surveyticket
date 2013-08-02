@@ -42,61 +42,51 @@ define ("PLUGIN_SURVEYTICKET_VERSION","0.84+1.0");
 
 // Init the hooks of surveyticket
 function plugin_init_surveyticket() {
-   global $PLUGIN_HOOKS,$CFG_GLPI,$LANG;
+   global $PLUGIN_HOOKS,$CFG_GLPI;
 
    $PLUGIN_HOOKS['csrf_compliant']['surveyticket'] = true;
    
-      if (isset($_SESSION["glpiID"])) {
+   if (isset($_SESSION["glpiID"])) {
 
-         $plugin = new Plugin();
-         if ($plugin->isActivated('surveyticket')) {
-//            if ($_SESSION["glpiactiveprofile"]["interface"] == "helpdesk") {
-//               if (isset($_GET['create_ticket'])) {
-//                  Html::redirect($CFG_GLPI['root_doc']."/plugins/surveyticket/front/displaysurvey.php");
-//                  exit;
-//               }
-            if ((strpos($_SERVER['PHP_SELF'],"ticket.form.php") 
-                        && !isset($_GET['id']))
-                 || (strpos($_SERVER['PHP_SELF'],"helpdesk.public.php")
-                        && isset($_GET['create_ticket']))
-                 || (strpos($_SERVER['PHP_SELF'],"tracking.injector.php"))) {
-               
-//               register_shutdown_function('plugin_surveyticket_on_exit');
-               $profile_User = new Profile_User();
-               register_shutdown_function(array('Plugin', 'doOneHook'), 'surveyticket', 'on_exit');
-               if (isset($_SESSION["helpdeskSaved"])) {
-                  $_SESSION["plugin_surveyticket_helpdeskSaved"] = $_SESSION["helpdeskSaved"];
-               }
-               ob_start();
-            }
-            
+      $PLUGIN_HOOKS['change_profile']['surveyticket'] = array('PluginSurveyticketProfile','changeprofile');
+      PluginSurveyticketProfile::changeprofile();
+
+      $plugin = new Plugin();
+      if ($plugin->isActivated('surveyticket')) {
+
+         Plugin::registerClass('PluginSurveyticketProfile',
+              array('addtabon' => array('Profile')));
+
+         if (PluginSurveyticketProfile::haveRight("config", 'r')) {
             $PLUGIN_HOOKS['menu_entry']['surveyticket'] = true;
-//            $PLUGIN_HOOKS['helpdesk_menu_entry']['surveyticket'] = true;
-            
+
             $PLUGIN_HOOKS['config_page']['surveyticket'] = 'front/menu.php';
-         }
-         
-         // Icons add, search...
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['add']['questions'] = 'front/question.form.php?add=1';
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['search']['questions'] = 'front/question.php';
-         
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['add']['survey'] = 'front/survey.form.php?add=1';
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['search']['survey'] = 'front/survey.php';
-
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['add']['answers'] = 'front/answer.form.php?add=1';
-         
-         
-         // Fil ariane
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['questions']['title'] = "Questions";
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['questions']['page']  = '/plugins/surveyticket/front/question.php';
-
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['answers']['title'] = "Answers";
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['answers']['page']  = '/plugins/surveyticket/front/answer.php';
-         
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['survey']['title'] = "Surveys";
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['survey']['page']  = '/plugins/surveyticket/front/survey.php';
+         }         
+         $PLUGIN_HOOKS['post_init']['surveyticket'] = 'plugin_surveyticket_post_init';
 
       }
+
+      // Icons add, search...
+      $PLUGIN_HOOKS['submenu_entry']['surveyticket']['add']['questions'] = 'front/question.form.php?add=1';
+      $PLUGIN_HOOKS['submenu_entry']['surveyticket']['search']['questions'] = 'front/question.php';
+
+      $PLUGIN_HOOKS['submenu_entry']['surveyticket']['add']['survey'] = 'front/survey.form.php?add=1';
+      $PLUGIN_HOOKS['submenu_entry']['surveyticket']['search']['survey'] = 'front/survey.php';
+
+      $PLUGIN_HOOKS['submenu_entry']['surveyticket']['add']['answers'] = 'front/answer.form.php?add=1';
+
+
+      // Fil ariane
+      $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['questions']['title'] = "Questions";
+      $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['questions']['page']  = '/plugins/surveyticket/front/question.php';
+
+      $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['answers']['title'] = "Answers";
+//         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['answers']['page']  = '/plugins/surveyticket/front/answer.php';
+
+      $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['survey']['title'] = "Surveys";
+      $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['survey']['page']  = '/plugins/surveyticket/front/survey.php';
+
+   }
 }
 
 // Name and Version of the plugin
@@ -123,13 +113,6 @@ function plugin_surveyticket_check_prerequisites() {
       echo __('Your GLPI version not compatible, require 0.84', 'surveyticket');
       return FALSE;
    }
-   
-
-//   $plugin = new Plugin();
-//   if ($plugin->isActivated("surveyticket")
-//           && !TableExists("glpi_plugin_surveyticket_configs")) {
-//      return FALSE;
-//   }
 
    return TRUE;
 }

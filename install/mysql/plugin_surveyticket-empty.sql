@@ -68,3 +68,14 @@ CREATE TABLE `glpi_plugin_surveyticket_tickettemplates` (
    PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
+
+
+DROP TABLE IF EXISTS `glpi_plugin_surveyticket_profiles`;
+
+CREATE TABLE `glpi_plugin_surveyticket_profiles` (
+  `profiles_id` int(11) NOT NULL DEFAULT '0',
+  `config` char(1) COLLATE utf8_unicode_ci DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT INTO `glpi_displaypreferences` (`id`, `itemtype`, `num`, `rank`, `users_id`)
+   VALUES (NULL,'PluginSurveyticketQuestion', '2', '1', '0');

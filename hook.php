@@ -39,20 +39,27 @@
  */
 
 function plugin_surveyticket_install() {
-   global $DB, $LANG;
+   global $DB;
 
-   $DB_file = GLPI_ROOT ."/plugins/surveyticket/install/mysql/plugin_surveyticket-"
-              .PLUGIN_SURVEYTICKET_VERSION."-empty.sql";
-   $DBf_handle = fopen($DB_file, "rt");
-   $sql_query = fread($DBf_handle, filesize($DB_file));
-   fclose($DBf_handle);
-   foreach ( explode(";\n", "$sql_query") as $sql_line) {
-      if (Toolbox::get_magic_quotes_runtime()) $sql_line=Toolbox::stripslashes_deep($sql_line);
-      if (!empty($sql_line)) $DB->query($sql_line);
+   if (!TableExists('glpi_plugin_surveyticket_questions')) {
+      $DB_file = GLPI_ROOT ."/plugins/surveyticket/install/mysql/plugin_surveyticket-empty.sql";
+      $DBf_handle = fopen($DB_file, "rt");
+      $sql_query = fread($DBf_handle, filesize($DB_file));
+      fclose($DBf_handle);
+      foreach ( explode(";\n", "$sql_query") as $sql_line) {
+         if (Toolbox::get_magic_quotes_runtime()) $sql_line=Toolbox::stripslashes_deep($sql_line);
+         if (!empty($sql_line)) $DB->query($sql_line);
+      }
+
+      include (GLPI_ROOT . "/plugins/surveyticket/inc/profile.class.php");
+      $psProfile = new PluginSurveyticketProfile();
+      $psProfile->initProfile();
    }
    
    return true;
 }
+
+
 
 // Uninstall process for plugin : need to return true if succeeded
 function plugin_surveyticket_uninstall() {
@@ -76,34 +83,85 @@ function plugin_surveyticket_uninstall() {
 }
 
 
-function plugin_surveyticket_on_exit() {
-   global $DB;
 
-   $DB->connect();
-   
-   $out = ob_get_contents();
-   ob_end_clean();
-//echo $out;
+function plugin_surveyticket_post_init() {
 
-   $a_match = array();
-   preg_match("/select name='type' id='dropdown_type(?:\d+)' (?:.*)option value\='(\d)' selected /", $out, $a_match);
-   if (!isset($a_match[1])) {
-      echo $out;
-      return;
+   if ((strpos($_SERVER['PHP_SELF'],"ticket.form.php") 
+            && !isset($_GET['id']))
+     || (strpos($_SERVER['PHP_SELF'],"helpdesk.public.php")
+            && isset($_GET['create_ticket']))
+     || (strpos($_SERVER['PHP_SELF'],"tracking.injector.php"))) {
+
+      if (isset($_POST)) {
+         $psQuestion = new PluginSurveyticketQuestion();
+         $psAnswer = new PluginSurveyticketAnswer();
+         //print_r($_POST);exit;
+         $description = '';
+         foreach ($_POST as $question=>$answer) {
+            if (strstr($question, "question")
+                    && !strstr($question, "realquestion")) {
+               $psQuestion->getFromDB(str_replace("question", "", $question));
+               if (is_array($answer)) {
+                  // Checkbox
+                  $description .= __('Question', 'surveyticket')." : ".$psQuestion->fields['name']."\n";
+                  foreach ($answer as $answers_id) {
+                     if ($psAnswer->getFromDB($answers_id)) {               
+                        $description .= __('Answer', 'surveyticket')." : ".$psAnswer->fields['name']."\n";
+                        $qid = str_replace("question", "", $question);
+                        if (isset($_POST["text-".$qid."-".$answers_id])
+                                AND $_POST["text-".$qid."-".$answers_id] != '') {
+                           $description .= "Texte : ".$_POST["text-".$qid."-".$answers_id]."\n";
+                        }
+                     }
+                  }
+                  $description .= "\n";
+                  unset($_POST[$question]);
+               } else {
+                  $real = 0;
+                  if (isset($_POST['realquestion'.(str_replace("question", "", $question))])) {
+                     $realanswer = $answer;
+                     $answer = $_POST['realquestion'.str_replace("question", "", $question)];
+                     $real = 1;
+                  }
+                  if ($psAnswer->getFromDB($answer)) {
+                     $description .= __('Question', 'surveyticket')." : ".$psQuestion->fields['name']."\n";
+                     if ($real == 1) {
+                        $description .= __('Answer', 'surveyticket')." : ".$realanswer."\n";
+                     } else {
+                        $description .= __('Answer', 'surveyticket')." : ".$psAnswer->fields['name']."\n";
+                     }
+                     $qid = str_replace("question", "", $question);
+                     if (isset($_POST["text-".$qid."-".$answer])
+                             AND $_POST["text-".$qid."-".$answer] != '') {
+                        $description .= "Texte : ".$_POST["text-".$qid."-".$answer]."\n";
+                     }
+                     $description .= "\n";
+                     unset($_POST[$question]);
+                  }
+               }
+            }
+         }
+         if ($description != '') {
+            $_POST['content'] = addslashes($description);
+         }
+      }
+      if (!isset($_POST['add'])) {
+         if (strpos($_SERVER['PHP_SELF'],"ticket.form.php")) {
+            Html::header(__('New ticket'),'',"maintain","ticket");
+
+            PluginSurveyticketSurvey::getCentral();
+            Html::footer();
+            exit;            
+         } else if (strpos($_SERVER['PHP_SELF'],"helpdesk.public.php")
+                 || (strpos($_SERVER['PHP_SELF'],"tracking.injector.php"))) {
+
+            Html::helpHeader(__('Simplified interface'), '', $_SESSION["glpiname"]);
+            PluginSurveyticketSurvey::getHelpdesk();
+            Html::helpFooter();
+            exit;
+         }
+      }
    }
-   $type = $a_match[1];
-
-   include_once 'inc/tickettemplate.class.php';
-   include_once 'inc/survey.class.php';
-   include_once 'inc/surveyquestion.class.php';
-   include_once 'inc/question.class.php';
-   include_once 'inc/answer.class.php';
-   
-   if ($_SESSION['glpiactiveprofile']['interface'] == 'central') {
-      PluginSurveyticketSurvey::getCentral($out);
-   } else {
-      PluginSurveyticketSurvey::getHelpdesk($out);
-   }   
 }
 
 ?>

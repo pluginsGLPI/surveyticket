@@ -38,11 +38,7 @@
    ------------------------------------------------------------------------
  */
 
-if (!defined('GLPI_ROOT')) {
-   define('GLPI_ROOT', '../../..');
-}
-
-include (GLPI_ROOT."/inc/includes.php");
+include ("../../../inc/includes.php");
 
 Html::header("survey", $_SERVER["PHP_SELF"], "plugins", 
              "surveyticket", "menu");
@@ -57,13 +53,15 @@ echo "</tr>";
 
 echo "<tr class='tab_bg_1'>";
 echo "<td>";
-echo "<a href='".$CFG_GLPI['root_doc']."/plugins/surveyticket/front/survey.php'>Questionnaires</a>";
+echo "<a href='".$CFG_GLPI['root_doc']."/plugins/surveyticket/front/survey.php'>".
+        __('Surveys', 'surveyticket')."</a>";
 echo "</td>";
 echo "</tr>";
 
 echo "<tr class='tab_bg_1'>";
 echo "<td>";
-echo "<a href='".$CFG_GLPI['root_doc']."/plugins/surveyticket/front/question.php'>Questions</a>";
+echo "<a href='".$CFG_GLPI['root_doc']."/plugins/surveyticket/front/question.php'>".
+        __('Questions', 'surveyticket')."</a>";
 echo "</td>";
 echo "</tr>";
 

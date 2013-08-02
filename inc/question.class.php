@@ -52,45 +52,84 @@ class PluginSurveyticketQuestion extends CommonDBTM {
    * @return text name of this type by language of the user connected
    *
    **/
-   static function getTypeName() {
-      global $LANG;
-
-      return "question";
+   static function getTypeName($nb = 0) {
+      return __('Question', 'surveyticket');
    }
 
 
 
-   function canCreate() {
-      return true;
+   static function canCreate() {
+      return PluginSurveyticketProfile::haveRight("config", 'w');
    }
 
 
-   function canView() {
-      return true;
+   static function canView() {
+      return PluginSurveyticketProfile::haveRight("config", 'r');
    }
 
    
 
    function getSearchOptions() {
-      global $LANG;
 
       $tab = array();
     
-      $tab['common'] = "question";
+      $tab['common'] = __('Characteristics');
 
       $tab[1]['table']     = $this->getTable();
       $tab[1]['field']     = 'name';
       $tab[1]['linkfield'] = 'name';
-      $tab[1]['name']      = $LANG['common'][16];
+      $tab[1]['name']      = __('Name');
       $tab[1]['datatype']  = 'itemlink';
+
+      $tab[2]['table']             = $this->getTable();
+      $tab[2]['field']             = 'type';
+      $tab[2]['name']              = __('Type');
+      $tab[2]['searchtype']        = 'equals';
+      $tab[2]['datatype']          = 'specific';
 
       return $tab;
    }
    
    
    
+   static function getSpecificValueToDisplay($field, $values, array $options=array()) {
+      if (!is_array($values)) {
+         $values = array($field => $values);
+      }
+      switch ($field) {
+         case 'type':
+            return self::getQuestionTypeName($values[$field]);
+            break;
+      }
+      return parent::getSpecificValueToDisplay($field, $values, $options);
+   }
+
+
+   
+   static function getQuestionTypeName($value) {
+      $elements = PluginSurveyticketQuestion::getQuestionTypeList();
+      if (isset($elements[$value])) {
+         return $elements[$value];
+      }
+      return $value;
+   }
+   
+   
+   
+   static function getQuestionTypeList() {
+      $array = array();
+      $array['yesno']      = __('Yes').'/'.__('No');
+      $array['dropdown']   = __('dropdown', 'surveyticket');
+      $array['checkbox']   = __('checkbox', 'surveyticket');
+      $array['radio']      = __('radio', 'surveyticket');
+      $array['date']       = __('date');
+      $array['input']      = __('Short text', 'surveyticket');
+      return $array;
+   }
+
+   
+   
    function showForm($items_id, $options=array()) {
-      global $LANG;
 
       if ($items_id!='') {
          $this->getFromDB($items_id);
@@ -98,40 +137,28 @@ class PluginSurveyticketQuestion extends CommonDBTM {
          $this->getEmpty();
       }
 
+      $this->initForm($items_id, $options);
       $this->showTabs($options);
       $this->showFormHeader($options);
 
       echo "<tr class='tab_bg_1'>";
-      echo "<td rowspan='2'>".$LANG['common'][16]."&nbsp;:</td>";
-      echo "<td rowspan='2'>";
+      echo "<td>".__('Name')."&nbsp;:</td>";
+      echo "<td>";
       //echo '<input type="text" name="name" value="'.$this->fields["name"].'" size="50"/>';
       echo '<textarea maxlength="255" cols="70" rows="3"
          name="name">'.$this->fields["name"].'</textarea>';
       echo "</td>";
-      echo "<td>Type&nbsp;:</td>";
+      echo "<td>".__('Type')."&nbsp;:</td>";
       echo "<td>";
-      $array = array();
-      $array['yesno'] = 'Yes/No';
-      $array['dropdown'] = 'dropdown';
-      $array['checkbox'] = 'checkbox';
-      $array['radio'] = 'radio';
-      $array['date'] = 'date';
-      
+      $array = PluginSurveyticketQuestion::getQuestionTypeList();
       Dropdown::showFromArray('type', $array, array('value'=>$this->fields['type']));
       echo "</td>";
       echo "</tr>";
       
       echo "<tr class='tab_bg_1'>";
-      echo "<td></td>";
-      echo "<td>";
-
-      echo "</td>";
-      echo "</tr>";
-      
-      echo "<tr class='tab_bg_1'>";
-      echo "<td>".$LANG['common'][25]."&nbsp;:</td>";
+      echo "<td>".__('Comment')."&nbsp;:</td>";
       echo "<td colspan='3' class='middle'>";
-      echo "<textarea cols='110' rows='3' name='comment' >".$this->fields["comment"]."</textarea>";
+      echo "<textarea cols='100' rows='3' name='comment' >".$this->fields["comment"]."</textarea>";
       echo "</td>";
       echo "</tr>";
       
@@ -139,8 +166,6 @@ class PluginSurveyticketQuestion extends CommonDBTM {
 
       return true;
    }
-
-
 }
 
 ?>

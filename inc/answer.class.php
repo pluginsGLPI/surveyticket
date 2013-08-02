@@ -52,43 +52,47 @@ class PluginSurveyticketAnswer extends CommonDBTM {
    * @return text name of this type by language of the user connected
    *
    **/
-   static function getTypeName() {
-      global $LANG;
-
-      return "Réponse";
+   static function getTypeName($nb = 0) {
+      return __('Answer', 'surveyticket');
    }
 
 
 
-   function canCreate() {
-      return true;
+   static function canCreate() {
+      return PluginSurveyticketProfile::haveRight("config", 'w');
    }
 
 
-   function canView() {
-      return true;
+   static function canView() {
+      return PluginSurveyticketProfile::haveRight("config", 'r');
    }
 
    
 
    function getSearchOptions() {
-      global $LANG;
 
       $tab = array();
     
-      $tab['common'] = "question";
+      $tab['common'] = __('Characteristics');
 
       $tab[1]['table']     = $this->getTable();
       $tab[1]['field']     = 'name';
       $tab[1]['linkfield'] = 'name';
-      $tab[1]['name']      = $LANG['common'][16];
+      $tab[1]['name']      = __('Name');
       $tab[1]['datatype']  = 'itemlink';
 
       return $tab;
    }
 
    
-   
+
+   /**
+    * Get the answer
+    * 
+    * @param type $data
+    * 
+    * @return type
+    */
    function getAnswer($data) {
       
       if (!empty($data['name'])) {
@@ -102,8 +106,9 @@ class PluginSurveyticketAnswer extends CommonDBTM {
    }
    
    
+   
    function listAnswers($questions_id) {
-      global $DB,$CFG_GLPI,$LANG;
+      global $DB,$CFG_GLPI;
       
       $psQuetion = new PluginSurveyticketQuestion();
       
@@ -113,7 +118,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       
       echo "<tr class='tab_bg_1'>";
       echo "<th colspan='4'>";
-      echo "Réponses ";
+      echo __('Answer', 'Answers', 2, 'surveyticket')." ";
       echo "<a href='".Toolbox::getItemTypeFormURL('PluginSurveyticketAnswer')."?add=1'>
          <img src='".$CFG_GLPI["root_doc"]."/pics/add_dropdown.png'/></a>";
       echo "</th>";
@@ -124,13 +129,13 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       echo "id";
       echo "</th>";
       echo "<th>";
-      echo $LANG['mailing'][139];
+      echo __('Label');
       echo "</th>";
       echo "<th>";
-      echo "+ champ";
+      echo __('+ field', 'surveyticket');
       echo "</th>";
       echo "<th>";
-      echo "Dirige vers question";
+      echo __('Go to question', 'surveyticket');
       echo "</th>";
       echo "</tr>";
       
@@ -149,10 +154,10 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          echo "<td align='center'>";
          $texttype = array();
          $texttype[''] = "";
-         $texttype['shorttext'] = $LANG['mailing'][117]." - court";
-         $texttype['longtext'] = $LANG['mailing'][117]." - long";
-         $texttype['date'] = $LANG['common'][27];
-         $texttype['number'] = $LANG['tracking'][29];
+         $texttype['shorttext'] = __('Text')." - court";
+         $texttype['longtext'] = __('Text')." - long";
+         $texttype['date'] = __('Date');
+         $texttype['number'] = __('Number');
          echo $texttype[$data['answertype']];
          echo "</td>";
          echo "<td>";
@@ -163,16 +168,12 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          echo "</td>";
          echo "</tr>";         
       }
-      
       echo "</table>";
-      
    }
-   
    
    
       
    function showForm($items_id, $options=array()) {
-      global $LANG;
 
       if ($items_id!='') {
          $this->getFromDB($items_id);
@@ -184,10 +185,11 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          }
       }
 
+      $this->initForm($items_id, $options);
       $this->showFormHeader($options);
 
       echo "<tr class='tab_bg_1'>";
-      echo "<td>Question&nbsp;:</td>";
+      echo "<td>".__('Answer', 'surveyticket')."&nbsp;:</td>";
       echo "<td colspan='3'>";
       $psQuestion = new PluginSurveyticketQuestion();
       $psQuestion->getFromDB($this->fields['plugin_surveyticket_questions_id']);
@@ -196,26 +198,42 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       echo "</tr>";
       
       echo "<tr class='tab_bg_1'>";
-      echo "<td>".$LANG['mailing'][139]."&nbsp;:</td>";
+      echo "<td>".__('Label')."&nbsp;:</td>";
       echo "<td>";
-      echo '<textarea maxlength="255" cols="70" rows="3"
-         name="name">'.$this->fields["name"].'</textarea>';
+      if ($psQuestion->fields['type'] == 'date') {
+         echo '<i>'.__('date').'</i>';
+      } else if ($psQuestion->fields['type'] == 'input') {
+         echo '<i>'.__('Short text', 'surveyticket').'</i>';
+      } else {
+         echo '<textarea maxlength="255" cols="70" rows="3"
+            name="name">'.$this->fields["name"].'</textarea>';
+      }
       echo "</td>";
-      echo "<td>+ champ &nbsp;:</td>";
+      echo "<td>";
+      $psQuestion = new PluginSurveyticketQuestion();
+      $psQuestion->getFromDB($_SESSION['glpi_plugins_surveyticket']['questions_id']);
+      if ($psQuestion->fields['type'] != 'date'
+              && $psQuestion->fields['type'] != 'input') {
+         echo __('+ field', 'surveyticket')."&nbsp;:";
+      }
+      echo "</td>";
       echo "<td>";
       $texttype = array();
       $texttype[''] = Dropdown::EMPTY_VALUE;
-      $texttype['shorttext'] = $LANG['mailing'][117]." - court";
-      $texttype['longtext'] = $LANG['mailing'][117]." - long";
-      $texttype['date'] = $LANG['common'][27];
-      $texttype['number'] = $LANG['tracking'][29];
+      $texttype['shorttext'] = __('Text')." - court";
+      $texttype['longtext'] = __('Text')." - long";
+      $texttype['date'] = __('Date');
+      $texttype['number'] = __('Number');
       
-      Dropdown::showFromArray("answertype", $texttype, array('value' => $this->fields['answertype']));   
+      if ($psQuestion->fields['type'] != 'date'
+              && $psQuestion->fields['type'] != 'input') {
+         Dropdown::showFromArray("answertype", $texttype, array('value' => $this->fields['answertype']));   
+      }
       echo "</td>";
       echo "</tr>";
       
       echo "<tr class='tab_bg_1'>";
-      echo "<td>Lié à la question&nbsp;:</td>";
+      echo "<td>".__('Linked to question', 'surveyticket')."&nbsp;:</td>";
       echo "<td colspan='3'>";
       Dropdown::show("PluginSurveyticketQuestion", array(
           'name'=>'plugin_surveyticket_questions_id',
@@ -226,7 +244,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       
       if ($psQuestion->fields['type'] != "checkbox") {
          echo "<tr class='tab_bg_1'>";
-         echo "<td>Dirige vers question&nbsp;:</td>";
+         echo "<td>".__('Go to question', 'surveyticket')."&nbsp;:</td>";
          echo "<td colspan='3'>";
          Dropdown::show("PluginSurveyticketQuestion", array(
              'name'=>'link',
@@ -245,7 +263,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
    
    
    function addYesNo($questions_id) {
-      global $DB,$LANG;
+      global $DB;
       
       $query= "SELECT * FROM `".$this->getTable()."`
          WHERE `plugin_surveyticket_questions_id` = '".$questions_id."'
@@ -263,7 +281,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          $input = array();
          $input['plugin_surveyticket_questions_id'] = $questions_id;
          $input['is_yes'] = 1;
-         $input['name'] = $LANG['choice'][1];
+         $input['name'] = __('Yes');
          $this->add($input);
       }
       $query= "SELECT * FROM `".$this->getTable()."`
@@ -274,7 +292,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          $input = array();
          $input['plugin_surveyticket_questions_id'] = $questions_id;
          $input['is_no'] = 1;
-         $input['name'] = $LANG['choice'][0];
+         $input['name'] = __('No');
          $this->add($input);
       }
    }
@@ -283,7 +301,6 @@ class PluginSurveyticketAnswer extends CommonDBTM {
    
    function removeYesNo($questions_id) {
       global $DB;
-      
       
       $query= "SELECT * FROM `".$this->getTable()."`
          WHERE `plugin_surveyticket_questions_id` = '".$questions_id."'
@@ -300,7 +317,6 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          $this->delete($data);
       }
    }
-
 }
 
 ?>

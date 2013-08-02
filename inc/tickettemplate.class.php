@@ -44,30 +44,26 @@ if (!defined('GLPI_ROOT')) {
 
 class PluginSurveyticketTicketTemplate extends CommonDBTM {
    
-   static function getTypeName() {
-      global $LANG;
-      
-      return $LANG['job'][59];
+   static function getTypeName($nb = 0) {
+      return __('Template');
    }
 
 
 
-   function canCreate() {
-      return true;
+   static function canCreate() {
+      return PluginSurveyticketProfile::haveRight("config", 'w');
    }
 
 
-   function canView() {
-      return true;
+   static function canView() {
+      return PluginSurveyticketProfile::haveRight("config", 'r');
    }
    
    
    
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
-      global $LANG;
-
       if ($item->getType()=='PluginSurveyticketSurvey') {
-         return $LANG['job'][59];
+         return _n('Ticket template', 'Ticket templates', 1);
       }
       return '';
    }
@@ -94,7 +90,7 @@ class PluginSurveyticketTicketTemplate extends CommonDBTM {
    
    
    function showTicketTemplate($items_id) {
-      global $CFG_GLPI, $LANG;
+      global $CFG_GLPI;
       
       $ticketTemplate = new TicketTemplate();
       
@@ -104,7 +100,7 @@ class PluginSurveyticketTicketTemplate extends CommonDBTM {
       echo "<table class='tab_cadre' width='700'>";
       
       echo "<tr class='tab_bg_1'>";
-      echo "<td>".$LANG['job'][58]."&nbsp;:</td>";
+      echo "<td>".__('Ticket template')."&nbsp;:</td>";
       echo "<td>";
       $a_used = array();
 
@@ -114,19 +110,19 @@ class PluginSurveyticketTicketTemplate extends CommonDBTM {
                            "used" => $a_used)
                     );
       echo "</td>";
-      echo "<td>".$LANG['common'][17]."&nbsp;:</td>";
+      echo "<td>".__('Type')."&nbsp;:</td>";
       echo "<td>";
       Ticket::dropdownType("type");
       echo "</td>";
       echo "</tr>";
       
       echo "<tr class='tab_bg_1'>";
-      echo "<td>".$LANG['Menu'][31]."&nbsp;:</td>";
+      echo "<td>".__('Simplified interface')."&nbsp;:</td>";
       echo "<td>";
       Dropdown::showYesNo("is_helpdesk");
       echo "</td>";
       
-      echo "<td>".$LANG['common'][56]."&nbsp;:</td>";
+      echo "<td>".__('Standard interface')."&nbsp;:</td>";
       echo "<td>";
       Dropdown::showYesNo("is_central");
       echo "</td>";
@@ -136,7 +132,7 @@ class PluginSurveyticketTicketTemplate extends CommonDBTM {
       echo "<td class='tab_bg_2 top' colspan='4'>";
       echo "<input type='hidden' name='plugin_surveyticket_surveys_id' value='".$items_id."'>";
       echo "<div class='center'>";
-      echo "<input type='submit' name='add' value=\"".$LANG['buttons'][8]."\" class='submit'>";
+      echo "<input type='submit' name='add' value=\"".__('Add')."\" class='submit'>";
       echo "</div></td></tr>";
          
       echo "</table>";
@@ -150,16 +146,16 @@ class PluginSurveyticketTicketTemplate extends CommonDBTM {
       
       echo "<tr class='tab_bg_1'>";
       echo "<th>";
-      echo $LANG['job'][58];
+      echo __('Ticket template');
       echo "</th>";
       echo "<th>";
-      echo $LANG['common'][17];
+      echo __('Type');
       echo "</th>";
       echo "<th>";
-      echo $LANG['Menu'][31];
+      echo __('Simplified interface');
       echo "</th>";
       echo "<th>";
-      echo $LANG['common'][56];
+      echo __('Standard interface');
       echo "</th>";
       echo "<th>";
       echo "</th>";
@@ -186,16 +182,13 @@ class PluginSurveyticketTicketTemplate extends CommonDBTM {
          echo "<form method='post' name='form_delettickettemplate' action='".$CFG_GLPI['root_doc'].
              "/plugins/surveyticket/front/tickettemplate.form.php'>";
          echo "<input type='hidden' name='id' value='".$data['id']."'>";
-         echo "<input type='submit' name='delete' value=\"".$LANG['buttons'][6]."\" class='submit'>";
+         echo "<input type='submit' name='delete' value=\""._sx('button', 'Delete permanently')."\" class='submit'>";
          Html::closeForm();
          echo "</td>";
          echo "</tr>";    
       }
-      
       echo "</table>";
    }
-   
-   
 }
 
 ?>

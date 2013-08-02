@@ -38,9 +38,7 @@
    ------------------------------------------------------------------------
  */
 
-define('GLPI_ROOT', '../../..');
-
-include (GLPI_ROOT . "/inc/includes.php");
+include ("../../../inc/includes.php");
 
 Html::header("surveyticket", $_SERVER["PHP_SELF"], "plugins", 
              "surveyticket", "surveyquestion");
@@ -48,7 +46,9 @@ Html::header("surveyticket", $_SERVER["PHP_SELF"], "plugins",
 $psSurveyQuestion = new PluginSurveyticketSurveyQuestion();
 
 if (isset ($_POST["add"])) {
-   $psSurveyQuestion->add($_POST);
+   if ($_POST['plugin_surveyticket_questions_id'] > 0) {
+      $psSurveyQuestion->add($_POST);
+   }
    Html::back();
 } else if (isset ($_POST["delete"])) {
    $psSurveyQuestion->delete($_POST);
