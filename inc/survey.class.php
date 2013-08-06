@@ -133,7 +133,7 @@ class PluginSurveyticketSurvey extends CommonDBTM {
     * Change '$this' by '$ticket', 'self' by 'Ticket' and 'parent' by 'Ticket'
     */
    static  function getCentral($ID=0, $options=array()) {
-      global $DB, $CFG_GLPI;
+      global $CFG_GLPI;
 
 // * Added by plugin survey ticket
 $ticket = new Ticket();
@@ -1748,7 +1748,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
       echo $split[0];
       if (isset($split[1])) {
          echo "<td height='120'>";
-         $psSurvey = new PluginSurveyticketSurvey();
+//         $psSurvey = new PluginSurveyticketSurvey();
 //         $psSurvey->startSurvey(); 
          echo $split[1];
       }   

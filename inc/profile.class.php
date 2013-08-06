@@ -45,11 +45,11 @@ if (!defined('GLPI_ROOT')) {
 class PluginSurveyticketProfile extends CommonDBTM {
 
    static function canView() {
-      return Session::haveRight('profile','r');
+      return Session::haveRight('profile', 'r');
    }
 
    static function canCreate() {
-      return Session::haveRight('profile','w');
+      return Session::haveRight('profile', 'w');
    }
 
    
@@ -136,10 +136,10 @@ class PluginSurveyticketProfile extends CommonDBTM {
          $this->getEmpty();
       }
       
-      if (!Session::haveRight("profile","r")) {
+      if (!Session::haveRight("profile", "r")) {
          return false;
       }
-      $canedit=Session::haveRight("profile","w");
+      $canedit=Session::haveRight("profile", "w");
       if ($canedit) {
          echo "<form method='post' action='".$CFG_GLPI['root_doc']."/plugins/surveyticket/front/profile.form.php'>";
          echo '<input type="hidden" name="profiles_id" value="'.$items_id.'"/>';
@@ -231,7 +231,7 @@ class PluginSurveyticketProfile extends CommonDBTM {
     * @return nothing
    **/
    function updateInDB($updates, $oldvalues=array()) {
-      global $DB, $CFG_GLPI;
+      global $DB;
 
       foreach ($updates as $field) {
          if (isset($this->fields[$field])) {
@@ -274,7 +274,6 @@ class PluginSurveyticketProfile extends CommonDBTM {
     * Add a message on update action
    **/
    function addMessageOnUpdateAction() {
-      global $CFG_GLPI;
 
       $link = $this->getFormURL();
       if (!isset($link)) {

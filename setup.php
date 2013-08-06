@@ -38,11 +38,11 @@
    ------------------------------------------------------------------------
  */
 
-define ("PLUGIN_SURVEYTICKET_VERSION","0.84+1.1");
+define ("PLUGIN_SURVEYTICKET_VERSION", "0.84+1.1");
 
 // Init the hooks of surveyticket
 function plugin_init_surveyticket() {
-   global $PLUGIN_HOOKS,$CFG_GLPI;
+   global $PLUGIN_HOOKS;
 
    $PLUGIN_HOOKS['csrf_compliant']['surveyticket'] = true;
    

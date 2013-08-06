@@ -68,7 +68,7 @@ function plugin_surveyticket_uninstall() {
    $query = "SHOW TABLES;";
    $result=$DB->query($query);
    while ($data=$DB->fetch_array($result)) {
-      if (strstr($data[0],"glpi_plugin_surveyticket_")) {
+      if (strstr($data[0], "glpi_plugin_surveyticket_")) {
 
          $query_delete = "DROP TABLE `".$data[0]."`;";
          $DB->query($query_delete) or die($DB->error());
@@ -86,12 +86,12 @@ function plugin_surveyticket_uninstall() {
 
 function plugin_surveyticket_post_init() {
 
-   if ((strpos($_SERVER['PHP_SELF'],"ticket.form.php") 
+   if ((strpos($_SERVER['PHP_SELF'], "ticket.form.php") 
             && !isset($_GET['id'])
             && !isset($_POST['id']))
-     || (strpos($_SERVER['PHP_SELF'],"helpdesk.public.php")
+     || (strpos($_SERVER['PHP_SELF'], "helpdesk.public.php")
             && isset($_GET['create_ticket']))
-     || (strpos($_SERVER['PHP_SELF'],"tracking.injector.php"))) {
+     || (strpos($_SERVER['PHP_SELF'], "tracking.injector.php"))) {
 
       if (isset($_POST)) {
          $psQuestion = new PluginSurveyticketQuestion();
@@ -147,14 +147,14 @@ function plugin_surveyticket_post_init() {
          }
       }
       if (!isset($_POST['add'])) {
-         if (strpos($_SERVER['PHP_SELF'],"ticket.form.php")) {
-            Html::header(__('New ticket'),'',"maintain","ticket");
+         if (strpos($_SERVER['PHP_SELF'], "ticket.form.php")) {
+            Html::header(__('New ticket'), '', "maintain", "ticket");
 
             PluginSurveyticketSurvey::getCentral();
             Html::footer();
             exit;            
-         } else if (strpos($_SERVER['PHP_SELF'],"helpdesk.public.php")
-                 || (strpos($_SERVER['PHP_SELF'],"tracking.injector.php"))) {
+         } else if (strpos($_SERVER['PHP_SELF'], "helpdesk.public.php")
+                 || (strpos($_SERVER['PHP_SELF'], "tracking.injector.php"))) {
 
             Html::helpHeader(__('Simplified interface'), '', $_SESSION["glpiname"]);
             PluginSurveyticketSurvey::getHelpdesk();

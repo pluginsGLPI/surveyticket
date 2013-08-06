@@ -40,11 +40,11 @@
 
 include ("../../../inc/includes.php");
 
-Session::checkRight("profile","r");
+Session::checkRight("profile", "r");
 
 $psProfile = new PluginSurveyticketProfile();
 
-Session::checkRight("profile","w");
+Session::checkRight("profile", "w");
    
 if ($psProfile->getFromDB($_POST['profiles_id'])) {
    $psProfile->update($_POST);
