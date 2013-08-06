@@ -87,7 +87,8 @@ function plugin_surveyticket_uninstall() {
 function plugin_surveyticket_post_init() {
 
    if ((strpos($_SERVER['PHP_SELF'],"ticket.form.php") 
-            && !isset($_GET['id']))
+            && !isset($_GET['id'])
+            && !isset($_POST['id']))
      || (strpos($_SERVER['PHP_SELF'],"helpdesk.public.php")
             && isset($_GET['create_ticket']))
      || (strpos($_SERVER['PHP_SELF'],"tracking.injector.php"))) {
