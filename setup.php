@@ -38,7 +38,7 @@
    ------------------------------------------------------------------------
  */
 
-define ("PLUGIN_SURVEYTICKET_VERSION","0.84+1.0");
+define ("PLUGIN_SURVEYTICKET_VERSION","0.84+1.1");
 
 // Init the hooks of surveyticket
 function plugin_init_surveyticket() {
@@ -48,15 +48,14 @@ function plugin_init_surveyticket() {
    
    if (isset($_SESSION["glpiID"])) {
 
-      $PLUGIN_HOOKS['change_profile']['surveyticket'] = array('PluginSurveyticketProfile','changeprofile');
-      PluginSurveyticketProfile::changeprofile();
-
       $plugin = new Plugin();
       if ($plugin->isActivated('surveyticket')) {
-
          Plugin::registerClass('PluginSurveyticketProfile',
               array('addtabon' => array('Profile')));
 
+         $PLUGIN_HOOKS['change_profile']['surveyticket'] = array('PluginSurveyticketProfile','changeprofile');
+         PluginSurveyticketProfile::changeprofile();
+         
          if (PluginSurveyticketProfile::haveRight("config", 'r')) {
             $PLUGIN_HOOKS['menu_entry']['surveyticket'] = true;
 
@@ -94,8 +93,8 @@ function plugin_version_surveyticket() {
    return array('name'           => 'Survey ticket',
                 'shortname'      => 'surveyticket',
                 'version'        => PLUGIN_SURVEYTICKET_VERSION,
-                'author'         =>'<a href="mailto:d.durieux@siprossii.com">David DURIEUX</a>',
-                'homepage'       =>'',
+                'author'         => '<a href="mailto:d.durieux@siprossii.com">David DURIEUX</a>',
+                'homepage'       => 'https://forge.indepnet.net/projects/surveyticket/',
                 'minGlpiVersion' => '0.84'
    );
 }
@@ -103,7 +102,6 @@ function plugin_version_surveyticket() {
 
 // Optional : check prerequisites before install : may print errors or add to message after redirect
 function plugin_surveyticket_check_prerequisites() {
-   global $DB;
 
    if (!isset($_SESSION['glpi_plugins'])) {
       $_SESSION['glpi_plugins'] = array();
@@ -118,11 +116,11 @@ function plugin_surveyticket_check_prerequisites() {
 }
 
 function plugin_surveyticket_check_config() {
-   return true;
+   return TRUE;
 }
 
 function plugin_surveyticket_haveTypeRight($type,$right) {
-   return true;
+   return TRUE;
 }
 
 ?>
