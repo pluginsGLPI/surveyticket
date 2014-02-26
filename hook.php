@@ -83,26 +83,33 @@ function plugin_surveyticket_uninstall() {
 }
 
 
-
+/////////////////////////// Correction des bugs \r ajoutés et de la redirection d'URL lors de l'ajout d'un observateur //////////////////
 function plugin_surveyticket_post_init() {
-
-   if ((strpos($_SERVER['PHP_SELF'], "ticket.form.php")
-            && !isset($_GET['id'])
-            && (!isset($_POST['id'])
-               || $_POST['id'] == 0))
-     || (strpos($_SERVER['PHP_SELF'], "helpdesk.public.php")
-            && isset($_GET['create_ticket']))
-     || (strpos($_SERVER['PHP_SELF'], "tracking.injector.php"))) {
-
-      if (isset($_POST)) {
-         $psQuestion = new PluginSurveyticketQuestion();
-         $psAnswer = new PluginSurveyticketAnswer();
-         //print_r($_POST);exit;
-         $description = '';
-         foreach ($_POST as $question=>$answer) {
-            if (strstr($question, "question")
+	if (isset($_POST['_tickettemplates_id']) && isset($_POST['type'])) {
+		$psTicketTemplate = new PluginSurveyticketTicketTemplate();
+		$psSurvey = new PluginSurveyticketSurvey();
+		$a_tickettemplates = current($psTicketTemplate->find("`tickettemplates_id`='".$_POST['_tickettemplates_id']."'
+                                                     		 AND `type`='".$_POST['type']."'
+                                                     		 AND `is_central`='1'"));
+	if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
+		$psSurvey = new PluginSurveyticketSurvey();
+   		$psSurvey->getFromDB($a_tickettemplates['plugin_surveyticket_surveys_id']);
+   		if ($psSurvey->fields['is_active'] == 1) {
+   			if ((strpos($_SERVER['PHP_SELF'], "ticket.form.php")
+            	&& !isset($_GET['id'])
+            	&& (!isset($_POST['id'])
+               	|| $_POST['id'] == 0))
+     			|| (strpos($_SERVER['PHP_SELF'], "helpdesk.public.php")
+           		&& isset($_GET['create_ticket']))
+     			|| (strpos($_SERVER['PHP_SELF'], "tracking.injector.php"))) {
+     				$psQuestion = new PluginSurveyticketQuestion();
+         			$psAnswer = new PluginSurveyticketAnswer();
+         			//print_r($_POST);exit;
+         			$description = '';
+         			foreach ($_POST as $question=>$answer) {
+         				if (strstr($question, "question")
                     && !strstr($question, "realquestion")) {
-               $psQuestion->getFromDB(str_replace("question", "", $question));
+                    	$psQuestion->getFromDB(str_replace("question", "", $question));
                if (is_array($answer)) {
                   // Checkbox
                   $description .= _n('Question', 'Questions', 1, 'surveyticket')." : ".$psQuestion->fields['name'].'\r\n';
@@ -116,7 +123,7 @@ function plugin_surveyticket_post_init() {
                         }
                      }
                   }
-                  $description .= "\n";
+                  $description .= "\r\n";
                   unset($_POST[$question]);
                } else {
                   $real = 0;
@@ -144,10 +151,12 @@ function plugin_surveyticket_post_init() {
             }
          }
          if ($description != '') {
-            $_POST['content'] = $description;
+            	$_POST['content'] = $description;
          }
       }
-      if (!isset($_POST['add'])) {
+     }
+   }
+      if (!isset($_POST['add'])) {      	
          if (strpos($_SERVER['PHP_SELF'], "ticket.form.php")) {
             Html::header(__('New ticket'), '', "maintain", "ticket");
 
@@ -164,6 +173,7 @@ function plugin_surveyticket_post_init() {
          }
       }
    }
+   ///////////////////////////////////////////////////Fin de la correction des bugs ///////////////////////////////////////////////////	
 }
 
 ?>

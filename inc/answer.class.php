@@ -200,20 +200,29 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('Label')."&nbsp;:</td>";
       echo "<td>";
-      if ($psQuestion->fields['type'] == 'date') {
-         echo '<i>'.__('date').'</i>';
-      } else if ($psQuestion->fields['type'] == 'input') {
-         echo '<i>'.__('Short text', 'surveyticket').'</i>';
-      } else {
-         echo '<textarea maxlength="255" cols="70" rows="3"
-            name="name">'.$this->fields["name"].'</textarea>';
-      }
+      /////////////////////////// Correction du bug : Ajout d'un nouveau type de question (Texte long) ////////////////////////////////
+      switch ($psQuestion->fields['type']){
+      	case 'date': 
+      		echo '<i>'.__('date').'</i>';
+      		break;
+      	case 'input':
+         	echo '<i>'.__('Short text', 'surveyticket').'</i>';
+         	break;
+        case 'textarea':
+         	echo '<i>'.__('Long text', 'surveyticket').'</i>';
+         	break;
+        default :
+         	echo '<textarea maxlength="255" cols="70" rows="3" name="name">'.$this->fields["name"].'</textarea>'; 
+         	break;
+      } 
+      ///////////////////////////////////////////////////// Fin de la correction du bug /////////////////////////////////////////////////
+      
       echo "</td>";
       echo "<td>";
       $psQuestion = new PluginSurveyticketQuestion();
       $psQuestion->getFromDB($_SESSION['glpi_plugins_surveyticket']['questions_id']);
       if ($psQuestion->fields['type'] != 'date'
-              && $psQuestion->fields['type'] != 'input') {
+              && $psQuestion->fields['type'] != 'input' && $psQuestion->fields['type'] != 'textarea') {
          echo __('+ field', 'surveyticket')."&nbsp;:";
       }
       echo "</td>";
@@ -225,10 +234,12 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       $texttype['date'] = __('Date');
       $texttype['number'] = __('Number');
       
+      /////////////////////////////// Correction du bug : Ajout d'un nouveau type de question /////////////////////////////////
       if ($psQuestion->fields['type'] != 'date'
-              && $psQuestion->fields['type'] != 'input') {
+              && $psQuestion->fields['type'] != 'input'&& $psQuestion->fields['type'] != 'textarea') {
          Dropdown::showFromArray("answertype", $texttype, array('value' => $this->fields['answertype']));   
       }
+      ////////////////////////////////////////////// Fin de la correction du bug ////////////////////////////////////////////////
       echo "</td>";
       echo "</tr>";
       

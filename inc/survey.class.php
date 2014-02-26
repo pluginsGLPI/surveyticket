@@ -140,8 +140,8 @@ $ticket = new Ticket();
 // * End of adding
       
       $default_values = Ticket::getDefaultValues();
-
       // Get default values from posted values on reload form
+      
       if (!isset($options['template_preview'])) {
          if (isset($_POST)) {
             $values = $_POST;
@@ -1476,17 +1476,18 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
       $psQuestion = new PluginSurveyticketQuestion();
       
       if ($psQuestion->getFromDB($questions_id)) {
-      
-         echo "<table class='tab_cadre' align='left' width='700' >";
+      ////////////// Correction du bug : Alignement des questions / réponses à gauche + saut de ligne entre chaque question /////////////
+     //////////////                              Titre des questions alignés à gauche                                      /////////////
+         echo "<table class='tab_cadre' style='margin: 0;' width='700' >";
 
          echo "<tr class='tab_bg_1'>";
-         echo "<th colspan='3'>";
+         echo "<th colspan='3' style='text-align: left;'>";
          echo $psQuestion->fields['name'];
          echo "&nbsp;";
          Html::showToolTip($psQuestion->fields['comment']);
          echo "</th>";
          echo "</tr>";
-
+     ///////////////////////////////////////           Fin de la correction du bug            /////////////////////////////////////////
          $nb_answer = $this->displayAnswers($questions_id);
 
          echo "</table>";
@@ -1514,6 +1515,13 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
             $params=array("realquestion".$questions_id      => '__VALUE__',
                           'rand'                            => $questions_id,
                           'myname'                          => "realquestion".$questions_id);
+       /////////      Correction du bug : Ajout d'un nouveau type de question (Traitement des réponses de type texte long)  /////////////
+         } else if ($psQuestion->fields['type'] == 'textarea') {
+            $event = array("change");
+            $a_ids = "realquestion".$questions_id;
+            $params=array("realquestion".$questions_id      => '__VALUE__',
+                          'rand'                            => $questions_id,
+                          'myname'                          => "realquestion".$questions_id);
          } else {
             $event = array("change");
             $a_ids = 'question'.$questions_id;
@@ -1522,7 +1530,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
                   'myname'=>"question".$questions_id);
          }
          if ($psQuestion->fields['type'] == 'date'
-                 || $psQuestion->fields['type'] == 'input') {
+                 || $psQuestion->fields['type'] == 'input' ||$psQuestion->fields['type'] == 'textarea') {
          echo "<script type='text/javascript'>";
          Ajax::updateItemJsCode(
                                        "nextquestion".$questions_id,
@@ -1539,6 +1547,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
          }
          echo "<br/><div id='nextquestion".$questions_id."'></div>";
       }
+     ///////////////////////////////////// Fin de la correction du bug /////////////////////////////////////////////////
       
    }
    
@@ -1555,7 +1564,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
       switch ($psQuestion->fields['type']) {
          case 'dropdown':
             echo "<tr class='tab_bg_1'>";
-            echo "<td colspan='2' align='center'>";
+            echo "<td colspan='2'>";
             echo "<select name='question".$questions_id."' id='question".$questions_id."' >";
             echo "<option>".Dropdown::EMPTY_VALUE."</option>";
             foreach ($a_answers as $data_answer) {               
@@ -1570,7 +1579,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
             $i = 0;
             foreach ($a_answers as $data_answer) {
                echo "<tr class='tab_bg_1'>";
-               echo "<td width='40' align='center'>";
+               echo "<td width='40' >";
                echo "<input type='checkbox' name='question".$questions_id."[]' id='question".$questions_id."-".$i."' 
                   value='".$data_answer['id']."' />";
                echo "</td>";
@@ -1588,7 +1597,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
             $i = 0;
             foreach ($a_answers as $data_answer) {
                echo "<tr class='tab_bg_1'>";
-               echo "<td width='40' align='center'>";
+               echo "<td width='40'>";
                echo "<input type='radio' name='question".$questions_id."' id='question".$questions_id."-".$i."' 
                   value='".$data_answer['id']."' />";
                echo "</td>";
@@ -1603,7 +1612,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
             
          case 'date':
             echo "<tr class='tab_bg_1'>";
-            echo "<td colspan='2' align='center'>";
+            echo "<td colspan='2'>";
             $data_answer = current($a_answers);
             Html::showDateTimeField("question".$questions_id, array('rand' => "question".$questions_id));
             echo '<input type="hidden" name="realquestion'.$questions_id.'" id="realquestion'.$questions_id.'" value="'.$data_answer['id'].'" />';
@@ -1613,13 +1622,25 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
             
          case 'input':
             echo "<tr class='tab_bg_1'>";
-            echo "<td colspan='2' align='center'>";
+            echo "<td colspan='2'>";
             $data_answer = current($a_answers);
-            echo '<input type="text" name="question'.$questions_id.'" id="question'.$questions_id.'" value="" size="71" />';
+            echo '<input type="text" name="question'.$questions_id.'" id="question'.$questions_id.'" value="" size="134" />';
             echo '<input type="hidden" name="realquestion'.$questions_id.'" id="realquestion'.$questions_id.'" value="'.$data_answer['id'].'" />';
             echo "</td>";
             echo "</tr>";
             break;
+            
+        //////////////////////////////////// Correction du bug : Nouveau type de question (Texte long) //////////////////////////////////
+         case 'textarea':
+         	echo "<tr class='tab_bg_1'>";
+            echo "<td colspan='2'>";
+            $data_answer = current($a_answers);
+            echo '<textarea name="question'.$questions_id.'"  cols="94" rows="4" /></textarea>';
+            echo '<input type="hidden" name="realquestion'.$questions_id.'" id="realquestion'.$questions_id.'" value="'.$data_answer['id'].'" />';
+            echo "</td>";
+            echo "</tr>";
+            break;
+       ////////////////////////////////////////////////// Fin de la correction du bug ///////////////////////////////////////////////////
       }
       return count($a_answers);
    }
@@ -1638,7 +1659,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
                break;
 
             case 'longtext':
-               echo "<textarea name='".$name."' cols='70'></textarea>";
+               echo "<textarea name='".$name."' cols='100' rows='4'></textarea>";
                break;
 
             case 'date':

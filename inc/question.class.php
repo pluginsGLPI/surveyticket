@@ -124,6 +124,9 @@ class PluginSurveyticketQuestion extends CommonDBTM {
       $array['radio']      = __('radio', 'surveyticket');
       $array['date']       = __('date');
       $array['input']      = __('Short text', 'surveyticket');
+      ////////////////////////// Correction du bug : Ajout d'un nouveau type de question (Texte long) ///////////////////////////////////
+      $array['textarea']      = __('Long text', 'surveyticket');
+      /////////////////////////////////////////////// Fin de la correction du bug //////////////////////////////////////////////////////
       return $array;
    }
 
