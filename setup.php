@@ -95,7 +95,8 @@ function plugin_version_surveyticket() {
                 'version'        => PLUGIN_SURVEYTICKET_VERSION,
                 'author'         => '<a href="mailto:d.durieux@siprossii.com">David DURIEUX</a>',
                 'homepage'       => 'https://forge.indepnet.net/projects/surveyticket/',
-                'minGlpiVersion' => '0.84'
+                'minGlpiVersion' => '0.84',
+                'license'        => 'AGPLv3+',
    );
 }
 
