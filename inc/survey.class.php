@@ -1476,8 +1476,8 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
       $psQuestion = new PluginSurveyticketQuestion();
       
       if ($psQuestion->getFromDB($questions_id)) {
-      ////////////// Correction du bug : Alignement des questions / réponses à gauche + saut de ligne entre chaque question /////////////
-     //////////////                              Titre des questions alignés à gauche                                      /////////////
+      ////////////// Correction du bug : Alignement des questions / rÃ©ponses Ã  gauche + saut de ligne entre chaque question /////////////
+     //////////////                              Titre des questions alignÃ©s Ã  gauche                                      /////////////
          echo "<table class='tab_cadre' style='margin: 0;' width='700' >";
 
          echo "<tr class='tab_bg_1'>";
@@ -1515,7 +1515,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
             $params=array("realquestion".$questions_id      => '__VALUE__',
                           'rand'                            => $questions_id,
                           'myname'                          => "realquestion".$questions_id);
-       /////////      Correction du bug : Ajout d'un nouveau type de question (Traitement des réponses de type texte long)  /////////////
+       /////////      Correction du bug : Ajout d'un nouveau type de question (Traitement des rÃ©ponses de type texte long)  /////////////
          } else if ($psQuestion->fields['type'] == 'textarea') {
             $event = array("change");
             $a_ids = "realquestion".$questions_id;
