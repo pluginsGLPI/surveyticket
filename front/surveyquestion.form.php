@@ -3,7 +3,7 @@
 /*
    ------------------------------------------------------------------------
    Surveyticket
-   Copyright (C) 2012-2013 by the Surveyticket plugin Development Team.
+   Copyright (C) 2012-2014 by the Surveyticket plugin Development Team.
 
    https://forge.indepnet.net/projects/surveyticket
    ------------------------------------------------------------------------
@@ -29,7 +29,7 @@
 
    @package   Surveyticket plugin
    @author    David Durieux
-   @copyright Copyright (c) 2012-2013 Surveyticket plugin team
+   @copyright Copyright (c) 2012-2014 Surveyticket plugin team
    @license   AGPL License 3.0 or (at your option) any later version
               http://www.gnu.org/licenses/agpl-3.0-standalone.html
    @link      https://forge.indepnet.net/projects/surveyticket
