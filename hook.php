@@ -55,7 +55,7 @@ function plugin_surveyticket_install() {
       $psProfile = new PluginSurveyticketProfile();
       $psProfile->initProfile();
    }
-   
+
    return true;
 }
 
@@ -86,13 +86,13 @@ function plugin_surveyticket_uninstall() {
 
 function plugin_surveyticket_post_init() {
 
-   if ((strpos($_SERVER['PHP_SELF'], "ticket.form.php") 
+   if ((strpos($_SERVER['PHP_SELF'], "front/ticket.form.php")
             && !isset($_GET['id'])
             && (!isset($_POST['id'])
                || $_POST['id'] == 0))
-     || (strpos($_SERVER['PHP_SELF'], "helpdesk.public.php")
+     || (strpos($_SERVER['PHP_SELF'], "front/helpdesk.public.php")
             && isset($_GET['create_ticket']))
-     || (strpos($_SERVER['PHP_SELF'], "tracking.injector.php"))) {
+     || (strpos($_SERVER['PHP_SELF'], "front/tracking.injector.php"))) {
 
       if (isset($_POST)) {
          $psQuestion = new PluginSurveyticketQuestion();
@@ -107,7 +107,7 @@ function plugin_surveyticket_post_init() {
                   // Checkbox
                   $description .= _n('Question', 'Questions', 1, 'surveyticket')." : ".$psQuestion->fields['name']."\n";
                   foreach ($answer as $answers_id) {
-                     if ($psAnswer->getFromDB($answers_id)) {               
+                     if ($psAnswer->getFromDB($answers_id)) {
                         $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$psAnswer->fields['name']."\n";
                         $qid = str_replace("question", "", $question);
                         if (isset($_POST["text-".$qid."-".$answers_id])
@@ -153,7 +153,7 @@ function plugin_surveyticket_post_init() {
 
             PluginSurveyticketSurvey::getCentral();
             Html::footer();
-            exit;            
+            exit;
          } else if (strpos($_SERVER['PHP_SELF'], "helpdesk.public.php")
                  || (strpos($_SERVER['PHP_SELF'], "tracking.injector.php"))) {
 
