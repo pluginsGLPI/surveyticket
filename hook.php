@@ -55,7 +55,7 @@ function plugin_surveyticket_install() {
       $psProfile = new PluginSurveyticketProfile();
       $psProfile->initProfile();
    }
-
+   
    return true;
 }
 
@@ -83,79 +83,68 @@ function plugin_surveyticket_uninstall() {
 }
 
 
-/////////////////////////// Correction des bugs \r ajoutés et de la redirection d'URL lors de l'ajout d'un observateur //////////////////
+
 function plugin_surveyticket_post_init() {
-   if (isset($_POST['_tickettemplates_id']) && isset($_POST['type'])) {
-      $psTicketTemplate = new PluginSurveyticketTicketTemplate();
-      $psSurvey = new PluginSurveyticketSurvey();
-      $a_tickettemplates = current($psTicketTemplate->find("`tickettemplates_id`='".$_POST['_tickettemplates_id']."'
-                                                            AND `type`='".$_POST['type']."'
-                                                            AND `is_central`='1'"));
-   if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
-      $psSurvey = new PluginSurveyticketSurvey();
-         $psSurvey->getFromDB($a_tickettemplates['plugin_surveyticket_surveys_id']);
-         if ($psSurvey->fields['is_active'] == 1) {
-            if ((strpos($_SERVER['PHP_SELF'], "ticket.form.php")
-               && !isset($_GET['id'])
-               && (!isset($_POST['id'])
-                  || $_POST['id'] == 0))
-              || (strpos($_SERVER['PHP_SELF'], "helpdesk.public.php")
-                 && isset($_GET['create_ticket']))
-              || (strpos($_SERVER['PHP_SELF'], "tracking.injector.php"))) {
 
-               $psQuestion = new PluginSurveyticketQuestion();
-               $psAnswer = new PluginSurveyticketAnswer();
-               //print_r($_POST);exit;
-               $description = '';
-               foreach ($_POST as $question=>$answer) {
-                  if (strstr($question, "question")
-                          && !strstr($question, "realquestion")) {
+   if ((strpos($_SERVER['PHP_SELF'], "ticket.form.php") 
+            && !isset($_GET['id'])
+            && (!isset($_POST['id'])
+               || $_POST['id'] == 0))
+     || (strpos($_SERVER['PHP_SELF'], "helpdesk.public.php")
+            && isset($_GET['create_ticket']))
+     || (strpos($_SERVER['PHP_SELF'], "tracking.injector.php"))) {
 
-                  $psQuestion->getFromDB(str_replace("question", "", $question));
-                     if (is_array($answer)) {
-                        // Checkbox
-                        $description .= _n('Question', 'Questions', 1, 'surveyticket')." : ".$psQuestion->fields['name'].'\r\n';
-                        foreach ($answer as $answers_id) {
-                           if ($psAnswer->getFromDB($answers_id)) {
-                              $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$psAnswer->fields['name'].'\r\n';
-                              $qid = str_replace("question", "", $question);
-                              if (isset($_POST["text-".$qid."-".$answers_id])
-                                      AND $_POST["text-".$qid."-".$answers_id] != '') {
-                                 $description .= "Texte : ".$_POST["text-".$qid."-".$answers_id].'\r\n';
-                              }
-                           }
-                        }
-                        $description .= "\r\n";
-                        unset($_POST[$question]);
-                     } else {
-                        $real = 0;
-                        if (isset($_POST['realquestion'.(str_replace("question", "", $question))])) {
-                           $realanswer = $answer;
-                           $answer = $_POST['realquestion'.str_replace("question", "", $question)];
-                           $real = 1;
-                        }
-                        if ($psAnswer->getFromDB($answer)) {
-                           $description .= _n('Question', 'Questions', 1, 'surveyticket')." : ".$psQuestion->fields['name'].'\r\n';
-                           if ($real == 1) {
-                              $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$realanswer.'\r\n';
-                           } else {
-                              $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$psAnswer->fields['name'].'\r\n';
-                           }
-                           $qid = str_replace("question", "", $question);
-                           if (isset($_POST["text-".$qid."-".$answer])
-                                   AND $_POST["text-".$qid."-".$answer] != '') {
-                              $description .= "Texte : ".$_POST["text-".$qid."-".$answer].'\r\n';
-                           }
-                           $description .= '\r\n';
-                           unset($_POST[$question]);
+      if (isset($_POST)) {
+         $psQuestion = new PluginSurveyticketQuestion();
+         $psAnswer = new PluginSurveyticketAnswer();
+         //print_r($_POST);exit;
+         $description = '';
+         foreach ($_POST as $question=>$answer) {
+            if (strstr($question, "question")
+                    && !strstr($question, "realquestion")) {
+               $psQuestion->getFromDB(str_replace("question", "", $question));
+               if (is_array($answer)) {
+                  // Checkbox
+                  $description .= _n('Question', 'Questions', 1, 'surveyticket')." : ".$psQuestion->fields['name']."\n";
+                  foreach ($answer as $answers_id) {
+                     if ($psAnswer->getFromDB($answers_id)) {               
+                        $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$psAnswer->fields['name']."\n";
+                        $qid = str_replace("question", "", $question);
+                        if (isset($_POST["text-".$qid."-".$answers_id])
+                                AND $_POST["text-".$qid."-".$answers_id] != '') {
+                           $description .= "Texte : ".$_POST["text-".$qid."-".$answers_id]."\n";
                         }
                      }
                   }
-               }
-               if ($description != '') {
-                  $_POST['content'] = $description;
+                  $description .= "\n";
+                  unset($_POST[$question]);
+               } else {
+                  $real = 0;
+                  if (isset($_POST['realquestion'.(str_replace("question", "", $question))])) {
+                     $realanswer = $answer;
+                     $answer = $_POST['realquestion'.str_replace("question", "", $question)];
+                     $real = 1;
+                  }
+                  if ($psAnswer->getFromDB($answer)) {
+                     $description .= _n('Question', 'Questions', 1, 'surveyticket')." : ".$psQuestion->fields['name']."\n";
+                     if ($real == 1) {
+                        $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$realanswer."\n";
+                     } else {
+                        $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$psAnswer->fields['name']."\n";
+                     }
+                     $qid = str_replace("question", "", $question);
+                     if (isset($_POST["text-".$qid."-".$answer])
+                             AND $_POST["text-".$qid."-".$answer] != '') {
+                        $description .= "Texte : ".$_POST["text-".$qid."-".$answer]."\n";
+                     }
+                     $description .= "\n";
+                     unset($_POST[$question]);
+                  }
                }
             }
+         }
+         if ($description != '') {
+            $_POST['content'] = addslashes($description);
          }
       }
       if (!isset($_POST['add'])) {
@@ -164,7 +153,7 @@ function plugin_surveyticket_post_init() {
 
             PluginSurveyticketSurvey::getCentral();
             Html::footer();
-            exit;
+            exit;            
          } else if (strpos($_SERVER['PHP_SELF'], "helpdesk.public.php")
                  || (strpos($_SERVER['PHP_SELF'], "tracking.injector.php"))) {
 
@@ -175,7 +164,6 @@ function plugin_surveyticket_post_init() {
          }
       }
    }
-   ///////////////////////////////////////////////////Fin de la correction des bugs ///////////////////////////////////////////////////
 }
 
 ?>

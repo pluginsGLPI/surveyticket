@@ -45,7 +45,7 @@ function plugin_init_surveyticket() {
    global $PLUGIN_HOOKS;
 
    $PLUGIN_HOOKS['csrf_compliant']['surveyticket'] = true;
-   
+
    if (isset($_SESSION["glpiID"])) {
 
       $plugin = new Plugin();
@@ -55,12 +55,12 @@ function plugin_init_surveyticket() {
 
          $PLUGIN_HOOKS['change_profile']['surveyticket'] = array('PluginSurveyticketProfile','changeprofile');
          PluginSurveyticketProfile::changeprofile();
-         
+
          if (PluginSurveyticketProfile::haveRight("config", 'r')) {
             $PLUGIN_HOOKS['menu_entry']['surveyticket'] = true;
 
             $PLUGIN_HOOKS['config_page']['surveyticket'] = 'front/menu.php';
-         }         
+         }
          $PLUGIN_HOOKS['post_init']['surveyticket'] = 'plugin_surveyticket_post_init';
 
       }
