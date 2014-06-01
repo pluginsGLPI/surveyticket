@@ -95,6 +95,7 @@ function plugin_surveyticket_post_init() {
      || (strpos($_SERVER['PHP_SELF'], "front/tracking.injector.php"))) {
 
       if (isset($_POST)) {
+//         echo "<pre>";print_r($_POST);exit;
          $psQuestion = new PluginSurveyticketQuestion();
          $psAnswer = new PluginSurveyticketAnswer();
          //print_r($_POST);exit;
@@ -120,13 +121,14 @@ function plugin_surveyticket_post_init() {
                   unset($_POST[$question]);
                } else {
                   $real = 0;
-                  if (isset($_POST['realquestion'.(str_replace("question", "", $question))])) {
+                  if (isset($_POST['realquestion'.(str_replace("question", "", $question))])
+                          && $_POST['realquestion'.(str_replace("question", "", $question))] != '') {
                      $realanswer = $answer;
                      $answer = $_POST['realquestion'.str_replace("question", "", $question)];
                      $real = 1;
                   }
+                  $description .= _n('Question', 'Questions', 1, 'surveyticket')." : ".$psQuestion->fields['name']."\n";
                   if ($psAnswer->getFromDB($answer)) {
-                     $description .= _n('Question', 'Questions', 1, 'surveyticket')." : ".$psQuestion->fields['name']."\n";
                      if ($real == 1) {
                         $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$realanswer."\n";
                      } else {
@@ -137,6 +139,10 @@ function plugin_surveyticket_post_init() {
                              AND $_POST["text-".$qid."-".$answer] != '') {
                         $description .= "Texte : ".$_POST["text-".$qid."-".$answer]."\n";
                      }
+                     $description .= "\n";
+                     unset($_POST[$question]);
+                  } else {
+                     $description .= "Texte : ".str_replace('\r', "", $answer)."\n";
                      $description .= "\n";
                      unset($_POST[$question]);
                   }
