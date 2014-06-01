@@ -40,14 +40,14 @@
 
 include ("../../../inc/includes.php");
 
-Html::header("survey", $_SERVER["PHP_SELF"], "plugins", 
+Html::header("survey", $_SERVER["PHP_SELF"], "plugins",
              "surveyticket", "menu");
 
 echo "<table class='tab_cadre' width='250'>";
-      
+
 echo "<tr class='tab_bg_1'>";
 echo "<th>";
-echo "Menu";
+echo __('Menu', 'surveyticket');
 echo "</th>";
 echo "</tr>";
 

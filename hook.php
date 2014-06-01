@@ -138,12 +138,12 @@ function plugin_surveyticket_post_init() {
                      $qid = str_replace("question", "", $question);
                      if (isset($_POST["text-".$qid."-".$answer])
                              AND $_POST["text-".$qid."-".$answer] != '') {
-                        $description .= "Texte : ".$_POST["text-".$qid."-".$answer]."\n";
+                        $description .= __('Text', 'surveyticket')." : ".$_POST["text-".$qid."-".$answer]."\n";
                      }
                      $description .= "\n";
                      unset($_POST[$question]);
                   } else {
-                     $description .= "Texte : ".str_replace('\r', "", $answer)."\n";
+                     $description .= __('Text', 'surveyticket')." : ".str_replace('\r', "", $answer)."\n";
                      $description .= "\n";
                      unset($_POST[$question]);
                   }
