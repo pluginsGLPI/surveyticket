@@ -127,6 +127,7 @@ function plugin_surveyticket_post_init() {
                      $answer = $_POST['realquestion'.str_replace("question", "", $question)];
                      $real = 1;
                   }
+                  $description .= "===========================================================================\n";
                   $description .= _n('Question', 'Questions', 1, 'surveyticket')." : ".$psQuestion->fields['name']."\n";
                   if ($psAnswer->getFromDB($answer)) {
                      if ($real == 1) {
