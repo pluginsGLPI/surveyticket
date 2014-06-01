@@ -83,7 +83,7 @@ function plugin_surveyticket_uninstall() {
 }
 
 
-/////////////////////////// Correction des bugs \r ajoutés et de la redirection d'URL lors de l'ajout d'un observateur //////////////////
+/////////////////////////// Correction des bugs \r ajoutÃ©s et de la redirection d'URL lors de l'ajout d'un observateur //////////////////
 function plugin_surveyticket_post_init() {
 	if (isset($_POST['_tickettemplates_id']) && isset($_POST['type'])) {
 		$psTicketTemplate = new PluginSurveyticketTicketTemplate();
