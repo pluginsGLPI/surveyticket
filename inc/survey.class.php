@@ -43,7 +43,7 @@ if (!defined('GLPI_ROOT')) {
 }
 
 class PluginSurveyticketSurvey extends CommonDBTM {
-   
+
    /**
    * Get name of this type
    *
@@ -64,24 +64,24 @@ class PluginSurveyticketSurvey extends CommonDBTM {
    static function canView() {
       return PluginSurveyticketProfile::haveRight("config", 'r');
    }
-   
-   
-   
+
+
+
    function defineTabs($options=array()){
 
       $ong = array();
-      if ((isset($this->fields['id'])) 
+      if ((isset($this->fields['id']))
               && ($this->fields['id'] > 0)) {
-         
+
          $ong[1] = $this->getTypeName();
          $this->addStandardTab('PluginSurveyticketSurveyQuestion', $ong, $options);
          $this->addStandardTab('PluginSurveyticketTicketTemplate', $ong, $options);
       }
       return $ong;
    }
-   
-   
-   
+
+
+
    function showForm($items_id, $options=array()) {
 
       if ($items_id!='') {
@@ -89,7 +89,7 @@ class PluginSurveyticketSurvey extends CommonDBTM {
       } else {
          $this->getEmpty();
       }
-      
+
       $this->initForm($items_id, $options);
       $this->showTabs($options);
       $this->showFormHeader($options);
@@ -104,29 +104,29 @@ class PluginSurveyticketSurvey extends CommonDBTM {
       Dropdown::showYesNo("is_active", $this->fields['is_active']);
       echo "</td>";
       echo "</tr>";
-      
+
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('Comment')."&nbsp;:</td>";
       echo "<td colspan='3' class='middle'>";
       echo "<textarea cols='110' rows='3' name='comment' >".$this->fields["comment"]."</textarea>";
       echo "</td>";
       echo "</tr>";
-      
+
       $this->showFormButtons($options);
       $this->addDivForTabs();
 
       return true;
    }
-   
-   
-   
-   
-   
-   
-   
-// ************************************************************************************ //   
-// *************************** Display survey in the ticket *************************** // 
-// ************************************************************************************ // 
+
+
+
+
+
+
+
+// ************************************************************************************ //
+// *************************** Display survey in the ticket *************************** //
+// ************************************************************************************ //
 
    /**
     * Clone of Ticket::showForm()
@@ -138,10 +138,10 @@ class PluginSurveyticketSurvey extends CommonDBTM {
 // * Added by plugin survey ticket
 $ticket = new Ticket();
 // * End of adding
-      
+
       $default_values = Ticket::getDefaultValues();
       // Get default values from posted values on reload form
-      
+
       if (!isset($options['template_preview'])) {
          if (isset($_POST)) {
             $values = $_POST;
@@ -896,11 +896,11 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
    if ($psSurvey->fields['is_active'] == 1) {
       $plugin_surveyticket_surveys_id = $a_tickettemplates['plugin_surveyticket_surveys_id'];
       $psSurvey = new PluginSurveyticketSurvey();
-      $psSurvey->startSurvey($plugin_surveyticket_surveys_id); 
+      $psSurvey->startSurvey($plugin_surveyticket_surveys_id);
    }
 } else {
 // End of adding by plugin
-      
+
       if (!$ID || $canupdate_descr) { // Admin =oui on autorise la modification de la description
          echo $tt->getBeginHiddenFieldValue('content');
 
@@ -1064,7 +1064,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
       return true;
    }
 
-   
+
 
    /**
     * clone of function Ticket::showFormHelpdesk()
@@ -1075,7 +1075,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
 // * Added by plugin survey ticket
 $ticket = new Ticket();
 // * End of adding
-      
+
       if (!Session::haveRight("create_ticket","1")) {
          return false;
       }
@@ -1112,7 +1112,7 @@ $ticket = new Ticket();
 
 
       $email  = UserEmail::getDefaultForUser($ID);
-
+      
 
       // Set default values...
       $default_values = array('_users_id_requester_notif'
@@ -1414,11 +1414,11 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
    if ($psSurvey->fields['is_active'] == 1) {
       $plugin_surveyticket_surveys_id = $a_tickettemplates['plugin_surveyticket_surveys_id'];
       $psSurvey = new PluginSurveyticketSurvey();
-      $psSurvey->startSurvey($plugin_surveyticket_surveys_id); 
+      $psSurvey->startSurvey($plugin_surveyticket_surveys_id);
    }
 } else {
    echo "<td><textarea name='content' cols='80' rows='14'>".$values['content']."</textarea>";
-}         
+}
 // * End of change
          echo "</td></tr>";
       }
@@ -1452,29 +1452,29 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
          Html::closeForm();
       }
    }
-   
-   
-   
+
+
+
    function startSurvey($plugin_surveyticket_surveys_id) {
-      
+
       $psSurveyQuestion = new PluginSurveyticketSurveyQuestion();
-      
+
       $a_questions = $psSurveyQuestion->find(
               "`plugin_surveyticket_surveys_id`='".$plugin_surveyticket_surveys_id."'",
               "`order`");
-      
+
       foreach ($a_questions as $data) {
          $this->displaySurvey($data['plugin_surveyticket_questions_id']);
       }
    }
-   
-   
-   
+
+
+
    function displaySurvey($questions_id) {
       global $CFG_GLPI;
 
       $psQuestion = new PluginSurveyticketQuestion();
-      
+
       if ($psQuestion->getFromDB($questions_id)) {
       ////////////// Correction du bug : Alignement des questions / réponses à gauche + saut de ligne entre chaque question /////////////
      //////////////                              Titre des questions alignés à gauche                                      /////////////
@@ -1535,7 +1535,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
          Ajax::updateItemJsCode(
                                        "nextquestion".$questions_id,
                                        $CFG_GLPI["root_doc"]."/plugins/surveyticket/ajax/displaysurvey.php",
-                                       $params, 
+                                       $params,
                                        $a_ids);
          echo "</script>";
          } else {
@@ -1548,18 +1548,18 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
          echo "<br/><div id='nextquestion".$questions_id."'></div>";
       }
      ///////////////////////////////////// Fin de la correction du bug /////////////////////////////////////////////////
-      
+
    }
-   
-   
-   
+
+
+
    function displayAnswers($questions_id) {
-      
+
       $psQuestion = new PluginSurveyticketQuestion();
       $psAnswer = new PluginSurveyticketAnswer();
-      
+
       $a_answers = $psAnswer->find("`plugin_surveyticket_questions_id`='".$questions_id."'");
-      
+
       $psQuestion->getFromDB($questions_id);
       switch ($psQuestion->fields['type']) {
          case 'dropdown':
@@ -1567,20 +1567,20 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
             echo "<td colspan='2'>";
             echo "<select name='question".$questions_id."' id='question".$questions_id."' >";
             echo "<option>".Dropdown::EMPTY_VALUE."</option>";
-            foreach ($a_answers as $data_answer) {               
+            foreach ($a_answers as $data_answer) {
                echo "<option value='".$data_answer['id']."'>".$psAnswer->getAnswer($data_answer)."</option>";
             }
             echo "</select>";
             echo "</td>";
             echo "</tr>";
             break;
-            
-         case 'checkbox':            
+
+         case 'checkbox':
             $i = 0;
             foreach ($a_answers as $data_answer) {
                echo "<tr class='tab_bg_1'>";
                echo "<td width='40' >";
-               echo "<input type='checkbox' name='question".$questions_id."[]' id='question".$questions_id."-".$i."' 
+               echo "<input type='checkbox' name='question".$questions_id."[]' id='question".$questions_id."-".$i."'
                   value='".$data_answer['id']."' />";
                echo "</td>";
                echo "<td>";
@@ -1591,14 +1591,14 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
                $i++;
             }
             break;
-         
+
          case 'radio':
          case 'yesno':
             $i = 0;
             foreach ($a_answers as $data_answer) {
                echo "<tr class='tab_bg_1'>";
                echo "<td width='40'>";
-               echo "<input type='radio' name='question".$questions_id."' id='question".$questions_id."-".$i."' 
+               echo "<input type='radio' name='question".$questions_id."' id='question".$questions_id."-".$i."'
                   value='".$data_answer['id']."' />";
                echo "</td>";
                echo "<td>";
@@ -1609,7 +1609,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
                $i++;
             }
             break;
-            
+
          case 'date':
             echo "<tr class='tab_bg_1'>";
             echo "<td colspan='2'>";
@@ -1619,7 +1619,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
             echo "</td>";
             echo "</tr>";
             break;
-            
+
          case 'input':
             echo "<tr class='tab_bg_1'>";
             echo "<td colspan='2'>";
@@ -1629,7 +1629,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
             echo "</td>";
             echo "</tr>";
             break;
-            
+
         //////////////////////////////////// Correction du bug : Nouveau type de question (Texte long) //////////////////////////////////
          case 'textarea':
          	echo "<tr class='tab_bg_1'>";
@@ -1644,9 +1644,9 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
       }
       return count($a_answers);
    }
-   
-   
-   
+
+
+
    function displayAnswertype($type, $name) {
 
       echo "<td>";
@@ -1665,17 +1665,17 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
             case 'date':
                Html::showDateFormItem($name, '', true);
                break;
-            
+
             case 'number':
-               
+
                break;
 
-         }         
+         }
       }
       echo "</td>";
    }
-   
-   
+
+
    function displayOK() {
       echo "<table class='tab_cadre_fixe'>";
 
@@ -1685,19 +1685,19 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
       echo "</th>";
       echo "</tr>";
 
-      echo "</table>";  
+      echo "</table>";
       Html::closeForm();
-   }   
-   
-   
-   
+   }
+
+
+
    static function updateItemOnSelectEvent($toobserve, $toupdate, $url, $parameters=array(),$events) {
 
       self::updateItemOnEvent($toobserve, $toupdate, $url, $parameters, $events);
    }
 
-   
-   
+
+
    static function updateItemOnEvent($toobserve, $toupdate, $url, $parameters=array(),
                                       $events=array("change"), $minsize = -1, $forceloadfor=array()) {
 
@@ -1706,9 +1706,9 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
                                      $forceloadfor);
       echo "</script>";
    }
-   
-   
-   
+
+
+
    static function updateItemOnEventJsCode($toobserve, $toupdate, $url, $parameters=array(),
                                            $events=array("change"), $minsize = -1,
                                            $forceloadfor=array()) {
@@ -1750,32 +1750,32 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
       }
    }
 
-   
-   
+
+
    static function showFormHelpdesk($ID, $ticket_template=false) {
-      
+
       $ticketdisplay = "";
       ob_start();
       $ticket = new Ticket();
       $ticket->showFormHelpdesk($ID, $ticket_template);
       $ticketdisplay = ob_get_contents();
       ob_end_clean();
-      
-      $ticketdisplay = str_replace("/front/tracking.injector.php", 
+
+      $ticketdisplay = str_replace("/front/tracking.injector.php",
               "/plugins/surveyticket/front/displaysurvey.form.php", $ticketdisplay);
-      
+
       $split = explode("<td><textarea name='content' cols='80' rows='14'></textarea>", $ticketdisplay);
-      
+
       echo $split[0];
       if (isset($split[1])) {
          echo "<td height='120'>";
 //         $psSurvey = new PluginSurveyticketSurvey();
-//         $psSurvey->startSurvey(); 
+//         $psSurvey->startSurvey();
          echo $split[1];
-      }   
+      }
    }
 
-   
+
 }
 
 ?>
