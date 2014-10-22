@@ -165,7 +165,7 @@ function plugin_surveyticket_post_init() {
                  || (strpos($_SERVER['PHP_SELF'], "tracking.injector.php"))) {
 
             Html::helpHeader(__('Simplified interface'), '', $_SESSION["glpiname"]);
-            PluginSurveyticketSurvey::getHelpdesk();
+            PluginSurveyticketSurvey::getHelpdesk($_SESSION["glpiID"]);
             Html::helpFooter();
             exit;
          }
