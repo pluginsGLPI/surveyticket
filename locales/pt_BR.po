@@ -1,84 +1,109 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # Rafael Ferreira <rafael.f.f1@gmail.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - plugin surveyticket\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-01 23:46+0200\n"
-"PO-Revision-Date: 2014-06-01 21:47+0000\n"
+"POT-Creation-Date: 2016-02-29 17:18+0100\n"
+"PO-Revision-Date: 2016-02-29 17:18+0100\n"
 "Last-Translator: David Durieux <d.durieux@siprossii.com>\n"
-"Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/glpi_surveyticket/language/pt_BR/)\n"
+"Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/"
+"glpi_surveyticket/language/pt_BR/)\n"
+"Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: pt_BR\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 1.8.5\n"
 
-#: hook.php:109 hook.php:131 front/menu.php:64 inc/question.class.php:56
-#: inc/surveyquestion.class.php:48 inc/surveyquestion.class.php:67
-#: inc/surveyquestion.class.php:104 inc/surveyquestion.class.php:142
-msgid "Question"
-msgid_plural "Questions"
-msgstr[0] "Pergunta"
-msgstr[1] "Perguntas"
+#: setup.php:96
+msgid "Your GLPI version not compatible, require 0.90"
+msgstr "Your GLPI version not compatible, require 0.90"
 
-#: hook.php:112 hook.php:134 hook.php:136 inc/answer.class.php:56
-#: inc/answer.class.php:121 inc/answer.class.php:192
+#: inc/answer.class.php:57 inc/answer.class.php:109 inc/answer.class.php:180
+#: inc/ticket.class.php:507 inc/ticket.class.php:529 inc/ticket.class.php:531
 msgid "Answer"
 msgid_plural "Answers"
 msgstr[0] "Resposta"
 msgstr[1] "Respostas"
 
-#: hook.php:141 hook.php:146
-msgid "Text"
-msgstr ""
+#: inc/answer.class.php:123 inc/answer.class.php:212
+msgid "+ field"
+msgstr "+ campo"
 
-#: setup.php:112
-msgid "Your GLPI version not compatible, require 0.84"
-msgstr "Sua versão de GLPI não é compatível, sendo necessário 0.84"
+#: inc/answer.class.php:126 inc/answer.class.php:241
+msgid "Go to question"
+msgstr "Ir para pergunta"
 
-#: front/menu.php:50
-msgid "Menu"
-msgstr ""
+#: inc/answer.class.php:196 inc/question.class.php:141
+msgid "Short text"
+msgstr "Texto curto"
 
-#: front/menu.php:57 inc/survey.class.php:54
+#: inc/answer.class.php:199 inc/question.class.php:142
+msgid "Long text"
+msgstr "Long text"
+
+#: inc/answer.class.php:230
+msgid "Linked to question"
+msgstr "Vinculado a pergunta"
+
+#: inc/menu.class.php:35 inc/menu.class.php:51 inc/profile.class.php:134
+#: inc/survey.class.php:56
 msgid "Survey"
 msgid_plural "Surveys"
 msgstr[0] "Pesquisa"
 msgstr[1] "Pesquisas"
 
-#: inc/answer.class.php:135 inc/answer.class.php:226
-msgid "+ field"
-msgstr "+ campo"
+#: inc/menu.class.php:44
+msgid "Menu"
+msgstr "Menu"
 
-#: inc/answer.class.php:138 inc/answer.class.php:258
-msgid "Go to question"
-msgstr "Ir para pergunta"
+#: inc/menu.class.php:58 inc/menu.class.php:76 inc/question.class.php:65
+#: inc/surveyquestion.class.php:48 inc/surveyquestion.class.php:54
+#: inc/surveyquestion.class.php:97 inc/surveyquestion.class.php:142
+#: inc/ticket.class.php:504 inc/ticket.class.php:525
+msgid "Question"
+msgid_plural "Questions"
+msgstr[0] "Question"
+msgstr[1] "Questions"
 
-#: inc/answer.class.php:209 inc/question.class.php:126
-msgid "Short text"
-msgstr "Texto curto"
-
-#: inc/answer.class.php:212 inc/question.class.php:128
-msgid "Long text"
-msgstr ""
-
-#: inc/answer.class.php:247
-msgid "Linked to question"
-msgstr "Vinculado a pergunta"
-
-#: inc/question.class.php:122
+#: inc/question.class.php:137
 msgid "dropdown"
 msgstr "lista suspensa"
 
-#: inc/question.class.php:123
+#: inc/question.class.php:138
 msgid "checkbox"
 msgstr "lista de seleção"
 
-#: inc/question.class.php:124
+#: inc/question.class.php:139
 msgid "radio"
 msgstr "menu de opção"
+
+#: inc/surveyquestion.class.php:116 inc/surveyquestion.class.php:151
+msgid "Mandatory"
+msgstr "Mandatory"
+
+#: inc/surveyquestion.class.php:247
+#, php-format
+msgid ""
+"The question can not be added because it has links to other questions : %s. "
+"Please delete the questionnaire if you want to add it."
+msgstr ""
+"The question can not be added because it has links to other questions : %s. "
+"Please delete the questionnaire if you want to add it."
+
+#: inc/ticket.class.php:486
+#, php-format
+msgid "Mandatory questions are not filled. Please correct: %s"
+msgstr "Mandatory questions are not filled. Please correct: %s"
+
+#: inc/ticket.class.php:536 inc/ticket.class.php:541
+msgid "Text"
+msgstr "Text"
+
+#~ msgid "Your GLPI version not compatible, require 0.84"
+#~ msgstr "Sua versão de GLPI não é compatível, sendo necessário 0.84"

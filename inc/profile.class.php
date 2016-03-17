@@ -1,42 +1,44 @@
 <?php
 
 /*
-   ------------------------------------------------------------------------
-   Surveyticket
-   Copyright (C) 2012-2014 by the Surveyticket plugin Development Team.
+  ------------------------------------------------------------------------
+  Surveyticket
+  Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
 
-   https://forge.indepnet.net/projects/surveyticket
-   ------------------------------------------------------------------------
+  https://forge.glpi-project.org/projects/surveyticket
+  ------------------------------------------------------------------------
 
-   LICENSE
+  LICENSE
 
-   This file is part of Surveyticket plugin project.
+  This file is part of Surveyticket plugin project.
 
-   Surveyticket plugin is free software: you can redistribute it and/or modify
-   it under the terms of the GNU Affero General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+  Surveyticket plugin is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-   Surveyticket plugin is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-   GNU Affero General Public License for more details.
+  Surveyticket plugin is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Affero General Public License for more details.
 
-   You should have received a copy of the GNU Affero General Public License
-   along with Surveyticket plugin. If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU Affero General Public License
+  along with Surveyticket plugin. If not, see <http://www.gnu.org/licenses/>.
 
-   ------------------------------------------------------------------------
+  ------------------------------------------------------------------------
 
-   @package   Surveyticket plugin
-   @author    David Durieux
-   @copyright Copyright (c) 2012-2014 Surveyticket plugin team
-   @license   AGPL License 3.0 or (at your option) any later version
-              http://www.gnu.org/licenses/agpl-3.0-standalone.html
-   @link      https://forge.indepnet.net/projects/surveyticket
-   @since     2012
+  @package   Surveyticket plugin
+  @author    David Durieux
+  @author    Infotel
+  @copyright Copyright (c) 2012-2016 Surveyticket plugin team
+  @license   AGPL License 3.0 or (at your option) any later version
+  http://www.gnu.org/licenses/agpl-3.0-standalone.html
+  @link      https://forge.glpi-project.org/projects/surveyticket
+  @since     2012
 
-   ------------------------------------------------------------------------
+  ------------------------------------------------------------------------
  */
+
 
 if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
@@ -44,268 +46,182 @@ if (!defined('GLPI_ROOT')) {
 
 class PluginSurveyticketProfile extends CommonDBTM {
 
-   static function canView() {
-      return Session::haveRight('profile', 'r');
-   }
+   static $rightname = "profile";
 
-   static function canCreate() {
-      return Session::haveRight('profile', 'w');
-   }
+   function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
 
-   
-   
-   /**
-    * Get the name of the index field
-    *
-    * @return name of the index field
-   **/
-   static function getIndexName() {
-      return "profiles_id";
-   }
-
-
-   /**
-    * Create full profile
-    *
-    **/
-   static function initProfile() {
-      if (isset($_SESSION['glpiactiveprofile']['id'])) {
-         $input = array();
-         $input['profiles_id'] = $_SESSION['glpiactiveprofile']['id'];
-         $input['config'] = 'w';
-         $psProfile = new self();
-         $psProfile->add($input);
-      }
-   }
-   
-   
-
-   static function changeprofile() {
-      if (isset($_SESSION['glpiactiveprofile']['id'])) {
-         $tmp = new self();
-          if ($tmp->getFromDB($_SESSION['glpiactiveprofile']['id'])) {
-             $_SESSION["glpi_plugin_surveyticket_profile"] = $tmp->fields;
-          } else {
-             unset($_SESSION["glpi_plugin_surveyticket_profile"]);
-          }
-      }
-   }
-
-   
-   
-   function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
-
-      if (Session::haveRight('profile', "r")) {
-         if ($item->getID() > 0) {
-            return self::createTabEntry('Survey ticket');
-         }
+      if ($item->getType() == 'Profile') {
+         return PluginSurveyticketSurvey::getTypeName(2);
       }
       return '';
    }
 
+   static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
+      global $CFG_GLPI;
 
+      if ($item->getType() == 'Profile') {
+         $ID = $item->getID();
+         $prof = new self();
 
-   static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
-
-      if ($item->getID() > 0) {
-         $psProfile = new self();
-         $psProfile->showForm($item->getID());
+         self::addDefaultProfileInfos($ID, array('plugin_surveyticket' => 0));
+         $prof->showForm($ID);
       }
-
       return true;
    }
 
-   
-   
+   static function createFirstAccess($ID) {
+      //85
+      self::addDefaultProfileInfos($ID, array('plugin_surveyticket' => 127), true);
+   }
 
-    /**
+   /**
+    * @param $profile
+    * */
+   static function addDefaultProfileInfos($profiles_id, $rights, $drop_existing = false) {
+      global $DB;
+
+      $profileRight = new ProfileRight();
+      foreach ($rights as $right => $value) {
+         if (countElementsInTable('glpi_profilerights', "`profiles_id`='$profiles_id' AND `name`='$right'") && $drop_existing) {
+            $profileRight->deleteByCriteria(array('profiles_id' => $profiles_id, 'name' => $right));
+         }
+         if (!countElementsInTable('glpi_profilerights', "`profiles_id`='$profiles_id' AND `name`='$right'")) {
+            $myright['profiles_id'] = $profiles_id;
+            $myright['name'] = $right;
+            $myright['rights'] = $value;
+            $profileRight->add($myright);
+
+            //Add right to the current session
+            $_SESSION['glpiactiveprofile'][$right] = $value;
+         }
+      }
+   }
+
+   /**
     * Show profile form
     *
     * @param $items_id integer id of the profile
     * @param $target value url of target
     *
     * @return nothing
-    **/
-   function showForm($items_id) {
-      global $CFG_GLPI;
-      
-      if ($items_id > 0 
-              AND $this->getFromDB($items_id)) {
-        
-      } else {
-         $this->getEmpty();
-      }
-      
-      if (!Session::haveRight("profile", "r")) {
-         return false;
-      }
-      $canedit=Session::haveRight("profile", "w");
-      if ($canedit) {
-         echo "<form method='post' action='".$CFG_GLPI['root_doc']."/plugins/surveyticket/front/profile.form.php'>";
-         echo '<input type="hidden" name="profiles_id" value="'.$items_id.'"/>';
+    * */
+   function showForm($profiles_id = 0, $openform = TRUE, $closeform = TRUE) {
+
+      echo "<div class='firstbloc'>";
+      if (($canedit = Session::haveRightsOr(self::$rightname, array(CREATE, UPDATE, PURGE))) && $openform) {
+         $profile = new Profile();
+         echo "<form method='post' action='" . $profile->getFormURL() . "'>";
       }
 
-      echo "<div class='spaced'>";
-      echo "<table class='tab_cadre_fixe'>";
+      $profile = new Profile();
+      $profile->getFromDB($profiles_id);
+      $rights = $this->getAllRights();
+      $profile->displayRightsChoiceMatrix($rights, array('canedit' => $canedit,
+         'default_class' => 'tab_bg_2',
+         'title' => __('General')));
 
-      echo "<tr>";
-      echo "<th colspan='4'>Survey ticket :</th>";
-      echo "</tr>";
-
-      echo "<tr class='tab_bg_1'>";
-      echo "<td>";
-      echo __('Setup')."&nbsp;:";
-      echo "</td>";
-      echo "<td>";
-      Profile::dropdownNoneReadWrite("config", $this->fields["config"], 1, 1, 1);
-      echo "</td>";
-      echo "<td>";
-      echo "</td>";
-      echo "<td>";
-      echo "</td>";
-      echo "</tr>";
-      
-      if ($canedit) {
-         echo "<tr>";
-         echo "<th colspan='4'>";
-         echo "<input type='hidden' name='profile_id' value='".$items_id."'/>";
-         echo "<input type='submit' name='update' value=\"".__('Save')."\" class='submit'>";
-         echo "</td>";
-         echo "</tr>";
-         echo "</table>";
+      if ($canedit && $closeform) {
+         echo "<div class='center'>";
+         echo Html::hidden('id', array('value' => $profiles_id));
+         echo Html::submit(_sx('button', 'Save'), array('name' => 'update'));
+         echo "</div>\n";
          Html::closeForm();
-      } else {
-         echo "</table>";
       }
       echo "</div>";
-
-      Html::closeForm();
    }
 
-   
+   static function getAllRights($all = false) {
+      $rights = array(
+         array('itemtype' => 'PluginSurveyticketSurvey',
+            'label' => _n('Survey', 'Surveys', 2, 'surveyticket'),
+            'field' => 'plugin_surveyticket'
+         ),
+      );
+      return $rights;
+   }
 
-   static function checkRight($module, $right) {
-      global $CFG_GLPI;
+   /**
+    * Init profiles
+    *
+    * */
+   static function translateARight($old_right) {
+      switch ($old_right) {
+         case '':
+            return 0;
+         case 'r' :
+            return READ;
+         case 'w':
+            return ALLSTANDARDRIGHT;
+         case '0':
+         case '1':
+            return $old_right;
 
-      if (!PluginSurveyticketProfile::haveRight($module, $right)) {
-         // Gestion timeout session
-         if (!Session::getLoginUserID()) {
-            Html::redirect($CFG_GLPI["root_doc"] . "/index.php");
-            exit ();
-         }
-         Html::displayRightError();
+         default :
+            return 0;
       }
    }
 
-
-
-   static function haveRight($module, $right) {
+   /**
+    * @since 0.85
+    * Migration rights from old system to the new one for one profile
+    * @param $profiles_id the profile ID
+    */
+   static function migrateOneProfile($profiles_id) {
       global $DB;
-
-      //If GLPI is using the slave DB -> read only mode
-      if ($DB->isSlave() && $right == "w") {
-         return false;
-      }
-
-      $matches = array(""  => array("", "r", "w"), // ne doit pas arriver normalement
-                       "r" => array("r", "w"),
-                       "w" => array("w"),
-                       "1" => array("1"),
-                       "0" => array("0", "1")); // ne doit pas arriver non plus
-
-      if (isset ($_SESSION["glpi_plugin_surveyticket_profile"][$module])
-          && in_array($_SESSION["glpi_plugin_surveyticket_profile"][$module], $matches[$right])) {
+      //Cannot launch migration if there's nothing to migrate...
+      if (!TableExists('glpi_plugin_surveyticket_profiles')) {
          return true;
       }
-      return false;
+
+      foreach ($DB->request('glpi_plugin_surveyticket_profiles', "`profiles_id`='$profiles_id'") as $profile_data) {
+
+         $matching = array('surveyticket' => 'plugin_surveyticket');
+         $current_rights = ProfileRight::getProfileRights($profiles_id, array_values($matching));
+         foreach ($matching as $old => $new) {
+            if (!isset($current_rights[$old])) {
+               $query = "UPDATE `glpi_profilerights` 
+                         SET `rights`='" . self::translateARight($profile_data[$old]) . "' 
+                         WHERE `name`='$new' AND `profiles_id`='$profiles_id'";
+               $DB->query($query);
+            }
+         }
+      }
    }
 
-      
-   
    /**
-    * Update the item in the database
-    *
-    * @param $updates fields to update
-    * @param $oldvalues old values of the updated fields
-    *
-    * @return nothing
-   **/
-   function updateInDB($updates, $oldvalues=array()) {
+    * Initialize profiles, and migrate it necessary
+    */
+   static function initProfile() {
       global $DB;
+      $profile = new self();
 
-      foreach ($updates as $field) {
-         if (isset($this->fields[$field])) {
-            $query  = "UPDATE `".$this->getTable()."`
-                       SET `".$field."`";
-
-            if ($this->fields[$field]=="NULL") {
-               $query .= " = ".$this->fields[$field];
-
-            } else {
-               $query .= " = '".$this->fields[$field]."'";
-            }
-
-            $query .= " WHERE `profiles_id` ='".$this->fields["profiles_id"]."'";
-
-            if (!$DB->query($query)) {
-               if (isset($oldvalues[$field])) {
-                  unset($oldvalues[$field]);
-               }
-            }
-
-         } else {
-            // Clean oldvalues
-            if (isset($oldvalues[$field])) {
-               unset($oldvalues[$field]);
-            }
+      //Add new rights in glpi_profilerights table
+      foreach ($profile->getAllRights(true) as $data) {
+         if (countElementsInTable("glpi_profilerights", "`name` = '" . $data['field'] . "'") == 0) {
+            ProfileRight::addProfileRights(array($data['field']));
          }
-
       }
 
-      if (count($oldvalues)) {
-         Log::constructHistory($this, $oldvalues, $this->fields);
+      //Migration old rights in new ones
+      foreach ($DB->request("SELECT `id` FROM `glpi_profiles`") as $prof) {
+         self::migrateOneProfile($prof['id']);
       }
-      return true;
+      foreach ($DB->request("SELECT *
+                           FROM `glpi_profilerights` 
+                           WHERE `profiles_id`='" . $_SESSION['glpiactiveprofile']['id'] . "' 
+                              AND `name` LIKE '%plugin_surveyticket%'") as $prof) {
+         $_SESSION['glpiactiveprofile'][$prof['name']] = $prof['rights'];
+      }
    }
 
-   
-   
-   /**
-    * Add a message on update action
-   **/
-   function addMessageOnUpdateAction() {
-
-      $link = $this->getFormURL();
-      if (!isset($link)) {
-         return;
-      }
-
-      $addMessAfterRedirect = false;
-
-      if (isset($this->input['_update'])) {
-         $addMessAfterRedirect = true;
-      }
-
-      if (isset($this->input['_no_message']) || !$this->auto_message_on_action) {
-         $addMessAfterRedirect = false;
-      }
-
-      if ($addMessAfterRedirect) {
-         $profile = new Profile();
-         $profile->getFromDB($this->fields['profiles_id']);
-         // Do not display quotes
-         if (isset($profile->fields['name'])) {
-            $profile->fields['name'] = stripslashes($profile->fields['name']);
-         } else {
-            $profile->fields['name'] = $profile->getTypeName()." : ".__('ID')." ".
-                                    $profile->fields['id'];
+   static function removeRightsFromSession() {
+      foreach (self::getAllRights(true) as $right) {
+         if (isset($_SESSION['glpiactiveprofile'][$right['field']])) {
+            unset($_SESSION['glpiactiveprofile'][$right['field']]);
          }
-
-         Session::addMessageAfterRedirect(__('Item successfully updated')."&nbsp;: " .
-                                 (isset($this->input['_no_message_link'])?$profile->getNameID()
-                                                                         :$profile->getLink()));
       }
    }
+
 }
 
 ?>

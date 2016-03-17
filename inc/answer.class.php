@@ -1,42 +1,44 @@
 <?php
 
 /*
-   ------------------------------------------------------------------------
-   Surveyticket
-   Copyright (C) 2012-2014 by the Surveyticket plugin Development Team.
+  ------------------------------------------------------------------------
+  Surveyticket
+  Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
 
-   https://forge.indepnet.net/projects/surveyticket
-   ------------------------------------------------------------------------
+  https://forge.glpi-project.org/projects/surveyticket
+  ------------------------------------------------------------------------
 
-   LICENSE
+  LICENSE
 
-   This file is part of Surveyticket plugin project.
+  This file is part of Surveyticket plugin project.
 
-   Surveyticket plugin is free software: you can redistribute it and/or modify
-   it under the terms of the GNU Affero General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+  Surveyticket plugin is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-   Surveyticket plugin is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-   GNU Affero General Public License for more details.
+  Surveyticket plugin is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Affero General Public License for more details.
 
-   You should have received a copy of the GNU Affero General Public License
-   along with Surveyticket plugin. If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU Affero General Public License
+  along with Surveyticket plugin. If not, see <http://www.gnu.org/licenses/>.
 
-   ------------------------------------------------------------------------
+  ------------------------------------------------------------------------
 
-   @package   Surveyticket plugin
-   @author    David Durieux
-   @copyright Copyright (c) 2012-2014 Surveyticket plugin team
-   @license   AGPL License 3.0 or (at your option) any later version
-              http://www.gnu.org/licenses/agpl-3.0-standalone.html
-   @link      https://forge.indepnet.net/projects/surveyticket
-   @since     2012
+  @package   Surveyticket plugin
+  @author    David Durieux
+  @author    Infotel
+  @copyright Copyright (c) 2012-2016 Surveyticket plugin team
+  @license   AGPL License 3.0 or (at your option) any later version
+  http://www.gnu.org/licenses/agpl-3.0-standalone.html
+  @link      https://forge.glpi-project.org/projects/surveyticket
+  @since     2012
 
-   ------------------------------------------------------------------------
+  ------------------------------------------------------------------------
  */
+
 
 if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
@@ -45,6 +47,7 @@ if (!defined('GLPI_ROOT')) {
 class PluginSurveyticketAnswer extends CommonDBTM {
    
    public $dohistory = true;
+   static $rightname = "plugin_surveyticket";
 
    /**
    * Get name of this type
@@ -55,19 +58,6 @@ class PluginSurveyticketAnswer extends CommonDBTM {
    static function getTypeName($nb = 0) {
       return _n('Answer', 'Answers', $nb, 'surveyticket');
    }
-
-
-
-   static function canCreate() {
-      return PluginSurveyticketProfile::haveRight("config", 'w');
-   }
-
-
-   static function canView() {
-      return PluginSurveyticketProfile::haveRight("config", 'r');
-   }
-
-   
 
    function getSearchOptions() {
 
@@ -200,29 +190,27 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('Label')."&nbsp;:</td>";
       echo "<td>";
-      /////////////////////////// Correction du bug : Ajout d'un nouveau type de question (Texte long) ////////////////////////////////
       switch ($psQuestion->fields['type']){
-      	case 'date': 
+         case PluginSurveyticketQuestion::DATE : 
       		echo '<i>'.__('date').'</i>';
       		break;
-      	case 'input':
+         case PluginSurveyticketQuestion::INPUT :
          	echo '<i>'.__('Short text', 'surveyticket').'</i>';
          	break;
-        case 'textarea':
+         case PluginSurveyticketQuestion::TEXTAREA :
          	echo '<i>'.__('Long text', 'surveyticket').'</i>';
          	break;
         default :
          	echo '<textarea maxlength="255" cols="70" rows="3" name="name">'.$this->fields["name"].'</textarea>'; 
          	break;
       } 
-      ///////////////////////////////////////////////////// Fin de la correction du bug /////////////////////////////////////////////////
       
       echo "</td>";
       echo "<td>";
       $psQuestion = new PluginSurveyticketQuestion();
       $psQuestion->getFromDB($_SESSION['glpi_plugins_surveyticket']['questions_id']);
-      if ($psQuestion->fields['type'] != 'date'
-              && $psQuestion->fields['type'] != 'input' && $psQuestion->fields['type'] != 'textarea') {
+      if ($psQuestion->fields['type'] != PluginSurveyticketQuestion::DATE
+              && $psQuestion->fields['type'] != PluginSurveyticketQuestion::INPUT && $psQuestion->fields['type'] != PluginSurveyticketQuestion::TEXTAREA) {
          echo __('+ field', 'surveyticket')."&nbsp;:";
       }
       echo "</td>";
@@ -234,12 +222,9 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       $texttype['date'] = __('Date');
       $texttype['number'] = __('Number');
       
-      /////////////////////////////// Correction du bug : Ajout d'un nouveau type de question /////////////////////////////////
-      if ($psQuestion->fields['type'] != 'date'
-              && $psQuestion->fields['type'] != 'input'&& $psQuestion->fields['type'] != 'textarea') {
+      if (!PluginSurveyticketQuestion::isQuestionTypeText($psQuestion->fields['type'])) {
          Dropdown::showFromArray("answertype", $texttype, array('value' => $this->fields['answertype']));   
       }
-      ////////////////////////////////////////////// Fin de la correction du bug ////////////////////////////////////////////////
       echo "</td>";
       echo "</tr>";
       
@@ -253,7 +238,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       echo "</td>";
       echo "</tr>";
       
-      if ($psQuestion->fields['type'] != "checkbox") {
+      if ($psQuestion->fields['type'] != PluginSurveyticketQuestion::CHECKBOX) {
          echo "<tr class='tab_bg_1'>";
          echo "<td>".__('Go to question', 'surveyticket')."&nbsp;:</td>";
          echo "<td colspan='3'>";

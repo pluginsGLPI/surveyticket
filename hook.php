@@ -1,176 +1,95 @@
 <?php
 
 /*
-   ------------------------------------------------------------------------
-   Surveyticket
-   Copyright (C) 2012-2014 by the Surveyticket plugin Development Team.
+  ------------------------------------------------------------------------
+  Surveyticket
+  Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
 
-   https://forge.indepnet.net/projects/surveyticket
-   ------------------------------------------------------------------------
+  https://forge.glpi-project.org/projects/surveyticket
+  ------------------------------------------------------------------------
 
-   LICENSE
+  LICENSE
 
-   This file is part of Surveyticket plugin project.
+  This file is part of Surveyticket plugin project.
 
-   Surveyticket plugin is free software: you can redistribute it and/or modify
-   it under the terms of the GNU Affero General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+  Surveyticket plugin is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-   Surveyticket plugin is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-   GNU Affero General Public License for more details.
+  Surveyticket plugin is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Affero General Public License for more details.
 
-   You should have received a copy of the GNU Affero General Public License
-   along with Surveyticket plugin. If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU Affero General Public License
+  along with Surveyticket plugin. If not, see <http://www.gnu.org/licenses/>.
 
-   ------------------------------------------------------------------------
+  ------------------------------------------------------------------------
 
-   @package   Surveyticket plugin
-   @author    David Durieux
-   @copyright Copyright (c) 2012-2014 Surveyticket plugin team
-   @license   AGPL License 3.0 or (at your option) any later version
-              http://www.gnu.org/licenses/agpl-3.0-standalone.html
-   @link      https://forge.indepnet.net/projects/surveyticket
-   @since     2012
+  @package   Surveyticket plugin
+  @author    David Durieux
+  @author    Infotel
+  @copyright Copyright (c) 2012-2016 Surveyticket plugin team
+  @license   AGPL License 3.0 or (at your option) any later version
+  http://www.gnu.org/licenses/agpl-3.0-standalone.html
+  @link      https://forge.glpi-project.org/projects/surveyticket
+  @since     2012
 
-   ------------------------------------------------------------------------
+  ------------------------------------------------------------------------
  */
+
 
 function plugin_surveyticket_install() {
    global $DB;
 
-   if (!TableExists('glpi_plugin_surveyticket_questions')) {
-      $DB_file = GLPI_ROOT ."/plugins/surveyticket/install/mysql/plugin_surveyticket-empty.sql";
-      $DBf_handle = fopen($DB_file, "rt");
-      $sql_query = fread($DBf_handle, filesize($DB_file));
-      fclose($DBf_handle);
-      foreach ( explode(";\n", "$sql_query") as $sql_line) {
-         if (Toolbox::get_magic_quotes_runtime()) $sql_line=Toolbox::stripslashes_deep($sql_line);
-         if (!empty($sql_line)) $DB->query($sql_line);
-      }
+   include_once (GLPI_ROOT . "/plugins/surveyticket/inc/profile.class.php");
 
-      include (GLPI_ROOT . "/plugins/surveyticket/inc/profile.class.php");
-      $psProfile = new PluginSurveyticketProfile();
-      $psProfile->initProfile();
+   if (!TableExists('glpi_plugin_surveyticket_questions')) {
+      $DB->runFile(GLPI_ROOT . "/plugins/surveyticket/install/mysql/empty-1.0.5.sql");
    }
+   if (!FieldExists("glpi_plugin_surveyticket_surveyquestions", "mandatory")) {
+      include(GLPI_ROOT . "/plugins/surveyticket/install/update13_14.php");
+      update13to14();
+   }
+   PluginSurveyticketProfile::initProfile();
+   PluginSurveyticketProfile::createFirstAccess($_SESSION['glpiactiveprofile']['id']);
+   $migration = new Migration("1.0.5");
+   $migration->dropTable('glpi_plugin_surveyticket_profiles');
 
    return true;
 }
-
-
 
 // Uninstall process for plugin : need to return true if succeeded
 function plugin_surveyticket_uninstall() {
    global $DB;
 
+   include_once (GLPI_ROOT . "/plugins/surveyticket/inc/profile.class.php");
+   include_once (GLPI_ROOT . "/plugins/surveyticket/inc/menu.class.php");
+
    $query = "SHOW TABLES;";
-   $result=$DB->query($query);
-   while ($data=$DB->fetch_array($result)) {
+   $result = $DB->query($query);
+   while ($data = $DB->fetch_array($result)) {
       if (strstr($data[0], "glpi_plugin_surveyticket_")) {
 
-         $query_delete = "DROP TABLE `".$data[0]."`;";
+         $query_delete = "DROP TABLE `" . $data[0] . "`;";
          $DB->query($query_delete) or die($DB->error());
       }
    }
 
-   $query="DELETE FROM `glpi_displaypreferences`
+   $query = "DELETE FROM `glpi_displaypreferences`
            WHERE `itemtype` LIKE 'PluginSurveyticket%';";
    $DB->query($query) or die($DB->error());
 
-   return true;
-}
-
-
-
-function plugin_surveyticket_post_init() {
-
-   if ((strpos($_SERVER['PHP_SELF'], "front/ticket.form.php")
-            && !isset($_GET['id'])
-            && (!isset($_POST['id'])
-               || $_POST['id'] == 0))
-     || (strpos($_SERVER['PHP_SELF'], "front/helpdesk.public.php")
-            && isset($_GET['create_ticket']))
-     || (strpos($_SERVER['PHP_SELF'], "front/tracking.injector.php"))) {
-
-      if (isset($_POST)) {
-//         echo "<pre>";print_r($_POST);exit;
-         $psQuestion = new PluginSurveyticketQuestion();
-         $psAnswer = new PluginSurveyticketAnswer();
-         //print_r($_POST);exit;
-         $description = '';
-         foreach ($_POST as $question=>$answer) {
-            if (strstr($question, "question")
-                    && !strstr($question, "realquestion")) {
-               $psQuestion->getFromDB(str_replace("question", "", $question));
-               if (is_array($answer)) {
-                  // Checkbox
-                  $description .= _n('Question', 'Questions', 1, 'surveyticket')." : ".$psQuestion->fields['name']."\n";
-                  foreach ($answer as $answers_id) {
-                     if ($psAnswer->getFromDB($answers_id)) {
-                        $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$psAnswer->fields['name']."\n";
-                        $qid = str_replace("question", "", $question);
-                        if (isset($_POST["text-".$qid."-".$answers_id])
-                                AND $_POST["text-".$qid."-".$answers_id] != '') {
-                           $description .= "Texte : ".$_POST["text-".$qid."-".$answers_id]."\n";
-                        }
-                     }
-                  }
-                  $description .= "\n";
-                  unset($_POST[$question]);
-               } else {
-                  $real = 0;
-                  if (isset($_POST['realquestion'.(str_replace("question", "", $question))])
-                          && $_POST['realquestion'.(str_replace("question", "", $question))] != '') {
-                     $realanswer = $answer;
-                     $answer = $_POST['realquestion'.str_replace("question", "", $question)];
-                     $real = 1;
-                  }
-                  $description .= "===========================================================================\n";
-                  $description .= _n('Question', 'Questions', 1, 'surveyticket')." : ".$psQuestion->fields['name']."\n";
-                  if ($psAnswer->getFromDB($answer)) {
-                     if ($real == 1) {
-                        $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$realanswer."\n";
-                     } else {
-                        $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$psAnswer->fields['name']."\n";
-                     }
-                     $qid = str_replace("question", "", $question);
-                     if (isset($_POST["text-".$qid."-".$answer])
-                             AND $_POST["text-".$qid."-".$answer] != '') {
-                        $description .= __('Text', 'surveyticket')." : ".$_POST["text-".$qid."-".$answer]."\n";
-                     }
-                     $description .= "\n";
-                     unset($_POST[$question]);
-                  } else {
-                     $description .= __('Text', 'surveyticket')." : ".str_replace('\r', "", $answer)."\n";
-                     $description .= "\n";
-                     unset($_POST[$question]);
-                  }
-               }
-            }
-         }
-         if ($description != '') {
-            $_POST['content'] = addslashes($description);
-         }
-      }
-      if (!isset($_POST['add'])) {
-         if (strpos($_SERVER['PHP_SELF'], "ticket.form.php")) {
-            Html::header(__('New ticket'), '', "maintain", "ticket");
-
-            PluginSurveyticketSurvey::getCentral();
-            Html::footer();
-            exit;
-         } else if (strpos($_SERVER['PHP_SELF'], "helpdesk.public.php")
-                 || (strpos($_SERVER['PHP_SELF'], "tracking.injector.php"))) {
-
-            Html::helpHeader(__('Simplified interface'), '', $_SESSION["glpiname"]);
-            PluginSurveyticketSurvey::getHelpdesk($_SESSION["glpiID"]);
-            Html::helpFooter();
-            exit;
-         }
-      }
+   //Delete rights associated with the plugin
+   $profileRight = new ProfileRight();
+   foreach (PluginSurveyticketProfile::getAllRights() as $right) {
+      $profileRight->deleteByCriteria(array('name' => $right['field']));
    }
+   PluginSurveyticketMenu::removeRightsFromSession();
+   PluginSurveyticketProfile::removeRightsFromSession();
+
+   return true;
 }
 
 ?>

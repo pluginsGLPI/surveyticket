@@ -40,11 +40,22 @@
  */
 
 
-include ("../../../inc/includes.php");
+include ('../../../inc/includes.php');
+
+Session::checkLoginUser();
+
+Html::header_nocache();
+
+if (!isset($_POST['tickets_id']) || empty($_POST['tickets_id'])){
+   $_POST['tickets_id'] = 0;
+}
+switch($_POST['action']){
+   case 'loadSurveyTicket':
+      header("Content-Type: application/json");
+      $ticket = new PluginSurveyticketTicket();
+      echo (json_encode($ticket->getSurveyTicket($_POST['type'], $_POST['itilcategories_id'], $_POST['entities_id'], $_POST['interface'])));
+      break;
+}
 
 
-Html::header(PluginSurveyticketSurvey::getTypeName(2), '', "helpdesk", "pluginsurveyticketmenu", 'survey');
-Search::show('PluginSurveyticketSurvey');
-
-Html::footer();
 ?>

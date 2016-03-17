@@ -1,66 +1,64 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# Copyright (C) YEAR SurveyTicket Development Team
 # This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-# Translators:
-# David Durieux <d.durieux@siprossii.com>, 2013-2014
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI Project - plugin surveyticket\n"
+"Project-Id-Version: GLPI - SurveyTicket plugin 1.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-29 17:15+0100\n"
-"PO-Revision-Date: 2016-02-29 17:17+0100\n"
-"Last-Translator: David Durieux <d.durieux@siprossii.com>\n"
-"Language-Team: French (France) (http://www.transifex.com/projects/p/"
-"glpi_surveyticket/language/fr_FR/)\n"
-"Language: fr_FR\n"
+"POT-Creation-Date: 2016-02-29 17:14+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 1.8.5\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
 #: setup.php:96
 msgid "Your GLPI version not compatible, require 0.90"
-msgstr "Votre version de GLPI pas compatible, nécessitent 0,90"
+msgstr ""
 
 #: inc/answer.class.php:57 inc/answer.class.php:109 inc/answer.class.php:180
 #: inc/ticket.class.php:507 inc/ticket.class.php:529 inc/ticket.class.php:531
 msgid "Answer"
 msgid_plural "Answers"
-msgstr[0] "Réponse"
-msgstr[1] "Réponses"
+msgstr[0] ""
+msgstr[1] ""
 
 #: inc/answer.class.php:123 inc/answer.class.php:212
 msgid "+ field"
-msgstr "+ champ"
+msgstr ""
 
 #: inc/answer.class.php:126 inc/answer.class.php:241
 msgid "Go to question"
-msgstr "Aller à la question"
+msgstr ""
 
 #: inc/answer.class.php:196 inc/question.class.php:141
 msgid "Short text"
-msgstr "Texte court"
+msgstr ""
 
 #: inc/answer.class.php:199 inc/question.class.php:142
 msgid "Long text"
-msgstr "Texte long"
+msgstr ""
 
 #: inc/answer.class.php:230
 msgid "Linked to question"
-msgstr "Lié à la question"
+msgstr ""
 
 #: inc/menu.class.php:35 inc/menu.class.php:51 inc/profile.class.php:134
 #: inc/survey.class.php:56
 msgid "Survey"
 msgid_plural "Surveys"
-msgstr[0] "Questionnaire"
-msgstr[1] "Questionnaires"
+msgstr[0] ""
+msgstr[1] ""
 
 #: inc/menu.class.php:44
 msgid "Menu"
-msgstr "Menu"
+msgstr ""
 
 #: inc/menu.class.php:58 inc/menu.class.php:76 inc/question.class.php:65
 #: inc/surveyquestion.class.php:48 inc/surveyquestion.class.php:54
@@ -68,24 +66,24 @@ msgstr "Menu"
 #: inc/ticket.class.php:504 inc/ticket.class.php:525
 msgid "Question"
 msgid_plural "Questions"
-msgstr[0] "Question"
-msgstr[1] "Questions"
+msgstr[0] ""
+msgstr[1] ""
 
 #: inc/question.class.php:137
 msgid "dropdown"
-msgstr "Liste déroulante"
+msgstr ""
 
 #: inc/question.class.php:138
 msgid "checkbox"
-msgstr "case à cocher"
+msgstr ""
 
 #: inc/question.class.php:139
 msgid "radio"
-msgstr "bouton radio"
+msgstr ""
 
 #: inc/surveyquestion.class.php:116 inc/surveyquestion.class.php:151
 msgid "Mandatory"
-msgstr "Obligatoire"
+msgstr ""
 
 #: inc/surveyquestion.class.php:247
 #, php-format
@@ -93,20 +91,12 @@ msgid ""
 "The question can not be added because it has links to other questions : %s. "
 "Please delete the questionnaire if you want to add it."
 msgstr ""
-"La question ne peut pas être ajoutée car elle a des liens vers d'autres "
-"questions:% s. Veuillez les supprimer du questionnaire si vous voulez "
-"l'ajouter."
 
 #: inc/ticket.class.php:486
 #, php-format
 msgid "Mandatory questions are not filled. Please correct: %s"
 msgstr ""
-"Les questions obligatoires ne sont pas remplis. Merci de corriger : %s"
 
 #: inc/ticket.class.php:536 inc/ticket.class.php:541
 msgid "Text"
-msgstr "Texte"
-
-#~ msgid "Your GLPI version not compatible, require 0.84"
-#~ msgstr ""
-#~ "Votre version de GLPI n'est pas compatible, la version 0.84 est requise"
+msgstr ""
