@@ -49,9 +49,11 @@
                 } else if ((window.location.href.indexOf('helpdesk.public.php?create_ticket=1') > 0 ||
                               window.location.href.indexOf('tracking.injector.php') > 0)
                   || object.isIE()) {
-                    var typeIdElm = $('select[name="type"]');
-                    if (tickets_id == 0 || tickets_id == undefined) {
-                        object.loadSurveyTicket(typeIdElm.val(), 'helpdesk');
+                    if($('input[name="_from_helpdesk"]').val()){
+                        var typeIdElm = $('select[name="type"]');
+                        if (tickets_id == 0 || tickets_id == undefined) {
+                            object.loadSurveyTicket(typeIdElm.val(), 'helpdesk');
+                        }
                     }
                 }
             });
@@ -64,7 +66,6 @@
          * @param string tickets_id
          */
         this.loadSurveyTicket = function (type, interface) {
-        console.log('test');
             var root_doc = object.params['root_doc'];
             var descriptionIdElm = $('textarea[name="content"]');
             var itilcategoriesIdElm = $("select[name='itilcategories_id'], input[name='itilcategories_id']");

@@ -542,6 +542,7 @@ class PluginSurveyticketTicket extends CommonDBTM {
       if (!$response) {
          return true;
       }
+      self::setSessions($ticket->input);
       if (self::checkMandatoryFields($ticket)) {
          //Recovery of the survey to put in the content of the ticket
          $psQuestion  = new PluginSurveyticketQuestion();
@@ -609,7 +610,7 @@ class PluginSurveyticketTicket extends CommonDBTM {
    }
 
    /**
-    * Empty the session variable to not refill the old valeures
+    * Empty the session variable to not refill the old values
     * @param Ticket $ticket
     */
    static function postAddTicket(Ticket $ticket) {

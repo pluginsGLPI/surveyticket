@@ -147,7 +147,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          $texttype['shorttext'] = __('Text')." - court";
          $texttype['longtext'] = __('Text')." - long";
          $texttype['date'] = __('Date');
-         $texttype['number'] = __('Number');
+         $texttype['number'] = _x('Quantity', 'Number');
          echo $texttype[$data['answertype']];
          echo "</td>";
          echo "<td>";
@@ -220,7 +220,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       $texttype['shorttext'] = __('Text')." - court";
       $texttype['longtext'] = __('Text')." - long";
       $texttype['date'] = __('Date');
-      $texttype['number'] = __('Number');
+      $texttype['number'] = _x('Quantity', 'Number');
       
       if (!PluginSurveyticketQuestion::isQuestionTypeText($psQuestion->fields['type'])) {
          Dropdown::showFromArray("answertype", $texttype, array('value' => $this->fields['answertype']));   
