@@ -175,7 +175,7 @@ class PluginSurveyticketProfile extends CommonDBTM {
 
       foreach ($DB->request('glpi_plugin_surveyticket_profiles', "`profiles_id`='$profiles_id'") as $profile_data) {
 
-         $matching = array('surveyticket' => 'plugin_surveyticket');
+         $matching = array('config' => 'plugin_surveyticket');
          $current_rights = ProfileRight::getProfileRights($profiles_id, array_values($matching));
          foreach ($matching as $old => $new) {
             if (!isset($current_rights[$old])) {
