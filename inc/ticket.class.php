@@ -598,7 +598,7 @@ class PluginSurveyticketTicket extends CommonDBTM {
                }
             }
             if ($description != '') {
-               $ticket->input['content'] = addslashes($description);
+               $ticket->input['content'] = stripcslashes($description);
             }
          }
       } else {
