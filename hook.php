@@ -55,7 +55,10 @@ function plugin_surveyticket_install() {
       $psProfile = new PluginSurveyticketProfile();
       $psProfile->initProfile();
    }
-
+   if (!FieldExists("glpi_plugin_surveyticket_surveyquestions", "mandatory")) {
+      include(GLPI_ROOT . "/plugins/surveyticket/install/update14_15.php");
+      update14to15();
+   }
    return true;
 }
 
@@ -94,66 +97,7 @@ function plugin_surveyticket_post_init() {
             && isset($_GET['create_ticket']))
      || (strpos($_SERVER['PHP_SELF'], "front/tracking.injector.php"))) {
 
-      if (isset($_POST)) {
-//         echo "<pre>";print_r($_POST);exit;
-         $psQuestion = new PluginSurveyticketQuestion();
-         $psAnswer = new PluginSurveyticketAnswer();
-         //print_r($_POST);exit;
-         $description = '';
-         foreach ($_POST as $question=>$answer) {
-            if (strstr($question, "question")
-                    && !strstr($question, "realquestion")) {
-               $psQuestion->getFromDB(str_replace("question", "", $question));
-               if (is_array($answer)) {
-                  // Checkbox
-                  $description .= _n('Question', 'Questions', 1, 'surveyticket')." : ".$psQuestion->fields['name']."\n";
-                  foreach ($answer as $answers_id) {
-                     if ($psAnswer->getFromDB($answers_id)) {
-                        $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$psAnswer->fields['name']."\n";
-                        $qid = str_replace("question", "", $question);
-                        if (isset($_POST["text-".$qid."-".$answers_id])
-                                AND $_POST["text-".$qid."-".$answers_id] != '') {
-                           $description .= "Texte : ".$_POST["text-".$qid."-".$answers_id]."\n";
-                        }
-                     }
-                  }
-                  $description .= "\n";
-                  unset($_POST[$question]);
-               } else {
-                  $real = 0;
-                  if (isset($_POST['realquestion'.(str_replace("question", "", $question))])
-                          && $_POST['realquestion'.(str_replace("question", "", $question))] != '') {
-                     $realanswer = $answer;
-                     $answer = $_POST['realquestion'.str_replace("question", "", $question)];
-                     $real = 1;
-                  }
-                  $description .= "===========================================================================\n";
-                  $description .= _n('Question', 'Questions', 1, 'surveyticket')." : ".$psQuestion->fields['name']."\n";
-                  if ($psAnswer->getFromDB($answer)) {
-                     if ($real == 1) {
-                        $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$realanswer."\n";
-                     } else {
-                        $description .= _n('Answer', 'Answers', 1, 'surveyticket')." : ".$psAnswer->fields['name']."\n";
-                     }
-                     $qid = str_replace("question", "", $question);
-                     if (isset($_POST["text-".$qid."-".$answer])
-                             AND $_POST["text-".$qid."-".$answer] != '') {
-                        $description .= __('Text', 'surveyticket')." : ".$_POST["text-".$qid."-".$answer]."\n";
-                     }
-                     $description .= "\n";
-                     unset($_POST[$question]);
-                  } else {
-                     $description .= __('Text', 'surveyticket')." : ".str_replace('\r', "", $answer)."\n";
-                     $description .= "\n";
-                     unset($_POST[$question]);
-                  }
-               }
-            }
-         }
-         if ($description != '') {
-            $_POST['content'] = addslashes($description);
-         }
-      }
+     
       if (!isset($_POST['add'])) {
          if (strpos($_SERVER['PHP_SELF'], "ticket.form.php")) {
             Html::header(__('New ticket'), '', "maintain", "ticket");
@@ -165,11 +109,13 @@ function plugin_surveyticket_post_init() {
                  || (strpos($_SERVER['PHP_SELF'], "tracking.injector.php"))) {
 
             Html::helpHeader(__('Simplified interface'), '', $_SESSION["glpiname"]);
-            PluginSurveyticketSurvey::getHelpdesk($_SESSION["glpiID"]);
+            PluginSurveyticketSurvey::getHelpdesk();
             Html::helpFooter();
             exit;
          }
+      
       }
+      
    }
 }
 

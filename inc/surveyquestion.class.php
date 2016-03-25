@@ -83,17 +83,25 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
    static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
       if ($item->getType() == 'PluginSurveyticketSurvey') {
          $pfSurveyQuestion = new self();
-         $pfSurveyQuestion->showQuestions($item->getID());
+         $pfSurveyQuestion->showQuestions($item->getID(), $withtemplate);
       }
       return TRUE;
    }
    
-   
-   
-   function showQuestions($items_id) {
+   static function questionUsed($plugin_surveyticket_questions_id, $a_used = array()) {
+      $psAnswer = new PluginSurveyticketAnswer();
+      $result   = $psAnswer->find("`plugin_surveyticket_questions_id` = " . $plugin_surveyticket_questions_id);
+      foreach ($result as $data) {
+         if ($data['link'] > 0) {
+            $a_used[] = $data['link'];
+            $a_used   = self::questionUsed($data['link'], $a_used);
+         }
+      }
+      return $a_used;
+   }
+
+   function showQuestions($items_id, $withtemplate) {
       global $CFG_GLPI;
-      
-      $psQuestion = new PluginSurveyticketQuestion();
       
       echo "<form method='post' name='form_addquestion' action='".$CFG_GLPI['root_doc'].
              "/plugins/surveyticket/front/surveyquestion.form.php'>";
@@ -107,6 +115,9 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       $a_used = array();
       foreach ($a_questions as $data) {
          $a_used[] = $data['plugin_surveyticket_questions_id'];
+         //recovery of links to other issues
+         $a_used = self::questionUsed($data['plugin_surveyticket_questions_id'], $a_used);
+
       }
       
       Dropdown::show("PluginSurveyticketQuestion", 
@@ -118,11 +129,16 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       echo "<td>";
       Dropdown::showInteger("order", "0", 0, 20);
       echo "</td>";
+      
+      echo "<td>" . __('Mandatory', 'surveyticket') . "&nbsp;:</td>";
+      echo "<td>";
+      Dropdown::showYesNo('mandatory');
+      echo "</td>";
       echo "</tr>";
       
 
       echo "<tr>";
-      echo "<td class='tab_bg_2 top' colspan='4'>";
+      echo "<td class='tab_bg_2 top' colspan='6'>";
       echo "<input type='hidden' name='plugin_surveyticket_surveys_id' value='".$items_id."'>";
       echo "<div class='center'>";
       echo "<input type='submit' name='add' value=\"".__('Add')."\" class='submit'>";
@@ -133,48 +149,186 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       
       
       // list questions
-      
-      
+      self::showListQuestions($a_questions, $withtemplate);
+
+   }
+
+   static function showListQuestions($a_questions, $withtemplate) {
+      $rand = mt_rand();
+      echo "<div class='spaced'>";
+      if ($withtemplate != 2) {
+        Html::openMassiveActionsForm('mass'.__CLASS__.$rand);
+         $massiveactionparams = array();
+         Html::showMassiveActions(__CLASS__, $massiveactionparams);
+      }
       echo "<table class='tab_cadre_fixe'>";
-      
-      echo "<tr class='tab_bg_1'>";
-      echo "<th>";
-      echo _n('Question', 'Questions', 1, 'surveyticket');
-      echo "</th>";
-      echo "<th>";
-      echo __('Type');
-      echo "</th>";
-      echo "<th>";
-      echo __('Position');
-      echo "</th>";
-      echo "<th>";
-      echo "</th>";
-      echo "</tr>";    
-      
+      if ($withtemplate != 2) {
+         $header_top    = "<th width='10'>" . Html::getCheckAllAsCheckbox('mass' . __CLASS__ . $rand);
+         $header_top .= "</th>";
+      }else{
+         $header_top    = "<th width='10'></th>";
+      }
+
+      $header_begin = "<tr class='tab_bg_1'>";
+      $header_end   = "<th>";
+      $header_end .= _n('Question', 'Questions', 1, 'surveyticket');
+      $header_end .= "</th>";
+      $header_end .= "<th>";
+      $header_end .= __('Type');
+      $header_end .= "</th>";
+      $header_end .= "<th>";
+      $header_end .= __('Position') . " / " . __('Link');
+      $header_end .= "</th>";
+      $header_end .= "<th>";
+      $header_end .= __('Mandatory', 'surveyticket');
+      $header_end .= "</th>";
+      $header_end .= "</tr>";
+
+      echo $header_begin . $header_top . $header_end;
       foreach ($a_questions as $data) {
-         echo "<tr class='tab_bg_1'>";
-         echo "<td>";
-         $psQuestion->getFromDB($data['plugin_surveyticket_questions_id']);
-         echo $psQuestion->getLink(1);
+         self::showQuestion($data);
+      }
+      echo "</table>";
+      if ($withtemplate != 2) {
+         $massiveactionparams['ontop'] = false;
+         Html::showMassiveActions(__CLASS__, $massiveactionparams);
+         Html::closeForm();
+      }
+      echo "</div>";
+   }
+
+   static function showQuestion($data) {
+      global $CFG_GLPI;
+      $psQuestion = new PluginSurveyticketQuestion();
+      $psQuestion->getFromDB($data['plugin_surveyticket_questions_id']);
+      echo "<tr class='tab_bg_1'>";
+      if (isset($data['id'])) {
+         echo "<td width='10'>";
+         Html::showMassiveActionCheckBox(__CLASS__, $data['id']);
          echo "</td>";
-         echo "<td>";
-         echo PluginSurveyticketQuestion::getQuestionTypeName($psQuestion->fields['type']);
-         echo "</td>";
+      } else {
+         echo "<td width='10'></td>";
+      }
+      echo "<td>";
+
+      echo $psQuestion->getLink(1);
+      echo "</td>";
+      echo "<td>";
+      echo PluginSurveyticketQuestion::getQuestionTypeName($psQuestion->fields['type']);
+      echo "</td>";
+      if (isset($data['id'])) {
          echo "<td>";
          echo $data['order'];
          echo "</td>";
-         echo "<td align='center'>";
-         echo "<form method='post' name='form_addquestion' action='".$CFG_GLPI['root_doc'].
-             "/plugins/surveyticket/front/surveyquestion.form.php'>";
-         echo "<input type='hidden' name='id' value='".$data['id']."'>";
-         echo "<input type='submit' name='delete' value=\""._sx('button', 'Delete permanently')."\" class='submit'>";
-         Html::closeForm();
+         echo "<td>";
+         if ($data['mandatory']) {
+            echo __('Yes');
+         } else {
+            //no
+            echo __('No');
+         }
          echo "</td>";
-         echo "</tr>";    
+      } else {
+         echo "<td>";
+         echo '';
+         echo "</td>";
+         echo "<td>";
+         if ($data['mandatory']) {
+            echo __('Yes');
+         } else {
+            //no
+            echo __('No');
+         }
+         echo "</td>";
       }
-      
-      echo "</table>";
+
+      echo "</tr>";
+      self::showLinkQuestion($data['plugin_surveyticket_questions_id']);
    }
+
+   static function showLinkQuestion($plugin_surveyticket_questions_id) {
+      $psAnswer       = new PluginSurveyticketAnswer();
+      $result         = $psAnswer->find("`plugin_surveyticket_questions_id` = " . $plugin_surveyticket_questions_id);
+      $psQuestionName = new PluginSurveyticketQuestion();
+      $psQuestion     = new PluginSurveyticketQuestion();
+      foreach ($result as $data) {
+         if ($data['link'] > 0) {
+            $psQuestion->getFromDB($data['link']);
+            $psQuestionName->getFromDB($data['plugin_surveyticket_questions_id']);
+            echo "<tr class='tab_bg_2'><td></td>";
+            echo "<td>" . __('Answer', 'surveyticket') . " : " . $psQuestionName->fields['name'] . "</td><td>";
+            echo $data['name'];
+            echo "</td><td>" . $psQuestion->getLink(1) . "</td><td colspan='2'></td>";
+            echo "</tr>";
+            self::showQuestion(array('plugin_surveyticket_questions_id' => $data['link'], 'old_plugin_surveyticket_questions_id' => $plugin_surveyticket_questions_id, 'mandatory' => $data['mandatory']));
+         }
+      }
+   }
+
+   /**
+    * Actions done before update
+    * 
+    * @param type $input
+    * @return type
+    */
+   function prepareInputForAdd($input) {
+      $msg         = array();
+      $psAnswer    = new PluginSurveyticketAnswer();
+      $result      = $psAnswer->find("`plugin_surveyticket_questions_id` = " . $input['plugin_surveyticket_questions_id']);
+      $bool        = false;
+      $survey      = new PluginSurveyticketSurveyQuestion();
+      $a_questions = $survey->find("`plugin_surveyticket_surveys_id`='" . $input['plugin_surveyticket_surveys_id'] . "'", "`order`");
+      $psQuestion  = new PluginSurveyticketQuestion();
+      $a_used      = array();
+      foreach ($a_questions as $data) {
+         $a_used[$data['plugin_surveyticket_questions_id']] = $data['plugin_surveyticket_questions_id'];
+      }
+
+      foreach ($result as $data) {
+         if ($data['link'] > 0) {
+            if (array_key_exists($data['link'], $a_used)) {
+               $bool  = true;
+               $psQuestion->getFromDB($data['link']);
+               $msg[] = $psQuestion->fields['name'];
+            }
+         }
+      }
+      if ($bool) {
+         Session::addMessageAfterRedirect(sprintf(__("The question can not be added because it has links to other questions : %s. Please delete the questionnaire if you want to add it.", 'surveyticket'), implode(', ', $msg)), false, ERROR);
+      } else {
+         return $input;
+      }
+   }
+
+   static function deleteSurveyQuestion($id) {
+      $temp = new self();
+      $temp->deleteByCriteria(array('plugin_surveyticket_surveys_id' => $id));
+   }
+
+   /**
+    * 
+    * @return string
+    */
+   function getSearchOptions() {
+
+      $tab = array();
+
+      $tab[3]['table']    = $this->getTable();
+      $tab[3]['field']    = 'mandatory';
+      $tab[3]['name']     = __('Mandatory', 'surveyticket');
+      $tab[3]['datatype'] = 'bool';
+      $tab[3]['massiveaction']  = true;
+
+      $tab[2]['table']    = $this->getTable();
+      $tab[2]['field']    = 'order';
+      $tab[2]['name']     = __('Position');
+      $tab[2]['datatype'] = 'number';
+      $tab[2]['massiveaction']  = true;
+
+      return $tab;
+   }
+   
+   
 }
 
 ?>

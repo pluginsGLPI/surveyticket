@@ -54,6 +54,9 @@ if (isset ($_POST["add"])) {
 } else if (isset ($_POST["delete"])) {
    $psAnswer->delete($_POST);
    Html::redirect(Toolbox::getItemTypeSearchURL('PluginSurveyticketAnswer'));
+} else if (isset ($_POST["purge"])) {
+   $psAnswer->delete($_POST);
+   Html::redirect(Toolbox::getItemTypeFormURL('PluginSurveyticketQuestion')."?id=".$_POST['plugin_surveyticket_questions_id']);
 }
 
 

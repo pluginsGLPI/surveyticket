@@ -1,42 +1,25 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - plugin surveyticket\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-01 23:46+0200\n"
-"PO-Revision-Date: 2014-06-01 21:47+0000\n"
+"POT-Creation-Date: 2016-03-25 14:49+0100\n"
+"PO-Revision-Date: 2016-03-25 14:50+0100\n"
 "Last-Translator: David Durieux <d.durieux@siprossii.com>\n"
-"Language-Team: English (United Kingdom) (http://www.transifex.com/projects/p/glpi_surveyticket/language/en_GB/)\n"
+"Language-Team: English (United Kingdom) (http://www.transifex.com/projects/p/"
+"glpi_surveyticket/language/en_GB/)\n"
+"Language: en_GB\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: en_GB\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.8.5\n"
 
-#: hook.php:109 hook.php:131 front/menu.php:64 inc/question.class.php:56
-#: inc/surveyquestion.class.php:48 inc/surveyquestion.class.php:67
-#: inc/surveyquestion.class.php:104 inc/surveyquestion.class.php:142
-msgid "Question"
-msgid_plural "Questions"
-msgstr[0] "Question"
-msgstr[1] "Questions"
-
-#: hook.php:112 hook.php:134 hook.php:136 inc/answer.class.php:56
-#: inc/answer.class.php:121 inc/answer.class.php:192
-msgid "Answer"
-msgid_plural "Answers"
-msgstr[0] "Answer"
-msgstr[1] "Answers"
-
-#: hook.php:141 hook.php:146
-msgid "Text"
-msgstr "Text"
-
-#: setup.php:112
+#: setup.php:113
 msgid "Your GLPI version not compatible, require 0.84"
 msgstr "Your GLPI version not compatible, require 0.84"
 
@@ -50,34 +33,82 @@ msgid_plural "Surveys"
 msgstr[0] "Survey"
 msgstr[1] "Surveys"
 
+#: front/menu.php:64 inc/question.class.php:64 inc/survey.class.php:1803
+#: inc/survey.class.php:1824 inc/surveyquestion.class.php:48
+#: inc/surveyquestion.class.php:67 inc/surveyquestion.class.php:112
+#: inc/surveyquestion.class.php:174
+msgid "Question"
+msgid_plural "Questions"
+msgstr[0] "Question"
+msgstr[1] "Questions"
+
+#: inc/answer.class.php:56 inc/answer.class.php:121 inc/answer.class.php:192
+#: inc/survey.class.php:1806 inc/survey.class.php:1828
+#: inc/survey.class.php:1830 inc/surveyquestion.class.php:259
+msgid "Answer"
+msgid_plural "Answers"
+msgstr[0] "Answer"
+msgstr[1] "Answers"
+
 #: inc/answer.class.php:135 inc/answer.class.php:226
 msgid "+ field"
 msgstr "+ field"
 
-#: inc/answer.class.php:138 inc/answer.class.php:258
+#: inc/answer.class.php:138 inc/answer.class.php:257
 msgid "Go to question"
 msgstr "Go to question"
 
-#: inc/answer.class.php:209 inc/question.class.php:126
+#: inc/answer.class.php:209 inc/question.class.php:157
 msgid "Short text"
 msgstr "Short text"
 
-#: inc/answer.class.php:212 inc/question.class.php:128
+#: inc/answer.class.php:212 inc/question.class.php:158
 msgid "Long text"
 msgstr "Long text"
 
-#: inc/answer.class.php:247
+#: inc/answer.class.php:246
 msgid "Linked to question"
 msgstr "Linked to question"
 
-#: inc/question.class.php:122
+#: inc/answer.class.php:265 inc/surveyquestion.class.php:133
+#: inc/surveyquestion.class.php:183 inc/surveyquestion.class.php:318
+msgid "Mandatory"
+msgstr "Mandatory"
+
+#: inc/answer.class.php:351
+msgid "The question is present in the survey"
+msgstr "The question is present in the survey"
+
+#: inc/answer.class.php:351
+msgid "Please delete the questionnaire if you want to add it."
+msgstr "Please delete the questionnaire if you want to add it."
+
+#: inc/question.class.php:153
 msgid "dropdown"
 msgstr "dropdown"
 
-#: inc/question.class.php:123
+#: inc/question.class.php:154
 msgid "checkbox"
 msgstr "checkbox"
 
-#: inc/question.class.php:124
+#: inc/question.class.php:155
 msgid "radio"
 msgstr "radio"
+
+#: inc/survey.class.php:1835 inc/survey.class.php:1840
+msgid "Text"
+msgstr "Text"
+
+#: inc/survey.class.php:1906
+#, php-format
+msgid "Mandatory questions are not filled. Please correct: %s"
+msgstr "Mandatory questions are not filled. Please correct: %s"
+
+#: inc/surveyquestion.class.php:297
+#, php-format
+msgid ""
+"The question can not be added because it has links to other questions : %s. "
+"Please delete the questionnaire if you want to add it."
+msgstr ""
+"The question can not be added because it has links to other questions : %s. "
+"Please delete the questionnaire if you want to add it."

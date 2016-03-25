@@ -134,7 +134,13 @@ class PluginSurveyticketSurvey extends CommonDBTM {
     */
    static  function getCentral($ID=0, $options=array()) {
       global $CFG_GLPI;
-
+      // If values are saved in session we retrieve it
+      if (isset($_SESSION['glpi_plugin_surveyticket_ticket'])) {
+         $session = $_SESSION['glpi_plugin_surveyticket_ticket'];
+         unset($_SESSION['glpi_plugin_surveyticket_ticket']);
+      } else {
+         $session = array();
+      }
 // * Added by plugin survey ticket
 $ticket = new Ticket();
 // * End of adding
@@ -896,7 +902,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
    if ($psSurvey->fields['is_active'] == 1) {
       $plugin_surveyticket_surveys_id = $a_tickettemplates['plugin_surveyticket_surveys_id'];
       $psSurvey = new PluginSurveyticketSurvey();
-      $psSurvey->startSurvey($plugin_surveyticket_surveys_id);
+      $psSurvey->startSurvey($plugin_surveyticket_surveys_id, $session);
    }
 } else {
 // End of adding by plugin
@@ -1071,6 +1077,13 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
     */
    static function getHelpdesk($ID=0, $ticket_template=false) {
       global $DB, $CFG_GLPI;
+      // If values are saved in session we retrieve it
+      if (isset($_SESSION['glpi_plugin_surveyticket_ticket'])) {
+         $session = $_SESSION['glpi_plugin_surveyticket_ticket'];
+         unset($_SESSION['glpi_plugin_surveyticket_ticket']);
+      } else {
+         $session = array();
+      }
 
 // * Added by plugin survey ticket
 $ticket = new Ticket();
@@ -1414,7 +1427,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
    if ($psSurvey->fields['is_active'] == 1) {
       $plugin_surveyticket_surveys_id = $a_tickettemplates['plugin_surveyticket_surveys_id'];
       $psSurvey = new PluginSurveyticketSurvey();
-      $psSurvey->startSurvey($plugin_surveyticket_surveys_id);
+      $psSurvey->startSurvey($plugin_surveyticket_surveys_id, $session);
    }
 } else {
    echo "<td><textarea name='content' cols='80' rows='14'>".$values['content']."</textarea>";
@@ -1455,24 +1468,23 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
 
 
 
-   function startSurvey($plugin_surveyticket_surveys_id) {
-
+   function startSurvey($plugin_surveyticket_surveys_id, $session) {
       $psSurveyQuestion = new PluginSurveyticketSurveyQuestion();
 
       $a_questions = $psSurveyQuestion->find(
               "`plugin_surveyticket_surveys_id`='".$plugin_surveyticket_surveys_id."'",
               "`order`");
-
+      
+      echo "<input name='plugin_surveyticket_surveys_id' type='hidden' value='" . $plugin_surveyticket_surveys_id . "'/>";
       foreach ($a_questions as $data) {
-         $this->displaySurvey($data['plugin_surveyticket_questions_id']);
+         $this->displaySurvey($data['plugin_surveyticket_questions_id'], $plugin_surveyticket_surveys_id, $session);
       }
    }
 
 
 
-   function displaySurvey($questions_id) {
+   function displaySurvey($questions_id, $plugin_surveyticket_surveys_id, $session, $answer_id = 0) {
       global $CFG_GLPI;
-
       $psQuestion = new PluginSurveyticketQuestion();
 
       if ($psQuestion->getFromDB($questions_id)) {
@@ -1482,194 +1494,275 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
 
          echo "<tr class='tab_bg_1'>";
          echo "<th colspan='3' style='text-align: left;'>";
-         echo $psQuestion->fields['name'];
-         echo "&nbsp;";
+         if ($plugin_surveyticket_surveys_id == -1) {
+            $answer = new PluginSurveyticketAnswer();
+            if($answer->getFromDB($answer_id)){
+               if ($answer->fields['mandatory']) {
+                  echo $psQuestion->fields['name'] . " <span class='red'>&nbsp;*&nbsp;</span>";
+               } else {
+                  echo $psQuestion->fields['name'] . " ";
+               }
+            }else{
+               echo $psQuestion->fields['name'] . " ";
+            }
+         } else {
+            $surveyquestion = new PluginSurveyticketSurveyQuestion();
+            $surveyquestion->getFromDBByQuery("WHERE `plugin_surveyticket_questions_id` = " . $psQuestion->fields['id'] . " AND `plugin_surveyticket_surveys_id` = " . $plugin_surveyticket_surveys_id);
+            if ($surveyquestion->fields['mandatory']) {
+               echo $psQuestion->fields['name'] . " <span class='red'>&nbsp;*&nbsp;</span>";
+            } else {
+               echo $psQuestion->fields['name'] . " ";
+            }
+         }
          Html::showToolTip($psQuestion->fields['comment']);
          echo "</th>";
          echo "</tr>";
      ///////////////////////////////////////           Fin de la correction du bug            /////////////////////////////////////////
-         $nb_answer = $this->displayAnswers($questions_id);
+         $array       = $this->displayAnswers($questions_id, $session);
+         $nb_answer   = $array['count'];
+         $tab_answers = $array['answers'];
 
          echo "</table>";
-         if ($psQuestion->fields['type'] == 'radio'
-                 || $psQuestion->fields['type'] == 'yesno') {
-            $event = array("click");
-            $a_ids = array();
-            for ($i=0; $i< $nb_answer; $i++) {
-               //array_push($a_ids, 'question'.$questions_id."_".$i);
-               $a_ids[] = 'question'.$questions_id."-".$i;
-            }
-            $params=array("question".$questions_id=>'__VALUE__',
-                  'rand'=>$questions_id,
-                  'myname'=>"question".$questions_id);
-
-         } else if ($psQuestion->fields['type'] == 'date') {
-            $event = array("change");
-            $a_ids = "realquestion".$questions_id;
-            $params=array("realquestion".$questions_id      => '__VALUE__',
-                          'rand'                            => $questions_id,
-                          'myname'                          => "realquestion".$questions_id);
-         } else if ($psQuestion->fields['type'] == 'input') {
-            $event = array("change");
-            $a_ids = "realquestion".$questions_id;
-            $params=array("realquestion".$questions_id      => '__VALUE__',
-                          'rand'                            => $questions_id,
-                          'myname'                          => "realquestion".$questions_id);
-       /////////      Correction du bug : Ajout d'un nouveau type de question (Traitement des réponses de type texte long)  /////////////
-         } else if ($psQuestion->fields['type'] == 'textarea') {
-            $event = array("change");
-            $a_ids = "realquestion".$questions_id;
-            $params=array("realquestion".$questions_id      => '__VALUE__',
-                          'rand'                            => $questions_id,
-                          'myname'                          => "realquestion".$questions_id);
-         } else {
-            $event = array("change");
-            $a_ids = 'question'.$questions_id;
-            $params=array("question".$questions_id=>'__VALUE__',
-                  'rand'=>$questions_id,
-                  'myname'=>"question".$questions_id);
-         }
-         if ($psQuestion->fields['type'] == 'date'
-                 || $psQuestion->fields['type'] == 'input' ||$psQuestion->fields['type'] == 'textarea') {
-         echo "<script type='text/javascript'>";
-         Ajax::updateItemJsCode(
-                                       "nextquestion".$questions_id,
-                                       $CFG_GLPI["root_doc"]."/plugins/surveyticket/ajax/displaysurvey.php",
-                                       $params,
-                                       $a_ids);
-         echo "</script>";
-         } else {
-         self::UpdateItemOnSelectEvent($a_ids,
-                                       "nextquestion".$questions_id,
-                                       $CFG_GLPI["root_doc"]."/plugins/surveyticket/ajax/displaysurvey.php",
-                                       $params,
-                                       $event);
-         }
          echo "<br/><div id='nextquestion".$questions_id."'></div>";
+         echo $this->displayLink($questions_id, $session, $psQuestion, $nb_answer, $tab_answers);
       }
      ///////////////////////////////////// Fin de la correction du bug /////////////////////////////////////////////////
 
    }
+   
+   function displayLink($questions_id, $session, $psQuestion, $nb_answer, $answers) {
+      global $CFG_GLPI;
+      //javascript for links between issues
+      if ($psQuestion->fields['type'] == PluginSurveyticketQuestion::RADIO || $psQuestion->fields['type'] == PluginSurveyticketQuestion::YESNO) {
+         $event = array("click");
+         $a_ids = array();
+         //table id of all responses 
+         for ($i = 0; $i < $nb_answer; $i++) {
+            $a_ids[$answers[$i]] = 'question' . $questions_id . "-" . $i;
+         }
+         $params = array("question" . $questions_id => '__VALUE__',
+                         'rand'                     => $questions_id,
+                         'myname'                   => "question" . $questions_id);
+      } else if (PluginSurveyticketQuestion::isQuestionTypeText($psQuestion->fields['type'])) {
+         $event  = array("change");
+         $a_ids  = "realquestion" . $questions_id;
+         $params = array("realquestion" . $questions_id => '__VALUE__',
+                         'rand'                         => $questions_id,
+                         'myname'                       => "realquestion" . $questions_id);
+      } else {
+         $event  = array("change");
+         $a_ids  = 'question' . $questions_id;
+         $params = array("question" . $questions_id => '__VALUE__',
+                         'rand'                     => $questions_id,
+                         'myname'                   => "question" . $questions_id);
+      }
+      //script to detect if a change in response to a question
+      if (PluginSurveyticketQuestion::isQuestionTypeText($psQuestion->fields['type'])) {
+         echo "<script type='text/javascript'>";
+         Ajax::updateItemJsCode("nextquestion".$questions_id, $CFG_GLPI["root_doc"] . "/plugins/surveyticket/ajax/displaysurvey.php", $params, $a_ids);
+         echo "</script>";
+      } elseif ($psQuestion->fields['type'] != PluginSurveyticketQuestion::CHECKBOX) {
+         echo "<script type='text/javascript'>";
+         if (!is_array($a_ids)) {
+            $a_ids = array($a_ids);
+         }
+         foreach ($a_ids as $key => $a_id) {
+            $params['answer_id'] = $key;
+            Ajax::updateItemOnEventJsCode($a_id, "nextquestion" . $questions_id, $CFG_GLPI["root_doc"] . "/plugins/surveyticket/ajax/displaysurvey.php", $params, array('change'));
+         }
+         echo "</script>";
+         // Link to other issues loading the script
+         if (!empty($session)) {
+            $params['array'] = ($session);
+            echo "<script type='text/javascript'>";
+            if ($psQuestion->fields['type'] == PluginSurveyticketQuestion::DROPDOWN) {
+               //dropdown load on the issue
+               Ajax::updateItemJsCode("nextquestion" . $questions_id, $CFG_GLPI["root_doc"] . "/plugins/surveyticket/ajax/displaysurvey.php", $params, "question" . $questions_id);
+            } elseif ($psQuestion->fields['type'] == PluginSurveyticketQuestion::RADIO || $psQuestion->fields['type'] == PluginSurveyticketQuestion::YESNO) {
+               //load on the selected response 
+               $psAnswer = new PluginSurveyticketAnswer();
+               $result = $psAnswer->find("`plugin_surveyticket_questions_id` = " . $psQuestion->fields['id']);
+               $i = 0;
+               foreach ($result as $data) {
+                  $params['answer_id'] = $data['id'];
+                  if (!empty($session[$questions_id]) && array_key_exists($data['id'], $session[$questions_id])) {
+                     Ajax::updateItemJsCode("nextquestion".$questions_id, $CFG_GLPI["root_doc"] . "/plugins/surveyticket/ajax/displaysurvey.php", $params, $a_ids[$data['id']]);
+                  }
+                  $i++;
+               }
+            }
+            echo "</script>";
+         }
+      }
+   }
 
-
-
-   function displayAnswers($questions_id) {
-
+   function displayAnswers($questions_id, $session) {
       $psQuestion = new PluginSurveyticketQuestion();
       $psAnswer = new PluginSurveyticketAnswer();
-
       $a_answers = $psAnswer->find("`plugin_surveyticket_questions_id`='".$questions_id."'");
 
       $psQuestion->getFromDB($questions_id);
+      $answers = array();
       switch ($psQuestion->fields['type']) {
-         case 'dropdown':
+         case PluginSurveyticketQuestion::DROPDOWN:
             echo "<tr class='tab_bg_1'>";
             echo "<td colspan='2'>";
             echo "<select name='question".$questions_id."' id='question".$questions_id."' >";
-            echo "<option>".Dropdown::EMPTY_VALUE."</option>";
+            echo "<option>" . Dropdown::EMPTY_VALUE . "</option>";
             foreach ($a_answers as $data_answer) {
-               echo "<option value='".$data_answer['id']."'>".$psAnswer->getAnswer($data_answer)."</option>";
+               if (empty($session) || empty($session[$questions_id][$data_answer['id']])) {
+                  echo "<option value='" . $data_answer['id'] . "'>" . $psAnswer->getAnswer($data_answer) . "</option>";
+               } else {
+                  
+                  echo "<option selected value='" . $data_answer['id'] . "'>" . $psAnswer->getAnswer($data_answer) . "</option>";
+               }
             }
             echo "</select>";
             echo "</td>";
             echo "</tr>";
             break;
 
-         case 'checkbox':
+         case PluginSurveyticketQuestion::CHECKBOX :
             $i = 0;
             foreach ($a_answers as $data_answer) {
                echo "<tr class='tab_bg_1'>";
                echo "<td width='40' >";
-               echo "<input type='checkbox' name='question".$questions_id."[]' id='question".$questions_id."-".$i."'
-                  value='".$data_answer['id']."' />";
+               if (empty($session) || empty($session[$questions_id][$data_answer['id']])) {
+                  echo "<input type='checkbox' name='question" . $questions_id . "[]' id='question" . $questions_id . "-" . $i . "'
+                     value='" . $data_answer['id'] . "' />";
+               } else {
+                  echo "<input type='checkbox' name='question" . $questions_id . "[]' id='question" . $questions_id . "-" . $i . "'
+                     value='" . $data_answer['id'] . "' checked />";
+               }
                echo "</td>";
                echo "<td>";
                echo $psAnswer->getAnswer($data_answer);
                echo "</td>";
-               $this->displayAnswertype($data_answer['answertype'], "text-".$questions_id."-".$data_answer['id']);
+               if (empty($session) || empty($session[$questions_id][$data_answer['id']])) {
+                  echo $this->displayAnswertype($data_answer['answertype'], "text-" . $questions_id . "-" . $data_answer['id'], NULL);
+               } else {
+                  echo $this->displayAnswertype($data_answer['answertype'], "text-" . $questions_id . "-" . $data_answer['id'], $session[$questions_id][$data_answer['id']]);
+               }
                echo "</tr>";
+               $answers[$i] = $data_answer['id'];
                $i++;
             }
             break;
 
-         case 'radio':
-         case 'yesno':
+         case PluginSurveyticketQuestion::RADIO :
+         case PluginSurveyticketQuestion::YESNO :
             $i = 0;
             foreach ($a_answers as $data_answer) {
                echo "<tr class='tab_bg_1'>";
                echo "<td width='40'>";
-               echo "<input type='radio' name='question".$questions_id."' id='question".$questions_id."-".$i."'
-                  value='".$data_answer['id']."' />";
+               if (empty($session) || empty($session[$questions_id][$data_answer['id']])) {
+                  echo "<input type='radio' name='question" . $questions_id . "' id='question" . $questions_id . "-" . $i . "'
+                     value='" . $data_answer['id'] . "' />";
+               } else {
+                  echo "<input type='radio' name='question" . $questions_id . "' id='question" . $questions_id . "-" . $i . "'
+                     value='" . $data_answer['id'] . "' checked/>";
+               }
                echo "</td>";
                echo "<td>";
                echo $psAnswer->getAnswer($data_answer);
                echo "</td>";
-               $this->displayAnswertype($data_answer['answertype'], "text-".$questions_id."-".$data_answer['id']);
+               if (empty($session) || empty($session[$questions_id][$data_answer['id']])) {
+                  echo $this->displayAnswertype($data_answer['answertype'], "text-" . $questions_id . "-" . $data_answer['id'], NULL);
+               } else {
+                  echo $this->displayAnswertype($data_answer['answertype'], "text-" . $questions_id . "-" . $data_answer['id'], $session[$questions_id][$data_answer['id']]);
+               }
                echo "</tr>";
+               $answers[$i] = $data_answer['id'];
                $i++;
             }
             break;
 
-         case 'date':
+         case PluginSurveyticketQuestion::DATE :
             echo "<tr class='tab_bg_1'>";
             echo "<td colspan='2'>";
             $data_answer = current($a_answers);
-            Html::showDateTimeField("question".$questions_id, array('rand' => "question".$questions_id));
-            echo '<input type="hidden" name="realquestion'.$questions_id.'" id="realquestion'.$questions_id.'" value="'.$data_answer['id'].'" />';
+             
+            if (empty($session) || (empty($session[$questions_id])) || $session[$questions_id] == "NULL") {
+               Html::showDateTimeField("question" . $questions_id, array('rand' => "question" . $questions_id));
+            } else {
+               Html::showDateTimeField("question" . $questions_id, array('rand' => "question" . $questions_id, 'value' => $session[$questions_id]));
+            }
+            echo '<input type="hidden" name="realquestion' . $questions_id . '" id="realquestion' . $questions_id . '" value="' . $data_answer['id'] . '" />';
             echo "</td>";
             echo "</tr>";
             break;
 
-         case 'input':
+         case PluginSurveyticketQuestion::INPUT :
             echo "<tr class='tab_bg_1'>";
             echo "<td colspan='2'>";
             $data_answer = current($a_answers);
-            echo '<input type="text" name="question'.$questions_id.'" id="question'.$questions_id.'" value="" size="134" />';
-            echo '<input type="hidden" name="realquestion'.$questions_id.'" id="realquestion'.$questions_id.'" value="'.$data_answer['id'].'" />';
+            if (empty($session) || empty($session[$questions_id])) {
+               echo '<input type="text" name="question' . $questions_id . '" id="question' . $questions_id . '" value="" size="100" />';
+            } else {
+               echo '<input type="text" name="question' . $questions_id . '" id="question' . stripcslashes($questions_id) . '" value="' . stripcslashes($session[$questions_id]) . '" size="100" />';
+            }
+            echo '<input type="hidden" name="realquestion' . $questions_id . '" id="realquestion' . $questions_id . '" value="' . $data_answer['id'] . '" />';
             echo "</td>";
             echo "</tr>";
             break;
 
         //////////////////////////////////// Correction du bug : Nouveau type de question (Texte long) //////////////////////////////////
-         case 'textarea':
-         	echo "<tr class='tab_bg_1'>";
+         case PluginSurveyticketQuestion::TEXTAREA :
+            echo "<tr class='tab_bg_1'>";
             echo "<td colspan='2'>";
             $data_answer = current($a_answers);
-            echo '<textarea name="question'.$questions_id.'"  cols="94" rows="4" /></textarea>';
-            echo '<input type="hidden" name="realquestion'.$questions_id.'" id="realquestion'.$questions_id.'" value="'.$data_answer['id'].'" />';
+            if (empty($session) || empty($session[$questions_id])) {
+               echo '<textarea name="question' . $questions_id . '"  cols="90" rows="4"></textarea>';
+            } else {
+               echo '<textarea name="question' . $questions_id . '"  cols="90" rows="4" >' . stripcslashes($session[$questions_id]) . '</textarea>';
+            }
+            echo '<input type="hidden" name="realquestion' . $questions_id . '" id="realquestion' . $questions_id . '" value="' . $data_answer['id'] . '" />';
             echo "</td>";
             echo "</tr>";
             break;
        ////////////////////////////////////////////////// Fin de la correction du bug ///////////////////////////////////////////////////
       }
-      return count($a_answers);
+      return array("count" => count($a_answers), 'answers' => $answers);
    }
 
 
 
-   function displayAnswertype($type, $name) {
-
+function displayAnswertype($type, $name, $session) {
       echo "<td>";
       if ($type != '') {
-         //echo "<tr class='tab_bg_1'>";
          switch ($type) {
 
             case 'shorttext':
-               echo "<input type='text' name='".$name."' value='' size='71'/>";
+               if ($session == NULL) {
+                  echo "<input type='text' name='" . $name . "' value='' size='71'/>";
+               } else {
+                  echo "<input type='text' name='" . $name . "' value='" . stripcslashes($session) . "' size='71'/>";
+               }
                break;
 
             case 'longtext':
-               echo "<textarea name='".$name."' cols='100' rows='4'></textarea>";
+               if ($session == NULL) {
+                  echo "<textarea name='" . $name . "' cols='100' rows='4'></textarea>";
+               } else {
+                  echo '<textarea name="' . $name . '" cols="100" rows="4">'.stripcslashes($session).'</textarea>';
+               }
                break;
 
             case 'date':
-               Html::showDateFormItem($name, '', true);
+               if ($session == NULL) {
+                  echo Html::showDateTimeField($name, array("display" => false));
+               } else {
+                  echo Html::showDateTimeField($name, array("display" => false, 'value' => $session));
+               }
                break;
 
             case 'number':
-
+               if ($session == NULL) {
+                  echo Dropdown::showNumber($name, array("display" => false));
+               } else {
+                  echo Dropdown::showNumber($name, array("display" => false, 'value' => $session));
+               }
                break;
-
          }
       }
       echo "</td>";
@@ -1689,65 +1782,159 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
       Html::closeForm();
    }
 
+ static function preAddTicket(Ticket $ticket) {
+      self::setSessions($ticket->input);
+      if (self::checkMandatoryFields($ticket)) {
+         //Recovery of the survey to put in the content of the ticket
+         $psQuestion  = new PluginSurveyticketQuestion();
+         $psAnswer    = new PluginSurveyticketAnswer();
+         $description = '';
+         foreach ($ticket->input as $question => $answer) {
+            if (preg_match("/^question/", $question) && !preg_match("/^realquestion/", $question)) {
+               $psQuestion->getFromDB(str_replace("question", "", $question));
 
-
-   static function updateItemOnSelectEvent($toobserve, $toupdate, $url, $parameters=array(),$events) {
-
-      self::updateItemOnEvent($toobserve, $toupdate, $url, $parameters, $events);
-   }
-
-
-
-   static function updateItemOnEvent($toobserve, $toupdate, $url, $parameters=array(),
-                                      $events=array("change"), $minsize = -1, $forceloadfor=array()) {
-
-      echo "<script type='text/javascript'>";
-      self::updateItemOnEventJsCode($toobserve, $toupdate, $url, $parameters, $events, $minsize,
-                                     $forceloadfor);
-      echo "</script>";
-   }
-
-
-
-   static function updateItemOnEventJsCode($toobserve, $toupdate, $url, $parameters=array(),
-                                           $events=array("change"), $minsize = -1,
-                                           $forceloadfor=array()) {
-
-      if (is_array($toobserve)) {
-         $zones = $toobserve;
-      } else {
-         $zones = array($toobserve);
-      }
-
-      foreach ($zones as $zone) {
-         foreach ($events as $event) {
-            echo "
-               Ext.get('$zone').on(
-                '$event',
-                function() {";
-                  $condition = '';
-                  if ($minsize >= 0) {
-                     $condition = " Ext.get('$zone').getValue().length >= $minsize ";
-                  }
-                  if (count($forceloadfor)) {
-                     foreach ($forceloadfor as $value) {
-                        if (!empty($condition)) {
-                           $condition .= " || ";
+               if (is_array($answer)) {
+                  // Checkbox
+                  $description .= _n('Question', 'Questions', 1, 'surveyticket') . " : " . $psQuestion->fields['name'] . "\n";
+                  foreach ($answer as $answers_id) {
+                     if ($psAnswer->getFromDB($answers_id)) {
+                        $description .= _n('Answer', 'Answers', 1, 'surveyticket') . " : " . $psAnswer->fields['name'] . "\n";
+                        $qid = str_replace("question", "", $question);
+                        if (isset($ticket->input["text-" . $qid . "-" . $answers_id])
+                           AND $ticket->input["text-" . $qid . "-" . $answers_id] != '') {
+                           $description .= "Texte : " . $ticket->input["text-" . $qid . "-" . $answers_id] . "\n";
                         }
-                        $condition .= "Ext.get('$zone').getValue() == '$value'";
                      }
                   }
-                  if (!empty($condition)) {
-                     echo "if ($condition) {";
+                  $description .= "\n";
+                  unset($ticket->input[$question]);
+               } else {
+                  $real = 0;
+                  if (isset($ticket->input['realquestion' . (str_replace("question", "", $question))]) && $ticket->input['realquestion' . (str_replace("question", "", $question))] != '') {
+                     $realanswer = $answer;
+                     $answer     = $ticket->input['realquestion' . str_replace("question", "", $question)];
+                     $real       = 1;
                   }
-                  Ajax::updateItemJsCode($toupdate, $url, $parameters, $zone);
-                  if (!empty($condition)) {
-                     echo "}";
+                  $description .= "===========================================================================\n";
+                  $description .= _n('Question', 'Questions', 1, 'surveyticket') . " : " . $psQuestion->fields['name'] . "\n";
+                  //check if it is an id
+                  if (!PluginSurveyticketQuestion::isQuestionTypeText($psQuestion->fields['type']) && $psAnswer->getFromDB($answer)) {
+                     if ($real == 1) {
+                        $description .= _n('Answer', 'Answers', 1, 'surveyticket') . " : " . $realanswer . "\n";
+                     } else {
+                        $description .= _n('Answer', 'Answers', 1, 'surveyticket') . " : " . $psAnswer->fields['name'] . "\n";
+                     }
+                     $qid = str_replace("question", "", $question);
+                     if (isset($ticket->input["text-" . $qid . "-" . $answer])
+                        AND $ticket->input["text-" . $qid . "-" . $answer] != '') {
+                        $description .= __('Text', 'surveyticket') . " : " . $ticket->input["text-" . $qid . "-" . $answer] . "\n";
+                     }
+                     $description .= "\n";
+                     unset($ticket->input[$question]);
+                  } else {
+                     $description .= __('Text', 'surveyticket') . " : " . str_replace('\r', "", $answer) . "\n";
+                     $description .= "\n";
+                     unset($ticket->input[$question]);
                   }
+               }
+            }
+            if ($description != '') {
+               $ticket->input['content'] = $description;
+            }
+         }
+      } else {
+         $ticket->input =array();
+      }
 
-          echo "});\n";
+      return $ticket;
+   }
+  
+
+   static function setSessions($input) {
+      foreach ($input as $question => $answer) {
+         if (preg_match("/^question/", $question) && !preg_match("/^realquestion/", $question)) {
+            $psAnswer = new PluginSurveyticketAnswer();
+            $psQuestion = new PluginSurveyticketQuestion();
+            $qid = str_replace("question", "", $question);
+            $psQuestion->getFromDB($qid);
+
+            if (is_array($answer)) {
+               foreach ($answer as $val) {
+                  if (!PluginSurveyticketQuestion::isQuestionTypeText($psQuestion->fields['type']) && $psAnswer->getFromDB($val)) {
+                     if (isset($input["text-" . $qid . "-" . $val])
+                        AND $input["text-" . $qid . "-" . $val] != '') {
+                        $_SESSION['glpi_plugin_surveyticket_ticket'][$qid][$val] = $input["text-" . $qid . "-" . $val];
+                     } else {
+                        $_SESSION['glpi_plugin_surveyticket_ticket'][$qid][$val] = str_replace('\r', "", $val);
+                     }
+                  } else {
+                     $_SESSION['glpi_plugin_surveyticket_ticket'][$qid][$val] = $val;
+                  }
+               }
+            } else {
+               if (!PluginSurveyticketQuestion::isQuestionTypeText($psQuestion->fields['type']) && $psAnswer->getFromDB($answer)) {
+                  if (isset($input["text-" . $qid . "-" . $answer])
+                     AND $input["text-" . $qid . "-" . $answer] != '') {
+                     $_SESSION['glpi_plugin_surveyticket_ticket'][$qid][$answer] = $input["text-" . $qid . "-" . $answer];
+                  } else {
+                     $_SESSION['glpi_plugin_surveyticket_ticket'][$qid][$answer] = str_replace('\r', "", $answer);
+                  }
+               } else {
+                  $_SESSION['glpi_plugin_surveyticket_ticket'][$qid] = $answer;
+               }
+            }
          }
       }
+   }
+   
+   static function checkMandatoryFields($ticket) {
+         $msg     = array();
+         $checkKo = false;
+         $surveyquestion = new PluginSurveyticketSurveyQuestion();
+         $a_questions    = $surveyquestion->find("`plugin_surveyticket_surveys_id`='" . $ticket->input['plugin_surveyticket_surveys_id'] . "'", "`order`");
+         foreach ($a_questions as $data) {
+            $reponse = self::checkQuestion(array('msg'=> $msg, 'checkKo' => $checkKo, 'data' => $data, 'ticket' => $ticket->input));
+            $msg = $reponse['msg'];
+            $checkKo = $reponse['checkKo'];
+         }
+         if ($checkKo) {
+            Session::addMessageAfterRedirect(sprintf(__("Mandatory questions are not filled. Please correct: %s", 'surveyticket'), implode(', ', $msg)), false, ERROR);
+            return false;
+         }
+         return true;
+   }
+   
+   static function checkQuestion($param) {
+      $data    = $param['data'];
+      $msg     = $param['msg'];
+      $checkKo = $param['checkKo'];
+      $ticket  = $param['ticket'];
+      $psQuestion = new PluginSurveyticketQuestion();
+      $psQuestion->getFromDB($data['plugin_surveyticket_questions_id']);
+      if (isset($data['mandatory']) && $data['mandatory']) {
+         if (!isset($ticket['question' . $psQuestion->fields['id']]) || $ticket['question' . $psQuestion->fields['id']] == '-----') {
+            $msg[]   = $psQuestion->fields['name'];
+            $checkKo = true;
+         }
+      }
+      if (isset($ticket['question' . $psQuestion->fields['id']])) {
+         $psAnswer = new PluginSurveyticketAnswer();
+         if (!PluginSurveyticketQuestion::isQuestionTypeText($psQuestion->fields['type']) && !is_array($ticket['question' . $psQuestion->fields['id']])) {
+            if ($psAnswer->getFromDB($ticket['question' . $psQuestion->fields['id']])) {
+               if ($psAnswer->fields['link'] > 0) {
+                  $reponse = self::checkQuestion(array('msg'     => $msg,
+                        'checkKo' => $checkKo,
+                        'ticket'  => $ticket,
+                        'data'    => array('plugin_surveyticket_questions_id'     => $psAnswer->fields['link'],
+                           'mandatory'                            => $psAnswer->fields['mandatory'],
+                           'old_plugin_surveyticket_questions_id' => $data['plugin_surveyticket_questions_id'])));
+                  $msg     = $reponse['msg'];
+                  $checkKo = $reponse['checkKo'];
+               }
+            }
+         }
+      }
+      return array('msg' => $msg, 'checkKo' => $checkKo);
    }
 
 

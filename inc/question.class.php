@@ -46,6 +46,14 @@ class PluginSurveyticketQuestion extends CommonDBTM {
    
    public $dohistory = true;
 
+   CONST YESNO = 'yesno';
+   CONST DROPDOWN = 'dropdown';
+   CONST CHECKBOX = 'checkbox';
+   CONST RADIO = 'radio';
+   CONST DATE = 'date';
+   CONST INPUT = 'input';
+   CONST TEXTAREA = 'textarea';
+   
    /**
    * Get name of this type
    *
@@ -114,19 +122,40 @@ class PluginSurveyticketQuestion extends CommonDBTM {
       return $value;
    }
    
-   
+   /**
+    * Return true if $type is (date, input, textarea)
+    * @param type $type
+    * @return boolean
+    */
+   static function isQuestionTypeText($type){
+      switch ($type){
+         case self::YESNO : 
+            return false;
+         case self::DROPDOWN :
+            return false;
+         case self::CHECKBOX :
+            return false;
+         case self::RADIO :
+            return false;
+         case self::DATE :
+            return TRUE;
+         case self::INPUT :
+            return TRUE;
+         case self::TEXTAREA :
+            return TRUE;
+         default : return TRUE;
+      }
+   }
    
    static function getQuestionTypeList() {
       $array = array();
-      $array['yesno']      = __('Yes').'/'.__('No');
-      $array['dropdown']   = __('dropdown', 'surveyticket');
-      $array['checkbox']   = __('checkbox', 'surveyticket');
-      $array['radio']      = __('radio', 'surveyticket');
-      $array['date']       = __('date');
-      $array['input']      = __('Short text', 'surveyticket');
-      ////////////////////////// Correction du bug : Ajout d'un nouveau type de question (Texte long) ///////////////////////////////////
-      $array['textarea']      = __('Long text', 'surveyticket');
-      /////////////////////////////////////////////// Fin de la correction du bug //////////////////////////////////////////////////////
+      $array[self::YESNO] = __('Yes') . '/' . __('No');
+      $array[self::DROPDOWN] = __('dropdown', 'surveyticket');
+      $array[self::CHECKBOX] = __('checkbox', 'surveyticket');
+      $array[self::RADIO] = __('radio', 'surveyticket');
+      $array[self::DATE] = __('date');
+      $array[self::INPUT] = __('Short text', 'surveyticket');
+      $array[self::TEXTAREA] = __('Long text', 'surveyticket');
       return $array;
    }
 
@@ -169,6 +198,15 @@ class PluginSurveyticketQuestion extends CommonDBTM {
 
       return true;
    }
+   
+   function deleteItem($id) {
+      $answer = new PluginSurveyticketAnswer();
+      $answer->deleteByCriteria(array('plugin_surveyticket_questions_id' => $id));
+
+      $surveyquestions = new PluginSurveyticketSurveyQuestion();
+      $surveyquestions->deleteByCriteria(array('plugin_surveyticket_questions_id' => $id));
+   }
+
 }
 
 ?>

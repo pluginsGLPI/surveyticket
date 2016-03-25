@@ -38,7 +38,7 @@
    ------------------------------------------------------------------------
  */
 
-define ("PLUGIN_SURVEYTICKET_VERSION", "0.84+1.3");
+define ("PLUGIN_SURVEYTICKET_VERSION", "0.84+1.4");
 
 // Init the hooks of surveyticket
 function plugin_init_surveyticket() {
@@ -62,6 +62,7 @@ function plugin_init_surveyticket() {
             $PLUGIN_HOOKS['config_page']['surveyticket'] = 'front/menu.php';
          }
          $PLUGIN_HOOKS['post_init']['surveyticket'] = 'plugin_surveyticket_post_init';
+         $PLUGIN_HOOKS['pre_item_add']['surveyticket'] = array('Ticket' => array('PluginSurveyticketSurvey', 'preAddTicket'));
 
       }
 
@@ -90,8 +91,8 @@ function plugin_init_surveyticket() {
 
 // Name and Version of the plugin
 function plugin_version_surveyticket() {
-   return array('name'           => 'Survey ticket',
-                'shortname'      => 'surveyticket',
+   return array('name'           => __('Survey', 'surveyticket'),
+                'shortname'      => __('Survey', 'surveyticket'),
                 'version'        => PLUGIN_SURVEYTICKET_VERSION,
                 'author'         => '<a href="mailto:d.durieux@siprossii.com">David DURIEUX</a>',
                 'homepage'       => 'https://forge.indepnet.net/projects/surveyticket/',
@@ -109,7 +110,7 @@ function plugin_surveyticket_check_prerequisites() {
    }
 
    if (version_compare(GLPI_VERSION, '0.84', 'lt') || version_compare(GLPI_VERSION, '0.85', 'ge')) {
-      echo __('Your GLPI version not compatible, require 0.84', 'surveyticket');
+      _e('Your GLPI version not compatible, require 0.84', 'surveyticket');
       return FALSE;
    }
 

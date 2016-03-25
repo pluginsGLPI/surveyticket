@@ -41,13 +41,17 @@
 include ("../../../inc/includes.php");
 
 header("Content-Type: text/html; charset=UTF-8");
-//print_r($_POST);
+
 $psSurvey = new PluginSurveyticketSurvey();
 $psAnswer = new PluginSurveyticketAnswer();
+
 if ($psAnswer->getFromDB($_POST[$_POST['myname']])) {
    if ($psAnswer->fields['link'] > 0) {
-      $psSurvey->displaySurvey($psAnswer->fields['link']);
+      if (!empty($_POST['array'])) {
+         echo $psSurvey->displaySurvey($psAnswer->fields['link'], -1, Toolbox::decodeArrayFromInput($_POST['array']), $_POST['answer_id']);
+      } else {
+         echo $psSurvey->displaySurvey($psAnswer->fields['link'], -1, array(), $_POST['answer_id']);
+      }
    }
 }
-
 ?>

@@ -65,14 +65,24 @@ if (isset ($_POST["add"])) {
 } else if (isset ($_POST["delete"])) {
    $psQuestion->delete($_POST);
    Html::redirect(Toolbox::getItemTypeSearchURL('PluginSurveyticketQuestion'));
+} else if (isset($_POST["purge"])) {
+   $psQuestion->delete($_POST);
+   //delete item 
+   $psQuestion->deleteItem($_POST['id']);
+   Html::redirect(Toolbox::getItemTypeSearchURL('PluginSurveyticketQuestion'));
 }
 
 
 if (isset($_GET["id"])) {
    $psQuestion->showForm($_GET["id"]);
    
-   $psAnswer = new PluginSurveyticketAnswer();
-   $psAnswer->listAnswers($_GET["id"]);
+   //responses display if type
+   $psQuestion->getFromDB($_GET["id"]);
+   if ($psQuestion->fields['type'] == PluginSurveyticketQuestion::RADIO || $psQuestion->fields['type'] == PluginSurveyticketQuestion::YESNO || 
+       $psQuestion->fields['type'] == PluginSurveyticketQuestion::DROPDOWN || $psQuestion->fields['type'] == PluginSurveyticketQuestion::CHECKBOX) {
+      $psAnswer = new PluginSurveyticketAnswer();
+      $psAnswer->listAnswers($_GET["id"]);
+   }
    
 } else {
    $psQuestion->showForm(0);
