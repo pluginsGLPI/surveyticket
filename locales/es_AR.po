@@ -1,0 +1,84 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+# Luis A. Uriarte <luisuriarte@gmail.com>, 2014
+msgid ""
+msgstr ""
+"Project-Id-Version: GLPI Project - plugin surveyticket\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-06-01 23:46+0200\n"
+"PO-Revision-Date: 2014-06-01 21:47+0000\n"
+"Last-Translator: David Durieux <d.durieux@siprossii.com>\n"
+"Language-Team: Spanish (Argentina) (http://www.transifex.com/projects/p/glpi_surveyticket/language/es_AR/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es_AR\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: hook.php:109 hook.php:131 front/menu.php:64 inc/question.class.php:56
+#: inc/surveyquestion.class.php:48 inc/surveyquestion.class.php:67
+#: inc/surveyquestion.class.php:104 inc/surveyquestion.class.php:142
+msgid "Question"
+msgid_plural "Questions"
+msgstr[0] "Pregunta"
+msgstr[1] "Preguntas"
+
+#: hook.php:112 hook.php:134 hook.php:136 inc/answer.class.php:56
+#: inc/answer.class.php:121 inc/answer.class.php:192
+msgid "Answer"
+msgid_plural "Answers"
+msgstr[0] "Respuesta"
+msgstr[1] "Respuestas"
+
+#: hook.php:141 hook.php:146
+msgid "Text"
+msgstr ""
+
+#: setup.php:112
+msgid "Your GLPI version not compatible, require 0.84"
+msgstr "GLPI no compatible, necesita versión 0.84"
+
+#: front/menu.php:50
+msgid "Menu"
+msgstr ""
+
+#: front/menu.php:57 inc/survey.class.php:54
+msgid "Survey"
+msgid_plural "Surveys"
+msgstr[0] "Encuesta"
+msgstr[1] "Encuestas"
+
+#: inc/answer.class.php:135 inc/answer.class.php:226
+msgid "+ field"
+msgstr "+ campo"
+
+#: inc/answer.class.php:138 inc/answer.class.php:258
+msgid "Go to question"
+msgstr "Ir a la pregunta"
+
+#: inc/answer.class.php:209 inc/question.class.php:126
+msgid "Short text"
+msgstr "Texto corto"
+
+#: inc/answer.class.php:212 inc/question.class.php:128
+msgid "Long text"
+msgstr ""
+
+#: inc/answer.class.php:247
+msgid "Linked to question"
+msgstr "Vinculado a pregunta"
+
+#: inc/question.class.php:122
+msgid "dropdown"
+msgstr "desplegable"
+
+#: inc/question.class.php:123
+msgid "checkbox"
+msgstr "verificación"
+
+#: inc/question.class.php:124
+msgid "radio"
+msgstr "radio"
