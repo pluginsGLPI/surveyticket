@@ -241,12 +241,17 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       if ($psQuestion->fields['type'] != PluginSurveyticketQuestion::CHECKBOX) {
          echo "<tr class='tab_bg_1'>";
          echo "<td>".__('Go to question', 'surveyticket')."&nbsp;:</td>";
-         echo "<td colspan='3'>";
+         echo "<td>";
          Dropdown::show("PluginSurveyticketQuestion", array(
              'name'=>'link',
              'value'=>$this->fields['link'],
              'used' => array($psQuestion->getID())
             ));
+         echo "</td>";
+         echo "<td>" . __('Mandatory', 'surveyticket') . "&nbsp;:</td>";
+         echo "</td>";
+         echo "<td>";
+         Dropdown::showYesNo('mandatory', $this->fields['mandatory']);
          echo "</td>";
          echo "</tr>";
       }
@@ -278,6 +283,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          $input['plugin_surveyticket_questions_id'] = $questions_id;
          $input['is_yes'] = 1;
          $input['name'] = __('Yes');
+         $input['mandatory'] = 0;
          $this->add($input);
       }
       $query= "SELECT * FROM `".$this->getTable()."`
@@ -289,6 +295,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          $input['plugin_surveyticket_questions_id'] = $questions_id;
          $input['is_no'] = 1;
          $input['name'] = __('No');
+         $input['mandatory'] = 0;
          $this->add($input);
       }
    }
@@ -312,6 +319,29 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       while ($data=$DB->fetch_array($result)) {
          $this->delete($data);
       }
+   }
+   
+   function prepareInputForUpdate($input) {
+      if (($input['link']) > 0) {
+         $surveyquestion  = new PluginSurveyticketSurveyQuestion();
+         $surveyquestions = $surveyquestion->find('`plugin_surveyticket_questions_id` = ' . $input['link']);
+         foreach ($surveyquestions as $data) {
+            $surveys = $surveyquestion->find("`plugin_surveyticket_surveys_id` = " . $data['plugin_surveyticket_surveys_id']);
+
+            foreach ($surveys as $data_survey) {
+               $tab    = PluginSurveyticketSurveyQuestion::questionUsed($data_survey['plugin_surveyticket_questions_id']);
+               $survey = new PluginSurveyticketSurvey();
+               $survey->getFromDB($data_survey['plugin_surveyticket_surveys_id']);
+               if (in_array($input['plugin_surveyticket_questions_id'], $tab)) {
+                  Session::addMessageAfterRedirect(__('The question is present in the survey', 'surveyticket') . " : " . $survey->fields['name'] . " " . __('Please delete the questionnaire if you want to add it.', 'surveyticket'), false, ERROR);
+                  return array();
+               }
+            }
+         }
+      } else {
+         $input['mandatory'] = 0;
+      }
+      return $input;
    }
 }
 

@@ -45,6 +45,8 @@ if (!defined('GLPI_ROOT')) {
 }
 
 class PluginSurveyticketSurveyQuestion extends CommonDBTM {
+   
+   static $rightname = 'plugin_surveyticket';
 
    static function getTypeName($nb = 0) {
       return _n('Question', 'Questions', $nb, 'surveyticket');
@@ -70,7 +72,7 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
    static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
       if ($item->getType() == 'PluginSurveyticketSurvey') {
          $pfSurveyQuestion = new self();
-         $pfSurveyQuestion->showQuestions($item->getID());
+         $pfSurveyQuestion->showQuestions($item->getID(), $withtemplate);
       }
       return TRUE;
    }
@@ -87,7 +89,7 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       return $a_used;
    }
 
-   function showQuestions($items_id) {
+   function showQuestions($items_id, $withtemplate) {
       global $CFG_GLPI;
 
       echo "<form method='post' name='form_addquestion' action='" . $CFG_GLPI['root_doc'] .
@@ -134,39 +136,69 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
 
 
       // list questions
-      self::showListQuestions($a_questions);
+      self::showListQuestions($a_questions, $withtemplate);
    }
 
-   static function showListQuestions($a_questions) {
+   static function showListQuestions($a_questions, $withtemplate) {
+       $rand = mt_rand();
+      echo "<div class='spaced'>";
+      if ($withtemplate != 2) {
+         Html::openMassiveActionsForm('mass' . __CLASS__ . $rand);
+         $massiveactionparams = array();
+         Html::showMassiveActions($massiveactionparams);
+      }
       echo "<table class='tab_cadre_fixe'>";
-      echo "<tr class='tab_bg_1'>";
-      echo "<th>";
-      echo _n('Question', 'Questions', 1, 'surveyticket');
-      echo "</th>";
-      echo "<th>";
-      echo __('Type');
-      echo "</th>";
-      echo "<th>";
-      echo __('Position') . " / " . __('Link');
-      echo "</th>";
-      echo "<th>";
-      echo __('Mandatory', 'surveyticket');
-      echo "</th>";
-      echo "<th>";
-      echo "</th>";
-      echo "</tr>";
+      if ($withtemplate != 2) {
+         $header_top    = "<th width='10'>".Html::getCheckAllAsCheckbox('mass'.__CLASS__.$rand);
+         $header_top    .= "</th>";
+      }else{
+         $header_top    = "<th width='10'></th>";
+      }
+      
+      $header_begin = "<tr class='tab_bg_1'>";
+      $header_end = "<th>";
+      $header_end .= _n('Question', 'Questions', 1, 'surveyticket');
+      $header_end .= "</th>";
+      $header_end .= "<th>";
+      $header_end .= __('Type');
+      $header_end .= "</th>";
+      $header_end .= "<th>";
+      $header_end .= __('Position') . " / " . __('Link');
+      $header_end .= "</th>";
+      $header_end .= "<th>";
+      $header_end .= __('Mandatory', 'surveyticket');
+      $header_end .= "</th>";
+      $header_end .= "<th>";
+      $header_end .= "</th>";
+      $header_end .= "</tr>";
+      
+      echo $header_begin.$header_top.$header_end;
       foreach ($a_questions as $data) {
          self::showQuestion($data);
       }
       echo "</table>";
+      if ($withtemplate != 2) {
+         $massiveactionparams['ontop'] = false;
+         Html::showMassiveActions($massiveactionparams);
+         Html::closeForm();
+      }
+      echo "</div>";
    }
 
    static function showQuestion($data) {
       global $CFG_GLPI;
       $psQuestion = new PluginSurveyticketQuestion();
-      echo "<tr class='tab_bg_1'>";
-      echo "<td>";
       $psQuestion->getFromDB($data['plugin_surveyticket_questions_id']);
+      echo "<tr class='tab_bg_1'>";
+      if (isset($data['id'])) {
+         echo "<td width='10'>";
+         Html::showMassiveActionCheckBox(__CLASS__, $data['id']);
+         echo "</td>";
+      } else {
+         echo "<td width='10'></td>";
+      }
+      echo "<td>";
+
       echo $psQuestion->getLink(1);
       echo "</td>";
       echo "<td>";
@@ -192,22 +224,16 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
          Html::closeForm();
          echo "</td>";
       } else {
-         //question display which is linked to other
-//         $psQuestion->getFromDB($data['old_plugin_surveyticket_questions_id']);
-//         echo "<td>";
-//         echo $psQuestion->getLink(1);
-//         echo "</td>";
-//         echo "<td>";
-//         echo __('No');
-//         echo "</td>";
-//         echo "<td align='center'>";
-//         echo "</td>";
-          echo "<td>";
+         echo "<td>";
          echo '0';
          echo "</td>";
          echo "<td>";
-
+         if ($data['mandatory']) {
+            echo __('Yes');
+         } else {
+            //no
             echo __('No');
+         }
          echo "</td><td align='center'></td>";
       }
 
@@ -224,12 +250,12 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
          if ($data['link'] > 0) {
             $psQuestion->getFromDB($data['link']);
             $psQuestionName->getFromDB($data['plugin_surveyticket_questions_id']);
-            echo "<tr class='tab_bg_2'>";
+            echo "<tr class='tab_bg_2'><td></td>";
             echo "<td>".__('Answer', 'surveyticket')." : ".$psQuestionName->fields['name']."</td><td>";
             echo $data['name'];
             echo "</td><td>".$psQuestion->getLink(1)."</td><td colspan='2'></td>";
             echo "</tr>";
-            self::showQuestion(array('plugin_surveyticket_questions_id' => $data['link'], 'old_plugin_surveyticket_questions_id' => $plugin_surveyticket_questions_id));
+            self::showQuestion(array('plugin_surveyticket_questions_id' => $data['link'], 'old_plugin_surveyticket_questions_id' => $plugin_surveyticket_questions_id, 'mandatory' => $data['mandatory']));
          }
       }
    }
@@ -273,6 +299,35 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       $temp = new self();
       $temp->deleteByCriteria(array('plugin_surveyticket_surveys_id' => $id));
    }
+   
+   /**
+    * 
+    * @return string
+    */
+   function getSearchOptions() {
+
+      $tab = array();
+
+      $tab['common'] = self::getTypeName(2);
+
+      $tab[30]['table']    = $this->getTable();
+      $tab[30]['field']    = 'id';
+      $tab[30]['name']     = __('ID');
+      $tab[30]['datatype'] = 'number';
+
+      $tab[3]['table']    = $this->getTable();
+      $tab[3]['field']    = 'mandatory';
+      $tab[3]['name']     = __('Mandatory', 'surveyticket');
+      $tab[3]['datatype'] = 'bool';
+
+      $tab[2]['table']      = $this->getTable();
+      $tab[2]['field']      = 'order';
+      $tab[2]['name']       = __('Position');
+      $tab[2]['datatype']   = 'number';
+
+      return $tab;
+   }
+   
 
 }
 

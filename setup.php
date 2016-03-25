@@ -76,7 +76,7 @@ function plugin_init_surveyticket() {
 
 // Name and Version of the plugin
 function plugin_version_surveyticket() {
-   return array('name' => 'Survey ticket',
+   return array('name' => __('Survey', 'surveyticket'),
       'shortname' => 'surveyticket',
       'version' => '1.4',
       'author' => '<a href="http://infotel.com/services/expertise-technique/glpi/">Infotel</a> & <a href="mailto:d.durieux@siprossii.com">David DURIEUX</a>',
@@ -89,12 +89,8 @@ function plugin_version_surveyticket() {
 // Optional : check prerequisites before install : may print errors or add to message after redirect
 function plugin_surveyticket_check_prerequisites() {
 
-   if (!isset($_SESSION['glpi_plugins'])) {
-      $_SESSION['glpi_plugins'] = array();
-   }
-
    if (version_compare(GLPI_VERSION, '0.90', 'lt') || version_compare(GLPI_VERSION, '0.91', 'ge')) {
-      echo __('Your GLPI version not compatible, require 0.90', 'surveyticket');
+      _e('Your GLPI version not compatible, require 0.90', 'surveyticket');
       return FALSE;
    }
 
@@ -105,8 +101,5 @@ function plugin_surveyticket_check_config() {
    return TRUE;
 }
 
-function plugin_surveyticket_haveTypeRight($type, $right) {
-   return TRUE;
-}
 
 ?>

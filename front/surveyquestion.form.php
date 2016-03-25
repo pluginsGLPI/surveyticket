@@ -44,7 +44,6 @@ include ("../../../inc/includes.php");
 
  Html::header(PluginSurveyticketSurveyQuestion::getTypeName(2),'',"helpdesk","pluginsurveyticketmenu", "surveyquestion");
 $psSurveyQuestion = new PluginSurveyticketSurveyQuestion();
-
 if (isset ($_POST["add"])) {
    if ($_POST['plugin_surveyticket_questions_id'] > 0) {
       $psSurveyQuestion->add($_POST);

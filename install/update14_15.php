@@ -29,17 +29,17 @@
 
 
 /**
- * Update from 1.3 to 1.4
+ * Update from 1.4 to 1.5
  *
  * @return bool for success (will die for most error)
  * */
-function update13to14() {
+function update14to15() {
    global $DB;
 
-   $migration = new Migration(14);
+   $migration = new Migration(15);
 
    // add field mandatory
-   $migration->addField('glpi_plugin_surveyticket_surveyquestions', 'mandatory', 'bool', array('value' => 0));
+   $migration->addField('glpi_plugin_surveyticket_answers', 'mandatory', 'bool', array('value' => 0));
 
    $migration->executeMigration();
 

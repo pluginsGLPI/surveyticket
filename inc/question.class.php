@@ -182,6 +182,15 @@ class PluginSurveyticketQuestion extends CommonDBTM {
 
       return true;
    }
+   
+   function deleteItem($id) {
+      $answer = new PluginSurveyticketAnswer();
+      $answer->deleteByCriteria(array('plugin_surveyticket_questions_id' => $id));
+      
+      $surveyquestions = new PluginSurveyticketSurveyQuestion();
+      $surveyquestions->deleteByCriteria(array('plugin_surveyticket_questions_id' => $id));
+      
+   }
 
 }
 
