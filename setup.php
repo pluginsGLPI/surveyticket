@@ -78,7 +78,7 @@ function plugin_init_surveyticket() {
 function plugin_version_surveyticket() {
    return array('name' => __('Survey', 'surveyticket'),
       'shortname' => 'surveyticket',
-      'version' => '1.4',
+      'version' => '1.5',
       'author' => '<a href="http://infotel.com/services/expertise-technique/glpi/">Infotel</a> & <a href="mailto:d.durieux@siprossii.com">David DURIEUX</a>',
       'homepage' => 'https://forge.glpi_project.org/projects/surveyticket/',
       'minGlpiVersion' => '0.90',
