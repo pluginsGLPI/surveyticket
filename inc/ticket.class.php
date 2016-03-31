@@ -70,7 +70,7 @@ class PluginSurveyticketTicket extends CommonDBTM {
       }
    }
 
-   static function setSessions($input) {
+   static function setSessions($input, $add = false) {
       foreach ($input as $question => $answer) {
          if (preg_match("/^question/", $question) && !preg_match("/^realquestion/", $question)) {
             $psAnswer = new PluginSurveyticketAnswer();
@@ -104,6 +104,10 @@ class PluginSurveyticketTicket extends CommonDBTM {
                }
             }
          }
+      }
+      $_SESSION['glpi_plugin_surveyticket_ticket']['add'] = false;
+      if ($add == true) {
+         $_SESSION['glpi_plugin_surveyticket_ticket']['add'] = true;
       }
    }
    
@@ -168,6 +172,14 @@ class PluginSurveyticketTicket extends CommonDBTM {
          if ($psSurvey->fields['is_active'] == 1) {
             $plugin_surveyticket_surveys_id = $a_tickettemplates['plugin_surveyticket_surveys_id'];
             $surveyTicket = new PluginSurveyticketTicket();
+            
+            if (isset($session['add']) && $session['add'] == false) {
+               foreach ($session as $key => $value) {
+                  if (!is_array($value)) {
+                     $session[$key] = Html::cleanPostForTextArea($value);
+                  }
+               }
+            }
             $bloc = $surveyTicket->startSurvey($plugin_surveyticket_surveys_id, $session);
             unset($session);
             return array('response' => true, 'survey' => $bloc);
@@ -417,7 +429,7 @@ class PluginSurveyticketTicket extends CommonDBTM {
             if (empty($session) || empty($session[$questions_id])) {
                $bloc .= '<input type="text" name="question' . $questions_id . '" id="question' . $questions_id . '" value="" size="100" />';
             } else {
-               $bloc .= '<input type="text" name="question' . $questions_id . '" id="question' . $questions_id . '" value="' . stripcslashes($session[$questions_id]) . '" size="100" />';
+               $bloc .= '<input type="text" name="question' . $questions_id . '" id="question' . $questions_id . '" value="' . Html::cleanPostForTextArea($session[$questions_id]) . '" size="100" />';
             }
             $bloc .= '<input type="hidden" name="realquestion' . $questions_id . '" id="realquestion' . $questions_id . '" value="' . $data_answer['id'] . '" />';
             $bloc .= "</td>";
@@ -431,7 +443,7 @@ class PluginSurveyticketTicket extends CommonDBTM {
             if (empty($session) || empty($session[$questions_id])) {
                $bloc .= '<textarea name="question' . $questions_id . '"  cols="90" rows="4"></textarea>';
             } else {
-               $bloc .= '<textarea name="question' . $questions_id . '"  cols="90" rows="4" >' . stripcslashes($session[$questions_id]) . '</textarea>';
+               $bloc .= '<textarea name="question' . $questions_id . '"  cols="90" rows="4" >' . Html::cleanPostForTextArea($session[$questions_id]) . '</textarea>';
             }
             $bloc .= '<input type="hidden" name="realquestion' . $questions_id . '" id="realquestion' . $questions_id . '" value="' . $data_answer['id'] . '" />';
             $bloc .= "</td>";
@@ -452,7 +464,7 @@ class PluginSurveyticketTicket extends CommonDBTM {
                if ($session == NULL) {
                   $bloc .= "<input type='text' name='" . $name . "' value='' size='71'/>";
                } else {
-                  $bloc .= "<input type='text' name='" . $name . "' value='" . stripcslashes($session) . "' size='71'/>";
+                  $bloc .= "<input type='text' name='" . $name . "' value='" . Html::cleanPostForTextArea($session) . "' size='71'/>";
                }
                break;
 
@@ -460,7 +472,7 @@ class PluginSurveyticketTicket extends CommonDBTM {
                if ($session == NULL) {
                   $bloc .= "<textarea name='" . $name . "' cols='100' rows='4'></textarea>";
                } else {
-                  $bloc .= "<textarea name='" . $name . "' cols='100' rows='4'>".stripcslashes($session)."</textarea>";
+                  $bloc .= "<textarea name='" . $name . "' cols='100' rows='4'>".Html::cleanPostForTextArea($session)."</textarea>";
                }
                break;
 
@@ -558,7 +570,7 @@ class PluginSurveyticketTicket extends CommonDBTM {
       if (!$response) {
          return true;
       }
-      self::setSessions($ticket->input);
+      self::setSessions($ticket->input, true);
       if (self::checkMandatoryFields($ticket)) {
          //Recovery of the survey to put in the content of the ticket
          $psQuestion  = new PluginSurveyticketQuestion();
@@ -577,7 +589,7 @@ class PluginSurveyticketTicket extends CommonDBTM {
                         $qid = str_replace("question", "", $question);
                         if (isset($ticket->input["text-" . $qid . "-" . $answers_id])
                            AND $ticket->input["text-" . $qid . "-" . $answers_id] != '') {
-                           $description .= "Texte : " . $ticket->input["text-" . $qid . "-" . $answers_id] . "\n";
+                           $description .= __('Text', 'surveyticket') . " : " . $ticket->input["text-" . $qid . "-" . $answers_id] . "\n";
                         }
                      }
                   }

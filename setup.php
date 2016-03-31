@@ -39,6 +39,8 @@
   ------------------------------------------------------------------------
  */
 
+define ("PLUGIN_SURVEYTICKET_VERSION", "0.90+1.0");
+
 // Init the hooks of surveyticket
 function plugin_init_surveyticket() {
    global $PLUGIN_HOOKS;
@@ -78,7 +80,7 @@ function plugin_init_surveyticket() {
 function plugin_version_surveyticket() {
    return array('name' => __('Survey', 'surveyticket'),
       'shortname' => 'surveyticket',
-      'version' => '1.5',
+      'version' => PLUGIN_SURVEYTICKET_VERSION,
       'author' => '<a href="http://infotel.com/services/expertise-technique/glpi/">Infotel</a> & <a href="mailto:d.durieux@siprossii.com">David DURIEUX</a>',
       'homepage' => 'https://forge.glpi_project.org/projects/surveyticket/',
       'minGlpiVersion' => '0.90',
