@@ -221,6 +221,7 @@ class PluginSurveyticketTicket extends CommonDBTM {
          $bloc .= "<th colspan='3' style='text-align: left;'>";
          if ($plugin_surveyticket_surveys_id == -1) {
             $answer = new PluginSurveyticketAnswer();
+            $answer->getFromDB($answer_id);
             if ($answer->getFromDB($answer_id) && $answer->fields['mandatory']) {
                $bloc .= $psQuestion->fields['name'] . " <span class='red'>&nbsp;*&nbsp;</span>";
             } else {
@@ -290,7 +291,8 @@ class PluginSurveyticketTicket extends CommonDBTM {
             $a_ids = array($a_ids);
          }
          foreach ($a_ids as $key => $a_id) {
-            $params['answer_id'] = $key;
+//            $params['answer_id'] = $key;
+            $params['answer_id'] = '__VALUE__';
             $bloc .= Ajax::updateItemOnEventJsCode($a_id, "nextquestion" . $questions_id, $CFG_GLPI["root_doc"] . "/plugins/surveyticket/ajax/displaysurvey.php", $params, array('change'), -1, -1, array(), FALSE);
          }
          $bloc .= "</script>";
@@ -536,7 +538,7 @@ class PluginSurveyticketTicket extends CommonDBTM {
       $psQuestion = new PluginSurveyticketQuestion();
       $psQuestion->getFromDB($data['plugin_surveyticket_questions_id']);
       if (isset($data['mandatory']) && $data['mandatory']) {
-         if (!isset($ticket['question' . $psQuestion->fields['id']]) || empty($ticket['question' . $psQuestion->fields['id']])) {
+         if (!isset($ticket['question' . $psQuestion->fields['id']]) || empty($ticket['question' . $psQuestion->fields['id']]) || $ticket['question' . $psQuestion->fields['id']] == '-----'){
             $msg[]   = $psQuestion->fields['name'];
             $checkKo = true;
          }

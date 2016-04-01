@@ -323,19 +323,22 @@ class PluginSurveyticketAnswer extends CommonDBTM {
    
    function prepareInputForUpdate($input) {
       if (($input['link']) > 0) {
-         $surveyquestion  = new PluginSurveyticketSurveyQuestion();
-         $surveyquestions = $surveyquestion->find('`plugin_surveyticket_questions_id` = ' . $input['link']);
-         foreach ($surveyquestions as $data) {
-            $surveys = $surveyquestion->find("`plugin_surveyticket_surveys_id` = " . $data['plugin_surveyticket_surveys_id']);
-
-            foreach ($surveys as $data_survey) {
-               $tab    = PluginSurveyticketSurveyQuestion::questionUsed($data_survey['plugin_surveyticket_questions_id']);
-               $survey = new PluginSurveyticketSurvey();
-               $survey->getFromDB($data_survey['plugin_surveyticket_surveys_id']);
-               if (in_array($input['plugin_surveyticket_questions_id'], $tab)) {
-                  Session::addMessageAfterRedirect(__('The question is present in the survey', 'surveyticket') . " : " . $survey->fields['name'] . " " . __('Please delete the questionnaire if you want to add it.', 'surveyticket'), false, ERROR);
-                  return array();
+         $survey = new PluginSurveyticketSurvey();
+         $allsurvey = $survey->find();
+         foreach($allsurvey as $data_survey){
+            $surveyquestion  = new PluginSurveyticketSurveyQuestion();
+            $questionsSurvey = $surveyquestion->find('`plugin_surveyticket_surveys_id` = ' . $data_survey['id']);
+            $tab = array();
+            foreach ($questionsSurvey as $question){
+               $tab[] = $question['plugin_surveyticket_questions_id'];
+               if($question['plugin_surveyticket_questions_id'] != $input['plugin_surveyticket_questions_id']){
+                  $tab = PluginSurveyticketSurveyQuestion::questionUsed($question['plugin_surveyticket_questions_id'], $tab);
                }
+            }
+            $survey->getFromDB($data_survey['id']);
+            if(in_array($input['plugin_surveyticket_questions_id'], $tab) && in_array($input['link'], $tab)){
+                Session::addMessageAfterRedirect(__('The question is present in the survey', 'surveyticket') . " : " . $survey->fields['name'] . " " . __('Please delete the questionnaire if you want to add it.', 'surveyticket'), false, ERROR);
+                  return array();
             }
          }
       } else {
