@@ -63,6 +63,7 @@ function plugin_init_surveyticket() {
          }
          $PLUGIN_HOOKS['post_init']['surveyticket'] = 'plugin_surveyticket_post_init';
          $PLUGIN_HOOKS['pre_item_add']['surveyticket'] = array('Ticket' => array('PluginSurveyticketSurvey', 'preAddTicket'));
+         $PLUGIN_HOOKS['item_empty']['surveyticket']   = array('Ticket' => array('PluginSurveyticketSurvey', 'emptyTicket'));
 
       }
 

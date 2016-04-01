@@ -134,13 +134,7 @@ class PluginSurveyticketSurvey extends CommonDBTM {
     */
    static  function getCentral($ID=0, $options=array()) {
       global $CFG_GLPI;
-      // If values are saved in session we retrieve it
-      if (isset($_SESSION['glpi_plugin_surveyticket_ticket'])) {
-         $session = $_SESSION['glpi_plugin_surveyticket_ticket'];
-         unset($_SESSION['glpi_plugin_surveyticket_ticket']);
-      } else {
-         $session = array();
-      }
+
 // * Added by plugin survey ticket
 $ticket = new Ticket();
 // * End of adding
@@ -902,7 +896,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
    if ($psSurvey->fields['is_active'] == 1) {
       $plugin_surveyticket_surveys_id = $a_tickettemplates['plugin_surveyticket_surveys_id'];
       $psSurvey = new PluginSurveyticketSurvey();
-      $psSurvey->startSurvey($plugin_surveyticket_surveys_id, $session);
+      $psSurvey->startSurvey($plugin_surveyticket_surveys_id);
    }
 } else {
 // End of adding by plugin
@@ -1077,13 +1071,6 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
     */
    static function getHelpdesk($ID=0, $ticket_template=false) {
       global $DB, $CFG_GLPI;
-      // If values are saved in session we retrieve it
-      if (isset($_SESSION['glpi_plugin_surveyticket_ticket'])) {
-         $session = $_SESSION['glpi_plugin_surveyticket_ticket'];
-         unset($_SESSION['glpi_plugin_surveyticket_ticket']);
-      } else {
-         $session = array();
-      }
 
 // * Added by plugin survey ticket
 $ticket = new Ticket();
@@ -1427,7 +1414,7 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
    if ($psSurvey->fields['is_active'] == 1) {
       $plugin_surveyticket_surveys_id = $a_tickettemplates['plugin_surveyticket_surveys_id'];
       $psSurvey = new PluginSurveyticketSurvey();
-      $psSurvey->startSurvey($plugin_surveyticket_surveys_id, $session);
+      $psSurvey->startSurvey($plugin_surveyticket_surveys_id);
    }
 } else {
    echo "<td><textarea name='content' cols='80' rows='14'>".$values['content']."</textarea>";
@@ -1468,7 +1455,14 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
 
 
 
-   function startSurvey($plugin_surveyticket_surveys_id, $session) {
+   function startSurvey($plugin_surveyticket_surveys_id) {
+      // If values are saved in session we retrieve it
+      if (isset($_SESSION['glpi_plugin_surveyticket_ticket'])) {
+         $session = $_SESSION['glpi_plugin_surveyticket_ticket'];
+         unset($_SESSION['glpi_plugin_surveyticket_ticket']);
+      } else {
+         $session = array();
+      }
       $psSurveyQuestion = new PluginSurveyticketSurveyQuestion();
 
       $a_questions = $psSurveyQuestion->find(
@@ -1567,7 +1561,8 @@ if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
             $a_ids = array($a_ids);
          }
          foreach ($a_ids as $key => $a_id) {
-            $params['answer_id'] = $key;
+//            $params['answer_id'] = $key;
+            $params['answer_id'] = '__VALUE__';
             Ajax::updateItemOnEventJsCode($a_id, "nextquestion" . $questions_id, $CFG_GLPI["root_doc"] . "/plugins/surveyticket/ajax/displaysurvey.php", $params, array('change'));
          }
          echo "</script>";
@@ -1849,6 +1844,17 @@ function displayAnswertype($type, $name, $session) {
       return $ticket;
    }
   
+   static function emptyTicket(Ticket $ticket) {
+      if (!empty($_POST)) {
+         self::setSessions($_POST);
+      }if (!empty($_REQUEST) && !empty($_REQUEST['_tickettemplates_id'])) {
+         $ticket         = new Ticket();
+         $ticketTemplate = $ticket->getTicketTemplateToUse(false, $_REQUEST['type'], $_REQUEST['itilcategories_id'], $_REQUEST['entities_id']);
+         if ($_REQUEST['_tickettemplates_id'] == $ticketTemplate->fields['id']) {
+            self::setSessions($_REQUEST);
+         }
+      }
+   }
 
    static function setSessions($input) {
       foreach ($input as $question => $answer) {
@@ -1909,10 +1915,11 @@ function displayAnswertype($type, $name, $session) {
       $msg     = $param['msg'];
       $checkKo = $param['checkKo'];
       $ticket  = $param['ticket'];
+      
       $psQuestion = new PluginSurveyticketQuestion();
       $psQuestion->getFromDB($data['plugin_surveyticket_questions_id']);
       if (isset($data['mandatory']) && $data['mandatory']) {
-         if (!isset($ticket['question' . $psQuestion->fields['id']]) || $ticket['question' . $psQuestion->fields['id']] == '-----') {
+         if (!isset($ticket['question' . $psQuestion->fields['id']]) || empty($ticket['question' . $psQuestion->fields['id']]) || $ticket['question' . $psQuestion->fields['id']] == '-----'){
             $msg[]   = $psQuestion->fields['name'];
             $checkKo = true;
          }
