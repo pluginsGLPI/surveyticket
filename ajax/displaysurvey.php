@@ -48,7 +48,11 @@ $psAnswer = new PluginSurveyticketAnswer();
 if ($psAnswer->getFromDB($_POST[$_POST['myname']])) {
    if ($psAnswer->fields['link'] > 0) {
       if(!empty($_POST['session'])){
-         echo $psSurvey->displaySurvey($psAnswer->fields['link'], -1, $_POST['session'], $_POST['answer_id']);
+         $session = $_POST['session'];
+         if(isset($session[$psAnswer->fields['link']])){
+            $session[$psAnswer->fields['link']] = Html::cleanPostForTextArea($session[$psAnswer->fields['link']]);
+         }
+         echo $psSurvey->displaySurvey($psAnswer->fields['link'], -1, $session, $_POST['answer_id']);
       }else{
          echo $psSurvey->displaySurvey($psAnswer->fields['link'], -1, array(), $_POST['answer_id']);
       }
