@@ -1919,7 +1919,8 @@ function displayAnswertype($type, $name, $session) {
       $psQuestion = new PluginSurveyticketQuestion();
       $psQuestion->getFromDB($data['plugin_surveyticket_questions_id']);
       if (isset($data['mandatory']) && $data['mandatory']) {
-         if (!isset($ticket['question' . $psQuestion->fields['id']]) || empty($ticket['question' . $psQuestion->fields['id']]) || $ticket['question' . $psQuestion->fields['id']] == '-----'){
+         if (!isset($ticket['question' . $psQuestion->fields['id']]) || empty($ticket['question' . $psQuestion->fields['id']]) 
+            || $ticket['question' . $psQuestion->fields['id']] == '-----' || ($psQuestion->fields['type'] ==  PluginSurveyticketQuestion::DATE && $ticket['question' . $psQuestion->fields['id']] == 'NULL')){
             $msg[]   = $psQuestion->fields['name'];
             $checkKo = true;
          }
