@@ -154,77 +154,80 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       echo "</th>";
       echo "</tr></table>";
       
-      if ($withtemplate != 2) {
-         Html::openMassiveActionsForm('mass'.__CLASS__.$rand);
-         $massiveactionparams = array('container' => 'mass'.__CLASS__.$rand);
-         Html::showMassiveActions($massiveactionparams);
-      }
-      echo "<table class='tab_cadre_fixe'>";
-      $header   = "<tr class='tab_bg_1'>";
-      $header .= "<th width='10'>";
-      if ($withtemplate != 2) {
-         $header .= Html::getCheckAllAsCheckbox('mass' . __CLASS__ . $rand);
-      }
-      $header .= "</th>";
-      $header .= "<th>";
-      $header .= __('Id');
-      $header .= "</th>";
-      $header .= "<th>";
-      $header .= __('Label');
-      $header .= "</th>";
-      $header .= "<th>";
-      $header .= __('Position');
-      $header .= "</th>";
-      $header .= "<th>";
-      $header .= __('+ field', 'surveyticket');
-      $header .= "</th>";
-      $header .= "<th>";
-      $header .= __('Go to question', 'surveyticket');
-      $header .= "</th>";
-      $header .= "</tr>";
-      echo $header;
       $answer  = new self();
       $answers = $answer->find('`plugin_surveyticket_questions_id` = ' . $questions_id, "`order`");
-      foreach ($answers as $data) {
-         echo "<tr class='tab_bg_1'>";
-         echo "<td class='center' width='10'>";
+      if (count($answers) > 0) {
          if ($withtemplate != 2) {
-            Html::showMassiveActionCheckBox(__CLASS__, $data["id"]);
+            Html::openMassiveActionsForm('mass' . __CLASS__ . $rand);
+            $massiveactionparams = array('container' => 'mass' . __CLASS__ . $rand);
+            Html::showMassiveActions($massiveactionparams);
          }
-         $answer->getFromDB($data['id']);
-         echo "</td>";
-         echo "<td>";
-         echo "<a href='" . $answer->getLinkURL() . "'>" . $data['id'] . "</a>";
-         echo "</td>";
-         echo "<td>";
-         echo $data['name'];
-         echo "</td>";
-         echo "<td>";
-         echo $data['order'];
-         echo "</td>";
-         echo "<td align='center'>";
-         $texttype              = array();
-         $texttype[''] = "";
-         $texttype['shorttext'] = __('Text')." - court";
-         $texttype['longtext'] = __('Text')." - long";
-         $texttype['date'] = __('Date');
-         $texttype['number'] = _x('Quantity', 'Number');
-         echo $texttype[$data['answertype']];
-         echo "</td>";
-         echo "<td>";
-         if ($data['link'] > 0) {
-            $psQuestion->getFromDB($data['link']);
-            echo $psQuestion->getLink(1);
+         echo "<table class='tab_cadre_fixe'>";
+         $header = "<tr class='tab_bg_1'>";
+         $header .= "<th width='10'>";
+         if ($withtemplate != 2) {
+            $header .= Html::getCheckAllAsCheckbox('mass' . __CLASS__ . $rand);
          }
-         echo "</td>";
-         echo "</tr>";         
-      }
-      echo $header;
-      echo "</table>";
-      if ($withtemplate != 2) {
-         $massiveactionparams['ontop'] = false;
-         Html::showMassiveActions($massiveactionparams);
-         Html::closeForm();
+         $header .= "</th>";
+         $header .= "<th>";
+         $header .= __('Id');
+         $header .= "</th>";
+         $header .= "<th>";
+         $header .= __('Label');
+         $header .= "</th>";
+         $header .= "<th>";
+         $header .= __('Position');
+         $header .= "</th>";
+         $header .= "<th>";
+         $header .= __('+ field', 'surveyticket');
+         $header .= "</th>";
+         $header .= "<th>";
+         $header .= __('Go to question', 'surveyticket');
+         $header .= "</th>";
+         $header .= "</tr>";
+         echo $header;
+
+         foreach ($answers as $data) {
+            echo "<tr class='tab_bg_1'>";
+            echo "<td class='center' width='10'>";
+            if ($withtemplate != 2) {
+               Html::showMassiveActionCheckBox(__CLASS__, $data["id"]);
+            }
+            $answer->getFromDB($data['id']);
+            echo "</td>";
+            echo "<td>";
+            echo "<a href='" . $answer->getLinkURL() . "'>" . $data['id'] . "</a>";
+            echo "</td>";
+            echo "<td>";
+            echo $data['name'];
+            echo "</td>";
+            echo "<td>";
+            echo $data['order'];
+            echo "</td>";
+            echo "<td align='center'>";
+            $texttype              = array();
+            $texttype['']          = "";
+            $texttype['shorttext'] = __('Text') . " - court";
+            $texttype['longtext']  = __('Text') . " - long";
+            $texttype['date']      = __('Date');
+            $texttype['number']    = _x('Quantity', 'Number');
+            echo $texttype[$data['answertype']];
+            echo "</td>";
+            echo "<td>";
+            if ($data['link'] > 0) {
+               $psQuestion->getFromDB($data['link']);
+               echo $psQuestion->getLink(1);
+            }
+            echo "</td>";
+            echo "</tr>";
+         }
+         echo $header;
+         echo "</table>";
+         if ($withtemplate != 2) {
+            $massiveactionparams['ontop'] = false;
+            Html::showMassiveActions($massiveactionparams);
+            Html::closeForm();
+         }
       }
    }
    

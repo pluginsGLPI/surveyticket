@@ -238,7 +238,7 @@ class PluginSurveyticketAnswerTranslation extends CommonDBChild {
                          'items_id' => $item->getID());
          Ajax::updateItemOnSelectEvent("dropdown_language$rand",
                                        "span_fields",
-                                       $CFG_GLPI["root_doc"]."/ajax/updateTranslationFields.php",
+                                       $CFG_GLPI["root_doc"]."/plugins/surveyticket/ajax/updateTranslationFields.php",
                                        $params);
       }
       echo "</td><td colspan='2'>&nbsp;</td></tr>";
@@ -275,7 +275,7 @@ class PluginSurveyticketAnswerTranslation extends CommonDBChild {
    static function dropdownFields(CommonDBTM $item, $language='', $value='') {
       global $DB;
       $options = array();
-      foreach (Search::getOptions(get_class($item)) as $id => $field) {
+      foreach ($item->getSearchOptions() as $id => $field) {
          //Can only translate name, and fields whose datatype is text or string
          if (isset ($field['field'])
              && ($field['field'] == 'name')

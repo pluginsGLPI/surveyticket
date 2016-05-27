@@ -133,6 +133,11 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
 
       echo "</table>";
       Html::closeForm();
+      
+      echo "<form method='post' name='add' action='" . $CFG_GLPI['root_doc'] .
+      "/plugins/surveyticket/front/question.form.php'>";
+      echo "<input type='submit'  value=\"" . __('Create a question', 'surveyticket') . "\" class='submit'>";
+      Html::closeForm();
 
 
       // list questions

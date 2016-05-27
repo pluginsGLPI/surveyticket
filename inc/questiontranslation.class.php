@@ -275,7 +275,7 @@ class PluginSurveyticketQuestionTranslation extends CommonDBChild {
    static function dropdownFields(CommonDBTM $item, $language='', $value='') {
       global $DB;
       $options = array();
-      foreach (Search::getOptions(get_class($item)) as $id => $field) {
+      foreach ($item->getSearchOptions() as $id => $field) {
          //Can only translate name, and fields whose datatype is text or string
          if (isset ($field['field'])
              && ($field['field'] == 'name')
