@@ -48,7 +48,7 @@ class PluginSurveyticketQuestion extends CommonDBTM {
 
    public $dohistory = true;
    static $rightname = "plugin_surveyticket";
-   
+   var $can_be_translated  = true;
    CONST YESNO = 'yesno';
    CONST DROPDOWN = 'dropdown';
    CONST CHECKBOX = 'checkbox';
@@ -67,6 +67,17 @@ class PluginSurveyticketQuestion extends CommonDBTM {
       return _n('Question', 'Questions', $nb, 'surveyticket');
    }
 
+   function defineTabs($options = array()) {
+
+      $ong = array();
+      $this->addDefaultFormTab($ong);
+      $this->addStandardTab('PluginSurveyticketAnswer', $ong, $options);
+      $this->addStandardTab('PluginSurveyticketQuestionTranslation', $ong, $options);
+      $this->addStandardTab('Log', $ong, $options);
+
+      return $ong;
+   }
+   
    function getSearchOptions() {
 
       $tab = array();
@@ -84,6 +95,13 @@ class PluginSurveyticketQuestion extends CommonDBTM {
       $tab[2]['name'] = __('Type');
       $tab[2]['searchtype'] = 'equals';
       $tab[2]['datatype'] = 'specific';
+      
+      
+      $tab[3]['table'] = $this->getTable();
+      $tab[3]['field'] = 'comment';
+      $tab[3]['name'] = __('Comments');
+      $tab[3]['searchtype'] = 'equals';
+      $tab[3]['datatype'] = 'text';
 
       return $tab;
    }
@@ -154,7 +172,6 @@ class PluginSurveyticketQuestion extends CommonDBTM {
       }
 
       $this->initForm($items_id, $options);
-//      $this->showTabs($options);
       $this->showFormHeader($options);
 
       echo "<tr class='tab_bg_1'>";
@@ -189,6 +206,51 @@ class PluginSurveyticketQuestion extends CommonDBTM {
       
       $surveyquestions = new PluginSurveyticketSurveyQuestion();
       $surveyquestions->deleteByCriteria(array('plugin_surveyticket_questions_id' => $id));
+      
+   }
+   
+   static function findQuestion($questions_id) {
+      global $DB;
+
+      // Make new database object and fill variables
+      $table = 'glpi_plugin_surveyticket_questions';
+
+      $SELECTNAME    = "`$table`.`name`, `namet`.`value` AS transname";
+      $JOIN          = " LEFT JOIN `glpi_plugin_surveyticket_questiontranslations` AS namet
+                           ON (`namet`.`itemtype` = '" . getItemTypeForTable($table) . "'
+                               AND `namet`.`items_id` = `$table`.`id`
+                               AND `namet`.`language` = '" . $_SESSION['glpilanguage'] . "'
+                               AND `namet`.`field` = 'name')";
+      $SELECTCOMMENT = "`$table`.`comment`, `namec`.`value` AS transcomment";
+      $JOIN .= " LEFT JOIN `glpi_plugin_surveyticket_questiontranslations` AS namec
+                           ON (`namec`.`itemtype` = '" . getItemTypeForTable($table) . "'
+                               AND `namec`.`items_id` = `$table`.`id`
+                               AND `namec`.`language` = '" . $_SESSION['glpilanguage'] . "'
+                               AND `namec`.`field` = 'comment')";
+
+      $query = "SELECT  `$table`.`id`,
+                        `$table`.`type`,
+                        `$table`.`is_start`,
+                        $SELECTNAME, $SELECTCOMMENT
+                FROM `$table`
+                $JOIN";
+
+         $query .= " WHERE `$table`.`id` = ".$questions_id;
+
+      if ($result = $DB->query($query)) {
+         if ($DB->numrows($result)) {
+            while ($line = $DB->fetch_assoc($result)) {
+               if (!empty($line['transname'])) {
+                  $line['name'] = $line['transname'];
+               }
+               if (!empty($line['transcomment'])) {
+                  $line['comment'] = $line['transcomment'];
+               }
+               return $line;
+            }
+         }
+      }
+      return false;
       
    }
 

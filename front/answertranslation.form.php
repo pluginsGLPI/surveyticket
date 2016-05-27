@@ -39,39 +39,15 @@
   ------------------------------------------------------------------------
  */
 
+include('../../../inc/includes.php');
 
-include ("../../../inc/includes.php");
-
-Html::header(PluginSurveyticketAnswer::getTypeName(2),'',"helpdesk","pluginsurveyticketmenu","question");
-
-if (!isset($_GET["id"]))
-   $_GET["id"] = "";
-if (!isset($_GET["withtemplate"]))
-   $_GET["withtemplate"] = "";
-
-$psAnswer = new PluginSurveyticketAnswer();
-$survey = new PluginSurveyticketSurvey();
-
-if (isset ($_POST["add"])) {
-   $survey->check(-1, CREATE, $_POST);
-   $psAnswer->add($_POST);
-   Html::back();
-} else if (isset ($_POST["update"])) {
-   $survey->check($_POST['id'], UPDATE);
-   $psAnswer->update($_POST);
-   Html::back();
-} else if (isset ($_POST["delete"])) {
-   $survey->check($_POST['id'], PURGE);
-   $psAnswer->delete($_POST);
-   Html::redirect(Toolbox::getItemTypeFormURL('PluginSurveyticketQuestion')."?id=".$_POST['plugin_surveyticket_questions_id']);
-} else if (isset ($_POST["purge"])) {
-   $survey->check($_POST['id'], PURGE);
-   $psAnswer->delete($_POST);
-   Html::redirect(Toolbox::getItemTypeFormURL('PluginSurveyticketQuestion')."?id=".$_POST['plugin_surveyticket_questions_id']);
+$translation = new PluginSurveyticketAnswerTranslation();
+if (isset($_POST['add'])) {
+   $translation->add($_POST);
+} else if (isset($_POST['update'])) {
+   $translation->update($_POST);
+} else if (isset($_POST['purge'])) {
+   $translation->delete($_POST,1);
 }
-   $survey->checkGlobal(READ);
-   $psAnswer->display($_GET);
-
-Html::footer();
-
+Html::back();
 ?>

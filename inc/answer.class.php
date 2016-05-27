@@ -68,13 +68,52 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       $tab[1]['table']     = $this->getTable();
       $tab[1]['field']     = 'name';
       $tab[1]['linkfield'] = 'name';
-      $tab[1]['name']      = __('Name');
+      $tab[1]['name']      = __('Label');
       $tab[1]['datatype']  = 'itemlink';
+      
+      $tab[2]['table']      = $this->getTable();
+      $tab[2]['field']      = 'order';
+      $tab[2]['name']       = __('Position');
+      $tab[2]['datatype']   = 'number';
 
       return $tab;
    }
 
+   function defineTabs($options = array()) {
+
+      $ong = array();
+      $this->addDefaultFormTab($ong);
+      $this->addStandardTab('PluginSurveyticketAnswerTranslation', $ong, $options);
+
+      return $ong;
+   }
    
+   /**
+    * @see CommonGLPI::getTabNameForItem()
+   **/
+   function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
+      if ($item->getType() == "PluginSurveyticketQuestion") {
+         if ($item->fields['type'] == PluginSurveyticketQuestion::RADIO || $item->fields['type'] == PluginSurveyticketQuestion::YESNO ||
+            $item->fields['type'] == PluginSurveyticketQuestion::DROPDOWN || $item->fields['type'] == PluginSurveyticketQuestion::CHECKBOX) {
+            $answer  = new self();
+            $answers = $answer->find('`plugin_surveyticket_questions_id` = ' . $item->fields['id']);
+            return self::createTabEntry(self::getTypeName(Session::getPluralNumber()), count($answers));
+         }
+      }
+      return '';
+   }
+
+   /**
+    * @param $item            CommonGLPI object
+    * @param $tabnum          (default 1)
+    * @param $withtemplate    (default 0)
+   **/
+   static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
+       if ($item->getType() == "PluginSurveyticketQuestion") {
+         self::listAnswers($item->fields['id'], $withtemplate);
+      }
+      return true;
+   }
 
    /**
     * Get the answer
@@ -97,52 +136,74 @@ class PluginSurveyticketAnswer extends CommonDBTM {
    
    
    
-   function listAnswers($questions_id) {
+   static function listAnswers($questions_id, $withtemplate) {
       global $DB,$CFG_GLPI;
       
-      $psQuetion = new PluginSurveyticketQuestion();
+      $rand   = mt_rand();
+      $psQuestion = new PluginSurveyticketQuestion();
       
       $_SESSION['glpi_plugins_surveyticket']['questions_id'] = $questions_id;
-      
+
       echo "<table class='tab_cadre_fixe'>";
       
       echo "<tr class='tab_bg_1'>";
-      echo "<th colspan='4'>";
+      echo "<th colspan='6'>";
       echo _n('Answer', 'Answers', 2, 'surveyticket')." ";
       echo "<a href='".Toolbox::getItemTypeFormURL('PluginSurveyticketAnswer')."?add=1'>
          <img src='".$CFG_GLPI["root_doc"]."/pics/add_dropdown.png'/></a>";
       echo "</th>";
-      echo "</tr>";
+      echo "</tr></table>";
       
-      echo "<tr class='tab_bg_1'>";
-      echo "<th>";
-      echo "id";
-      echo "</th>";
-      echo "<th>";
-      echo __('Label');
-      echo "</th>";
-      echo "<th>";
-      echo __('+ field', 'surveyticket');
-      echo "</th>";
-      echo "<th>";
-      echo __('Go to question', 'surveyticket');
-      echo "</th>";
-      echo "</tr>";
-      
-      $query= "SELECT * FROM `".$this->getTable()."`
-         WHERE `plugin_surveyticket_questions_id` = '".$questions_id."'";
-      $result = $DB->query($query);
-      while ($data=$DB->fetch_array($result)) {
-         $this->getFromDB($data['id']);
+      if ($withtemplate != 2) {
+         Html::openMassiveActionsForm('mass'.__CLASS__.$rand);
+         $massiveactionparams = array('container' => 'mass'.__CLASS__.$rand);
+         Html::showMassiveActions($massiveactionparams);
+      }
+      echo "<table class='tab_cadre_fixe'>";
+      $header   = "<tr class='tab_bg_1'>";
+      $header .= "<th width='10'>";
+      if ($withtemplate != 2) {
+         $header .= Html::getCheckAllAsCheckbox('mass' . __CLASS__ . $rand);
+      }
+      $header .= "</th>";
+      $header .= "<th>";
+      $header .= __('Id');
+      $header .= "</th>";
+      $header .= "<th>";
+      $header .= __('Label');
+      $header .= "</th>";
+      $header .= "<th>";
+      $header .= __('Position');
+      $header .= "</th>";
+      $header .= "<th>";
+      $header .= __('+ field', 'surveyticket');
+      $header .= "</th>";
+      $header .= "<th>";
+      $header .= __('Go to question', 'surveyticket');
+      $header .= "</th>";
+      $header .= "</tr>";
+      echo $header;
+      $answer  = new self();
+      $answers = $answer->find('`plugin_surveyticket_questions_id` = ' . $questions_id, "`order`");
+      foreach ($answers as $data) {
          echo "<tr class='tab_bg_1'>";
+         echo "<td class='center' width='10'>";
+         if ($withtemplate != 2) {
+            Html::showMassiveActionCheckBox(__CLASS__, $data["id"]);
+         }
+         $answer->getFromDB($data['id']);
+         echo "</td>";
          echo "<td>";
-         echo "<a href='".$this->getLinkURL()."'>".$data['id']."</a>";
+         echo "<a href='" . $answer->getLinkURL() . "'>" . $data['id'] . "</a>";
          echo "</td>";
          echo "<td>";
          echo $data['name'];
          echo "</td>";
+         echo "<td>";
+         echo $data['order'];
+         echo "</td>";
          echo "<td align='center'>";
-         $texttype = array();
+         $texttype              = array();
          $texttype[''] = "";
          $texttype['shorttext'] = __('Text')." - court";
          $texttype['longtext'] = __('Text')." - long";
@@ -152,21 +213,27 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          echo "</td>";
          echo "<td>";
          if ($data['link'] > 0) {
-            $psQuetion->getFromDB($data['link']);
-            echo $psQuetion->getLink(1);
+            $psQuestion->getFromDB($data['link']);
+            echo $psQuestion->getLink(1);
          }
          echo "</td>";
          echo "</tr>";         
       }
+      echo $header;
       echo "</table>";
+      if ($withtemplate != 2) {
+         $massiveactionparams['ontop'] = false;
+         Html::showMassiveActions($massiveactionparams);
+         Html::closeForm();
+      }
    }
    
    
       
-   function showForm($items_id, $options=array()) {
+   function showForm($ID, $options=array()) {
 
-      if ($items_id!='') {
-         $this->getFromDB($items_id);
+      if ($ID!='') {
+         $this->getFromDB($ID);
       } else {
          $this->getEmpty();
          if (isset($_SESSION['glpi_plugins_surveyticket']['questions_id'])) {
@@ -175,7 +242,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          }
       }
 
-      $this->initForm($items_id, $options);
+      $this->initForm($ID, $options);
       $this->showFormHeader($options);
 
       echo "<tr class='tab_bg_1'>";
@@ -208,10 +275,11 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       echo "</td>";
       echo "<td>";
       $psQuestion = new PluginSurveyticketQuestion();
-      $psQuestion->getFromDB($_SESSION['glpi_plugins_surveyticket']['questions_id']);
-      if ($psQuestion->fields['type'] != PluginSurveyticketQuestion::DATE
-              && $psQuestion->fields['type'] != PluginSurveyticketQuestion::INPUT && $psQuestion->fields['type'] != PluginSurveyticketQuestion::TEXTAREA) {
-         echo __('+ field', 'surveyticket')."&nbsp;:";
+      if($psQuestion->getFromDB($_SESSION['glpi_plugins_surveyticket']['questions_id'])){
+         if ($psQuestion->fields['type'] != PluginSurveyticketQuestion::DATE
+                 && $psQuestion->fields['type'] != PluginSurveyticketQuestion::INPUT && $psQuestion->fields['type'] != PluginSurveyticketQuestion::TEXTAREA) {
+            echo __('+ field', 'surveyticket')."&nbsp;:";
+         }
       }
       echo "</td>";
       echo "<td>";
@@ -225,6 +293,16 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       if (!PluginSurveyticketQuestion::isQuestionTypeText($psQuestion->fields['type'])) {
          Dropdown::showFromArray("answertype", $texttype, array('value' => $this->fields['answertype']));   
       }
+      echo "</td>";
+      echo "</tr>";
+      
+      echo "<tr class='tab_bg_1'>";
+      echo "<td>".__('Position')."&nbsp;:</td>";
+      echo "<td colspan='3'>";
+      Dropdown::showNumber("order", array(
+          'name'=>'order',
+          'value'=>$this->fields['order']
+         ));
       echo "</td>";
       echo "</tr>";
       
@@ -322,30 +400,119 @@ class PluginSurveyticketAnswer extends CommonDBTM {
    }
    
    function prepareInputForUpdate($input) {
-      if (($input['link']) > 0) {
-         $survey = new PluginSurveyticketSurvey();
-         $allsurvey = $survey->find();
-         foreach($allsurvey as $data_survey){
-            $surveyquestion  = new PluginSurveyticketSurveyQuestion();
-            $questionsSurvey = $surveyquestion->find('`plugin_surveyticket_surveys_id` = ' . $data_survey['id']);
-            $tab = array();
-            foreach ($questionsSurvey as $question){
-               $tab[] = $question['plugin_surveyticket_questions_id'];
-               if($question['plugin_surveyticket_questions_id'] != $input['plugin_surveyticket_questions_id']){
-                  $tab = PluginSurveyticketSurveyQuestion::questionUsed($question['plugin_surveyticket_questions_id'], $tab);
+      //case action massive
+      if(isset($input['link'])){
+         if (($input['link']) > 0) {
+            $survey = new PluginSurveyticketSurvey();
+            $allsurvey = $survey->find();
+            foreach($allsurvey as $data_survey){
+               $surveyquestion  = new PluginSurveyticketSurveyQuestion();
+               $questionsSurvey = $surveyquestion->find('`plugin_surveyticket_surveys_id` = ' . $data_survey['id']);
+               $tab = array();
+               foreach ($questionsSurvey as $question){
+                  $tab[] = $question['plugin_surveyticket_questions_id'];
+                  if($question['plugin_surveyticket_questions_id'] != $input['plugin_surveyticket_questions_id']){
+                     $tab = PluginSurveyticketSurveyQuestion::questionUsed($question['plugin_surveyticket_questions_id'], $tab);
+                  }
+               }
+               $survey->getFromDB($data_survey['id']);
+               if(in_array($input['plugin_surveyticket_questions_id'], $tab) && in_array($input['link'], $tab)){
+                   Session::addMessageAfterRedirect(__('The question is present in the survey', 'surveyticket') . " : " . $survey->fields['name'] . " " . __('Please delete the questionnaire if you want to add it.', 'surveyticket'), false, ERROR);
+                     return array();
                }
             }
-            $survey->getFromDB($data_survey['id']);
-            if(in_array($input['plugin_surveyticket_questions_id'], $tab) && in_array($input['link'], $tab)){
-                Session::addMessageAfterRedirect(__('The question is present in the survey', 'surveyticket') . " : " . $survey->fields['name'] . " " . __('Please delete the questionnaire if you want to add it.', 'surveyticket'), false, ERROR);
-                  return array();
-            }
+         } else {
+            $input['mandatory'] = 0;
          }
-      } else {
-         $input['mandatory'] = 0;
       }
       return $input;
    }
+   
+   static function findAnswers($condition = "", $order = "") {
+      global $DB;
+
+      // Make new database object and fill variables
+      $table = 'glpi_plugin_surveyticket_answers';
+
+      $SELECTNAME = "`$table`.`name`, `namet`.`value` AS transname";
+      $JOIN = " LEFT JOIN `glpi_plugin_surveyticket_answertranslations` AS namet
+                           ON (`namet`.`itemtype` = '" . getItemTypeForTable($table) . "'
+                               AND `namet`.`items_id` = `$table`.`id`
+                               AND `namet`.`language` = '" . $_SESSION['glpilanguage'] . "'
+                               AND `namet`.`field` = 'name')";
+
+      $query = "SELECT  `$table`.`id`,
+                        `$table`.`answertype`,
+                        `$table`.`is_yes`,
+                        `$table`.`is_no`,
+                        `$table`.`link`,
+                        `$table`.`mandatory`,
+                        `$table`.`order`,
+                        $SELECTNAME
+                FROM `$table`
+                $JOIN";
+
+      if (!empty($condition)) {
+         $query .= " WHERE $condition";
+      }
+
+      if (!empty($order)) {
+         $query .= " ORDER BY $order";
+      }
+      $data   = array();
+      if ($result = $DB->query($query)) {
+         if ($DB->numrows($result)) {
+            while ($line = $DB->fetch_assoc($result)) {
+               if (!empty($line['transname'])) {
+                  $line['name'] = $line['transname'];
+               }
+               $data[$line['id']] = $line;
+            }
+         }
+      }
+      return $data;
+   }
+
+   static function findAnswer($id) {
+      global $DB;
+
+      // Make new database object and fill variables
+      $table = 'glpi_plugin_surveyticket_answers';
+
+      $SELECTNAME = "`$table`.`name`, `namet`.`value` AS transname";
+      $JOIN = " LEFT JOIN `glpi_plugin_surveyticket_answertranslations` AS namet
+                           ON (`namet`.`itemtype` = '" . getItemTypeForTable($table) . "'
+                               AND `namet`.`items_id` = `$table`.`id`
+                               AND `namet`.`language` = '" . $_SESSION['glpilanguage'] . "'
+                               AND `namet`.`field` = 'name')";
+
+      $query = "SELECT  `$table`.`id`,
+                        `$table`.`answertype`,
+                        `$table`.`is_yes`,
+                        `$table`.`is_no`,
+                        `$table`.`link`,
+                        `$table`.`mandatory`,
+                        `$table`.`order`,
+                        $SELECTNAME
+                FROM `$table`
+                $JOIN";
+
+         $query .= " WHERE `$table`.`id` = ".Toolbox::cleanInteger($id);
+
+      $data   = array();
+      if ($result = $DB->query($query)) {
+         if ($DB->numrows($result)) {
+            while ($line = $DB->fetch_assoc($result)) {
+               if (!empty($line['transname'])) {
+                  $line['name'] = $line['transname'];
+               }
+               return $line;
+            }
+         }
+      }
+      return false;
+   }
+   
 }
 
 ?>

@@ -44,6 +44,9 @@ include ("../../../inc/includes.php");
 
 Html::header(PluginSurveyticketMenu::getTypeName(2),'', "helpdesk","pluginsurveyticketmenu", "menu");
 
+$survey = new PluginSurveyticketSurvey();
+$survey->checkGlobal(READ);
+
 $menu = new PluginSurveyticketMenu();
 $menu->showMenu();
 

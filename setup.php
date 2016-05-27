@@ -39,7 +39,7 @@
   ------------------------------------------------------------------------
  */
 
-define ("PLUGIN_SURVEYTICKET_VERSION", "0.90+1.0");
+define ("PLUGIN_SURVEYTICKET_VERSION", "0.90+1.1");
 
 // Init the hooks of surveyticket
 function plugin_init_surveyticket() {
@@ -55,22 +55,24 @@ function plugin_init_surveyticket() {
 
          $PLUGIN_HOOKS['change_profile']['surveyticket'] = array('PluginSurveyticketProfile', 'initProfile');
 
-
-         $PLUGIN_HOOKS['menu_toadd']['surveyticket'] = array('helpdesk' => 'PluginSurveyticketMenu');
+         if (Session::haveRight("plugin_surveyticket", READ)) {
+            $PLUGIN_HOOKS['menu_toadd']['surveyticket'] = array('helpdesk' => 'PluginSurveyticketMenu');
+         }
          if (Session::haveRight("config", READ)) {
             $PLUGIN_HOOKS['config_page']['surveyticket'] = 'front/menu.php';
          }
+         if (Session::haveRight("plugin_surveyticket", READ)) {
+            if (strpos($_SERVER['REQUEST_URI'], "ticket.form.php") !== false ||
+               strpos($_SERVER['REQUEST_URI'], "helpdesk.public.php") !== false ||
+               strpos($_SERVER['REQUEST_URI'], "tracking.injector.php") !== false) {
+               $PLUGIN_HOOKS['add_javascript']['surveyticket'][] = 'scripts/surveyticket.js';
+               $PLUGIN_HOOKS['add_javascript']['surveyticket'][] = 'scripts/surveyticket_load_scripts.js';
 
-         if (strpos($_SERVER['REQUEST_URI'], "ticket.form.php") !== false ||
-            strpos($_SERVER['REQUEST_URI'], "helpdesk.public.php") !== false ||
-            strpos($_SERVER['REQUEST_URI'], "tracking.injector.php") !== false) {
-            $PLUGIN_HOOKS['add_javascript']['surveyticket'][] = 'scripts/surveyticket.js';
-            $PLUGIN_HOOKS['add_javascript']['surveyticket'][] = 'scripts/surveyticket_load_scripts.js';
+               $PLUGIN_HOOKS['pre_item_add']['surveyticket'] = array('Ticket' => array('PluginSurveyticketTicket', 'preAddTicket'));
+               $PLUGIN_HOOKS['item_add']['surveyticket'] = array('Ticket' => array('PluginSurveyticketTicket', 'postAddTicket'));
 
-            $PLUGIN_HOOKS['pre_item_add']['surveyticket'] = array('Ticket' => array('PluginSurveyticketTicket', 'preAddTicket'));
-            $PLUGIN_HOOKS['item_add']['surveyticket'] = array('Ticket' => array('PluginSurveyticketTicket', 'postAddTicket'));
-            
-            $PLUGIN_HOOKS['item_empty']['surveyticket']      = array('Ticket'     => array('PluginSurveyticketTicket', 'emptyTicket'));
+               $PLUGIN_HOOKS['item_empty']['surveyticket']      = array('Ticket'     => array('PluginSurveyticketTicket', 'emptyTicket'));
+            }
          }
       }
    }

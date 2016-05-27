@@ -176,6 +176,12 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       foreach ($a_questions as $data) {
          self::showQuestion($data);
       }
+      if($withtemplate != 2){
+         echo "<tr class='tab_bg_1'>";
+         echo "<th width='10'>".Html::getCheckAllAsCheckbox('mass'.__CLASS__.$rand);
+         echo "</th><th colspan='10'></th>";
+         echo "</tr>";
+      }
       echo "</table>";
       if ($withtemplate != 2) {
          $massiveactionparams['ontop'] = false;

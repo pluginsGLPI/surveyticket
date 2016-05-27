@@ -39,39 +39,20 @@
   ------------------------------------------------------------------------
  */
 
-
+$AJAX_INCLUDE = 1;
 include ("../../../inc/includes.php");
 
-Html::header(PluginSurveyticketAnswer::getTypeName(2),'',"helpdesk","pluginsurveyticketmenu","question");
+header("Content-Type: text/html; charset=UTF-8");
+Html::header_nocache();
 
-if (!isset($_GET["id"]))
-   $_GET["id"] = "";
-if (!isset($_GET["withtemplate"]))
-   $_GET["withtemplate"] = "";
-
-$psAnswer = new PluginSurveyticketAnswer();
-$survey = new PluginSurveyticketSurvey();
-
-if (isset ($_POST["add"])) {
-   $survey->check(-1, CREATE, $_POST);
-   $psAnswer->add($_POST);
-   Html::back();
-} else if (isset ($_POST["update"])) {
-   $survey->check($_POST['id'], UPDATE);
-   $psAnswer->update($_POST);
-   Html::back();
-} else if (isset ($_POST["delete"])) {
-   $survey->check($_POST['id'], PURGE);
-   $psAnswer->delete($_POST);
-   Html::redirect(Toolbox::getItemTypeFormURL('PluginSurveyticketQuestion')."?id=".$_POST['plugin_surveyticket_questions_id']);
-} else if (isset ($_POST["purge"])) {
-   $survey->check($_POST['id'], PURGE);
-   $psAnswer->delete($_POST);
-   Html::redirect(Toolbox::getItemTypeFormURL('PluginSurveyticketQuestion')."?id=".$_POST['plugin_surveyticket_questions_id']);
+Session::checkRight("dropdown", UPDATE);
+if (isset($_POST['itemtype']) && isset($_POST['language'])) {
+   $item = new $_POST['itemtype'];
+   $item->getFromDB($_POST['items_id']);
+   if($item->getType() == "PluginSurveyticketQuestion"){
+      PluginSurveyticketQuestionTranslation::dropdownFields($item, $_POST['language']);
+   }else{
+      PluginSurveyticketAnswerTranslation::dropdownFields($item, $_POST['language']);
+   }
 }
-   $survey->checkGlobal(READ);
-   $psAnswer->display($_GET);
-
-Html::footer();
-
 ?>

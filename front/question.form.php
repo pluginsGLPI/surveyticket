@@ -74,17 +74,10 @@ if (isset($_POST["add"])) {
 
 
 if (isset($_GET["id"])) {
-   $psQuestion->showForm($_GET["id"]);
-
-   //responses display if type
-   $psQuestion->getFromDB($_GET["id"]);
-   if ($psQuestion->fields['type'] == PluginSurveyticketQuestion::RADIO || $psQuestion->fields['type'] == PluginSurveyticketQuestion::YESNO || 
-       $psQuestion->fields['type'] == PluginSurveyticketQuestion::DROPDOWN || $psQuestion->fields['type'] == PluginSurveyticketQuestion::CHECKBOX) {
-      $psAnswer = new PluginSurveyticketAnswer();
-      $psAnswer->listAnswers($_GET["id"]);
+   if (!Session::haveRight("plugin_surveyticket", UPDATE)) {
+      $_GET['canedit'] = false;
    }
-} else {
-   $psQuestion->showForm(0);
+   $psQuestion->display($_GET);
 }
 
 Html::footer();
