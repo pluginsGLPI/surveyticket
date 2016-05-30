@@ -57,15 +57,15 @@ if (isset ($_POST["add"])) {
    $psAnswer->add($_POST);
    Html::back();
 } else if (isset ($_POST["update"])) {
-   $survey->check($_POST['id'], UPDATE);
+   $survey->checkGlobal(UPDATE);
    $psAnswer->update($_POST);
    Html::back();
 } else if (isset ($_POST["delete"])) {
-   $survey->check($_POST['id'], PURGE);
+   $survey->checkGlobal(PURGE);
    $psAnswer->delete($_POST);
    Html::redirect(Toolbox::getItemTypeFormURL('PluginSurveyticketQuestion')."?id=".$_POST['plugin_surveyticket_questions_id']);
 } else if (isset ($_POST["purge"])) {
-   $survey->check($_POST['id'], PURGE);
+   $survey->checkGlobal(PURGE);
    $psAnswer->delete($_POST);
    Html::redirect(Toolbox::getItemTypeFormURL('PluginSurveyticketQuestion')."?id=".$_POST['plugin_surveyticket_questions_id']);
 }
