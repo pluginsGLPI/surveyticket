@@ -42,6 +42,8 @@
 
 include ("../../../inc/includes.php");
 
+Session::checkLoginUser();
+
 header("Content-Type: text/html; charset=UTF-8");
 $psSurvey = new PluginSurveyticketTicket();
 $psAnswer = new PluginSurveyticketAnswer();
