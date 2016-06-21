@@ -54,8 +54,13 @@
                         if (tickets_id == 0 || tickets_id == undefined) {
                             object.loadSurveyTicket(typeIdElm.val(), 'helpdesk');
                         }
+                    } else {
+                        var typeIdElm = $('select[name="type"]');
+                        if (tickets_id == 0 || tickets_id == undefined) {
+                            object.loadSurveyTicket(typeIdElm.val(), 'central');
+                        }
                     }
-                }
+                } 
             });
         }
 
