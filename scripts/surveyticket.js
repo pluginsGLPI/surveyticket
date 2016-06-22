@@ -55,7 +55,7 @@
                             object.loadSurveyTicket(typeIdElm.val(), 'helpdesk');
                         }
                     } else {
-                        var typeIdElm = $('select[name="type"]');
+                        var typeIdElm = $("select").filter(function() { return this.name == 'type'; });
                         if (tickets_id == 0 || tickets_id == undefined) {
                             object.loadSurveyTicket(typeIdElm.val(), 'central');
                         }
@@ -72,9 +72,12 @@
          */
         this.loadSurveyTicket = function (type, interface) {
             var root_doc = object.params['root_doc'];
-            var descriptionIdElm = $('textarea[name="content"]');
-            var itilcategoriesIdElm = $("select[name='itilcategories_id'], input[name='itilcategories_id']");
-            var entities_id = $("input[name='entities_id']");
+            var descriptionIdElm = $("textarea").filter(function() { return this.name == 'content'; });
+            var itilcategoriesIdElm = $("select").filter(function() { return this.name == 'itilcategories_id'; });
+            if(itilcategoriesIdElm.val() === undefined){
+                var itilcategoriesIdElm = $("input").filter(function() { return this.name == 'itilcategories_id'; });
+            }
+            var entities_id = $("input").filter(function() { return this.name == 'entities_id'; });
             $.ajax({
                 url: root_doc + '/plugins/surveyticket/ajax/ticket.php',
                 type: "POST",

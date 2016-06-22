@@ -49,6 +49,9 @@ Html::header_nocache();
 if (!isset($_POST['tickets_id']) || empty($_POST['tickets_id'])){
    $_POST['tickets_id'] = 0;
 }
+if (!isset($_POST['type']) || empty($_POST['type'])){
+   $_POST['type'] = 0;
+}
 switch($_POST['action']){
    case 'loadSurveyTicket':
       header("Content-Type: application/json");
