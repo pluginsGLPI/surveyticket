@@ -41,7 +41,7 @@
                                     object.loadSurveyTicket(typeIdElm.val(), 'central');
                                 }
 
-                            }, 100);
+                            }, 1000);
                         }
                     }, this);
 
@@ -56,9 +56,11 @@
                         }
                     } else {
                         var typeIdElm = $("select").filter(function() { return this.name == 'type'; });
-                        if (tickets_id == 0 || tickets_id == undefined) {
-                            object.loadSurveyTicket(typeIdElm.val(), 'central');
-                        }
+                        setTimeout(function () {
+                            if (tickets_id == 0 || tickets_id == undefined) {
+                                object.loadSurveyTicket(typeIdElm.val(), 'central');
+                            }
+                        }, 1000);
                     }
                 } 
             });
