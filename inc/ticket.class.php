@@ -5,7 +5,6 @@
   Surveyticket
   Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
 
-  https://forge.glpi-project.org/projects/surveyticket
   ------------------------------------------------------------------------
 
   LICENSE
@@ -33,7 +32,7 @@
   @copyright Copyright (c) 2012-2016 Surveyticket plugin team
   @license   AGPL License 3.0 or (at your option) any later version
   http://www.gnu.org/licenses/agpl-3.0-standalone.html
-  @link      https://forge.glpi-project.org/projects/surveyticket
+  @link      https://github.com/pluginsGLPI/surveyticket
   @since     2012
 
   ------------------------------------------------------------------------
@@ -44,6 +43,9 @@ if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
 }
 
+/**
+ * Class PluginSurveyticketTicket
+ */
 class PluginSurveyticketTicket extends CommonDBTM {
 
    static $rightname = "plugin_surveyticket";
@@ -51,13 +53,17 @@ class PluginSurveyticketTicket extends CommonDBTM {
    /**
     * Get name of this type
     *
+    * @param int $nb
     * @return text name of this type by language of the user connected
     *
-    * */
+    */
    static function getTypeName($nb = 0) {
       return _n('Ticket', 'Tickets', $nb);
    }
 
+   /**
+    * @param Ticket $ticket
+    */
    static function emptyTicket(Ticket $ticket) {
       if (!empty($_POST)) {
          self::setSessions($_POST);
@@ -70,6 +76,10 @@ class PluginSurveyticketTicket extends CommonDBTM {
       }
    }
 
+   /**
+    * @param $input
+    * @param bool $add
+    */
    static function setSessions($input, $add = false) {
       foreach ($input as $question => $answer) {
          if (preg_match("/^question/", $question) && !preg_match("/^realquestion/", $question)) {
@@ -110,13 +120,22 @@ class PluginSurveyticketTicket extends CommonDBTM {
          $_SESSION['glpi_plugin_surveyticket_ticket']['add'] = true;
       }
    }
-   
+
+   /**
+    * Returns true if using the template
+    *
+    * @param $type
+    * @param $itilcategories_id
+    * @param $entities_id
+    * @param $interface
+    * @return bool
+    */
    static function isSurveyTicket($type, $itilcategories_id, $entities_id, $interface) {
       // Load ticket template if available :
       $ticket                         = new Ticket();
       $ticketTemplate                 = $ticket->getTicketTemplateToUse(false, $type, $itilcategories_id, $entities_id);
       $psTicketTemplate               = new PluginSurveyticketTicketTemplate();
-      $plugin_surveyticket_surveys_id = 0;
+
       if ($interface == 'central') {
          $a_tickettemplates = current($psTicketTemplate->find("`tickettemplates_id`='" . $ticketTemplate->fields['id'] . "'
                                               AND `type`='" . $type . "'
@@ -137,10 +156,12 @@ class PluginSurveyticketTicket extends CommonDBTM {
 
    /**
     * Return the questionnaire
+    *
     * @param type $type
     * @param type $itilcategories_id
     * @param type $entities_id
-    * @return array(response, bloc)
+    * @param $interface
+    * @return array
     */
    static function getSurveyTicket($type, $itilcategories_id, $entities_id, $interface) {
       // If values are saved in session we retrieve it
@@ -189,6 +210,13 @@ class PluginSurveyticketTicket extends CommonDBTM {
       return array('response' => false);
    }
 
+   /**
+    * Display survey
+    *
+    * @param $plugin_surveyticket_surveys_id
+    * @param $session
+    * @return string
+    */
    function startSurvey($plugin_surveyticket_surveys_id, $session) {
 
       $psSurveyQuestion = new PluginSurveyticketSurveyQuestion();
@@ -204,10 +232,13 @@ class PluginSurveyticketTicket extends CommonDBTM {
       return $bloc;
    }
 
-  /**
+   /**
     * Block to a question
+    *
     * @param type $questions_id
     * @param type $plugin_surveyticket_surveys_id
+    * @param $session
+    * @param int $answer_id
     * @return string
     */
    function displaySurvey($questions_id, $plugin_surveyticket_surveys_id, $session, $answer_id = 0) {
@@ -254,12 +285,22 @@ class PluginSurveyticketTicket extends CommonDBTM {
       }
    }
 
+   /**
+    * Display link
+    *
+    * @param $questions_id
+    * @param $session
+    * @param $psQuestion
+    * @param $nb_answer
+    * @param $answers
+    * @return string
+    */
    function displayLink($questions_id, $session, $psQuestion, $nb_answer, $answers) {
       global $CFG_GLPI;
       $bloc = "";
       //javascript for links between issues
       if ($psQuestion['type'] == PluginSurveyticketQuestion::RADIO || $psQuestion['type'] == PluginSurveyticketQuestion::YESNO) {
-         $event = array("click");
+
          $a_ids = array();
          //table id of all responses 
          for ($i = 0; $i < $nb_answer; $i++) {
@@ -269,13 +310,13 @@ class PluginSurveyticketTicket extends CommonDBTM {
             'rand' => $questions_id,
             'myname' => "question" . $questions_id);
       } else if (PluginSurveyticketQuestion::isQuestionTypeText($psQuestion['type'])) {
-         $event = array("change");
+
          $a_ids = "realquestion" . $questions_id;
          $params = array("realquestion" . $questions_id => '__VALUE__',
             'rand' => $questions_id,
             'myname' => "realquestion" . $questions_id);
       } else {
-         $event = array("change");
+
          $a_ids = 'question' . $questions_id;
          $params = array("question" . $questions_id => '__VALUE__',
             'rand' => $questions_id,
@@ -325,7 +366,9 @@ class PluginSurveyticketTicket extends CommonDBTM {
 
    /**
     * Response for each question
+    *
     * @param type $questions_id
+    * @param $session
     * @return type
     */
    function displayAnswers($questions_id, $session) {
@@ -456,6 +499,14 @@ class PluginSurveyticketTicket extends CommonDBTM {
       return array("count" => count($a_answers), "bloc" => $bloc, 'answers' => $answers);
    }
 
+   /**
+    * Display answer
+    *
+    * @param $type
+    * @param $name
+    * @param $session
+    * @return string
+    */
    function displayAnswertype($type, $name, $session) {
 
       $bloc = "<td>";
@@ -500,19 +551,12 @@ class PluginSurveyticketTicket extends CommonDBTM {
       return $bloc;
    }
 
-   function displayOK() {
-      $bloc = "<table class='tab_cadre_fixe'>";
-
-      $bloc .= "<tr class='tab_bg_1'>";
-      $bloc .= "<th align='center'>";
-      $bloc .= "<input type='submit' class='submit' value='" . __('Post') . "'/>";
-      $bloc .= "</th>";
-      $bloc .= "</tr>";
-
-      $bloc .= "</table>";
-      Html::closeForm();
-   }
-
+   /**
+    * Checking the mandatory questionnaire responses
+    *
+    * @param Ticket $ticket
+    * @return bool
+    */
    static function checkMandatoryFields(Ticket $ticket) {
       $msg     = array();
       $checkKo = false;
@@ -529,7 +573,13 @@ class PluginSurveyticketTicket extends CommonDBTM {
       }
       return true;
    }
-   
+
+   /**
+    * Checking if mandatory question
+    *
+    * @param $param
+    * @return array
+    */
    static function checkQuestion($param) {
       $data    = $param['data'];
       $msg     = $param['msg'];
@@ -564,6 +614,12 @@ class PluginSurveyticketTicket extends CommonDBTM {
       return array('msg' => $msg, 'checkKo' => $checkKo);
    }
 
+   /**
+    * Post input datas for adding the ticket
+    *
+    * @param Ticket $ticket
+    * @return bool|Ticket
+    */
    static function preAddTicket(Ticket $ticket) {
       if($_SESSION['glpiactiveprofile']['interface'] == 'central'){
          $response = self::isSurveyTicket($ticket->fields['type'], $ticket->fields['itilcategories_id'], $ticket->fields['entities_id'], $_SESSION['glpiactiveprofile']['interface']);
@@ -657,5 +713,3 @@ class PluginSurveyticketTicket extends CommonDBTM {
       }
    }
 }
-
-?>

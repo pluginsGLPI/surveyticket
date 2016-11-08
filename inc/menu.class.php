@@ -5,7 +5,6 @@
   Surveyticket
   Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
 
-  https://forge.glpi-project.org/projects/surveyticket
   ------------------------------------------------------------------------
 
   LICENSE
@@ -33,17 +32,25 @@
   @copyright Copyright (c) 2012-2016 Surveyticket plugin team
   @license   AGPL License 3.0 or (at your option) any later version
   http://www.gnu.org/licenses/agpl-3.0-standalone.html
-  @link      https://forge.glpi-project.org/projects/surveyticket
+  @link      https://github.com/pluginsGLPI/surveyticket
   @since     2012
 
   ------------------------------------------------------------------------
  */
 
 
- 
+/**
+ * Class PluginSurveyticketMenu
+ */
 class PluginSurveyticketMenu extends CommonGLPI {
    static $rightname = 'plugin_surveyticket';
 
+   /**
+    * Get name of this type
+    *
+    * @param int $nb
+    * @return translated
+    */
    static function getTypeName($nb = 0) {
       return _n('Survey', 'Surveys', $nb, 'surveyticket');
    }
@@ -75,6 +82,9 @@ class PluginSurveyticketMenu extends CommonGLPI {
       echo "</table>";
    }
 
+   /**
+    * @return array
+    */
    static function getMenuContent() {
       $menu = array();
       $plugin_page = "/plugins/surveyticket/front/menu.php";

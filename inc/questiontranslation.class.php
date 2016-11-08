@@ -5,7 +5,6 @@
   Surveyticket
   Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
 
-  https://forge.glpi-project.org/projects/surveyticket
   ------------------------------------------------------------------------
 
   LICENSE
@@ -33,7 +32,7 @@
   @copyright Copyright (c) 2012-2016 Surveyticket plugin team
   @license   AGPL License 3.0 or (at your option) any later version
   http://www.gnu.org/licenses/agpl-3.0-standalone.html
-  @link      https://forge.glpi-project.org/projects/surveyticket
+  @link      https://github.com/pluginsGLPI/surveyticket
   @since     2012
 
   ------------------------------------------------------------------------
@@ -57,7 +56,12 @@ class PluginSurveyticketQuestionTranslation extends CommonDBChild {
    static $rightname       = 'plugin_surveyticket';
 
 
-
+   /**
+    * Get name of this type
+    *
+    * @param int $nb
+    * @return translated
+    */
    static function getTypeName($nb = 0) {
       return _n('Translation', 'Translations', $nb);
    }
@@ -73,7 +77,10 @@ class PluginSurveyticketQuestionTranslation extends CommonDBChild {
 
    /**
     * @see CommonGLPI::getTabNameForItem()
-   **/
+    * @param CommonGLPI $item
+    * @param int $withtemplate
+    * @return array|string
+    */
    function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
 
       $nb = self::getNumberOfTranslationsForItem($item);
@@ -82,9 +89,11 @@ class PluginSurveyticketQuestionTranslation extends CommonDBChild {
 
    /**
     * @param $item            CommonGLPI object
-    * @param $tabnum          (default 1)
-    * @param $withtemplate    (default 0)
-   **/
+    * @param $tabnum (default 1)
+    * @param $withtemplate (default 0)
+    *
+    * @return bool|true
+    */
    static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
       if (self::canBeTranslated($item)) {
          self::showTranslations($item);
@@ -203,6 +212,7 @@ class PluginSurveyticketQuestionTranslation extends CommonDBChild {
     *
     * @param $ID               field (default -1)
     * @param $options   array
+    * @return bool
     */
    function showForm($ID=-1, $options=array()) {
       global $CFG_GLPI;
@@ -219,7 +229,7 @@ class PluginSurveyticketQuestionTranslation extends CommonDBChild {
          // Create item
          $this->check(-1 , CREATE, $options);
       }
-      $rand = mt_rand();
+
       $this->showFormHeader($options);
       echo "<tr class='tab_bg_1'>";
       echo "<td>".__('Language')."</td>";
@@ -336,4 +346,3 @@ class PluginSurveyticketQuestionTranslation extends CommonDBChild {
 
   
 }
-?>

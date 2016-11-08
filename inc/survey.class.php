@@ -5,7 +5,6 @@
   Surveyticket
   Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
 
-  https://forge.glpi-project.org/projects/surveyticket
   ------------------------------------------------------------------------
 
   LICENSE
@@ -33,7 +32,7 @@
   @copyright Copyright (c) 2012-2016 Surveyticket plugin team
   @license   AGPL License 3.0 or (at your option) any later version
   http://www.gnu.org/licenses/agpl-3.0-standalone.html
-  @link      https://forge.glpi-project.org/projects/surveyticket
+  @link      https://github.com/pluginsGLPI/surveyticket
   @since     2012
 
   ------------------------------------------------------------------------
@@ -44,6 +43,9 @@ if (!defined('GLPI_ROOT')) {
     die("Sorry. You can't access directly to this file");
 }
 
+/**
+ * Class PluginSurveyticketSurvey
+ */
 class PluginSurveyticketSurvey extends CommonDBTM {
 
     static $rightname = "ticket";
@@ -51,14 +53,21 @@ class PluginSurveyticketSurvey extends CommonDBTM {
     /**
      * Get name of this type
      *
+     * @param int $nb
      * @return text name of this type by language of the user connected
      *
-     * */
+     */
     static function getTypeName($nb = 0) {
         return _n('Survey', 'Surveys', $nb, 'surveyticket');
     }
 
-    function defineTabs($options = array()) {
+   /**
+    * Define tabs to display
+    *
+    * @param array $options
+    * @return array
+    */
+   function defineTabs($options = array()) {
        
         $ong = array();
       if ((isset($this->fields['id'])) && ($this->fields['id'] > 0)) {
@@ -69,7 +78,14 @@ class PluginSurveyticketSurvey extends CommonDBTM {
         return $ong;
     }
 
-    function showForm($items_id, $options = array()) {
+   /**
+    * Print the survey form
+    *
+    * @param $items_id
+    * @param array $options
+    * @return bool
+    */
+   function showForm($items_id, $options = array()) {
 
         if ($items_id != '') {
             $this->getFromDB($items_id);
@@ -104,5 +120,3 @@ class PluginSurveyticketSurvey extends CommonDBTM {
     }
 
 }
-
-?>

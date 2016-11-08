@@ -5,7 +5,6 @@
   Surveyticket
   Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
 
-  https://forge.glpi-project.org/projects/surveyticket
   ------------------------------------------------------------------------
 
   LICENSE
@@ -33,7 +32,7 @@
   @copyright Copyright (c) 2012-2016 Surveyticket plugin team
   @license   AGPL License 3.0 or (at your option) any later version
   http://www.gnu.org/licenses/agpl-3.0-standalone.html
-  @link      https://forge.glpi-project.org/projects/surveyticket
+  @link      https://github.com/pluginsGLPI/surveyticket
   @since     2012
 
   ------------------------------------------------------------------------
@@ -44,10 +43,20 @@ if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
 }
 
+/**
+ * Class PluginSurveyticketProfile
+ */
 class PluginSurveyticketProfile extends CommonDBTM {
 
    static $rightname = "profile";
 
+   /**
+    * Get Tab Name used for itemtype
+    *
+    * @param CommonGLPI $item
+    * @param int $withtemplate
+    * @return string|text
+    */
    function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
 
       if ($item->getType() == 'Profile') {
@@ -56,8 +65,15 @@ class PluginSurveyticketProfile extends CommonDBTM {
       return '';
    }
 
+   /**
+    * show Tab content
+    *
+    * @param CommonGLPI $item
+    * @param int $tabnum
+    * @param int $withtemplate
+    * @return bool
+    */
    static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
-      global $CFG_GLPI;
 
       if ($item->getType() == 'Profile') {
          $ID = $item->getID();
@@ -69,16 +85,21 @@ class PluginSurveyticketProfile extends CommonDBTM {
       return true;
    }
 
+   /**
+    * @param $ID
+    */
    static function createFirstAccess($ID) {
       //85
       self::addDefaultProfileInfos($ID, array('plugin_surveyticket' => 127), true);
    }
 
    /**
-    * @param $profile
-    * */
+    * @param $profiles_id
+    * @param $rights
+    * @param bool $drop_existing
+    * @internal param $profile
+    */
    static function addDefaultProfileInfos($profiles_id, $rights, $drop_existing = false) {
-      global $DB;
 
       $profileRight = new ProfileRight();
       foreach ($rights as $right => $value) {
@@ -100,11 +121,13 @@ class PluginSurveyticketProfile extends CommonDBTM {
    /**
     * Show profile form
     *
-    * @param $items_id integer id of the profile
-    * @param $target value url of target
-    *
+    * @param int $profiles_id
+    * @param bool $openform
+    * @param bool $closeform
     * @return nothing
-    * */
+    * @internal param int $items_id id of the profile
+    * @internal param value $target url of target
+    */
    function showForm($profiles_id = 0, $openform = TRUE, $closeform = TRUE) {
 
       echo "<div class='firstbloc'>";
@@ -130,6 +153,10 @@ class PluginSurveyticketProfile extends CommonDBTM {
       echo "</div>";
    }
 
+   /**
+    * @param bool $all
+    * @return array
+    */
    static function getAllRights($all = false) {
       $rights = array(
          array('itemtype' => 'PluginSurveyticketSurvey',
@@ -143,7 +170,9 @@ class PluginSurveyticketProfile extends CommonDBTM {
    /**
     * Init profiles
     *
-    * */
+    * @param $old_right
+    * @return int
+    */
    static function translateARight($old_right) {
       switch ($old_right) {
          case '':
@@ -223,5 +252,3 @@ class PluginSurveyticketProfile extends CommonDBTM {
    }
 
 }
-
-?>

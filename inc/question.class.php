@@ -5,7 +5,6 @@
   Surveyticket
   Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
 
-  https://forge.glpi-project.org/projects/surveyticket
   ------------------------------------------------------------------------
 
   LICENSE
@@ -33,7 +32,7 @@
   @copyright Copyright (c) 2012-2016 Surveyticket plugin team
   @license   AGPL License 3.0 or (at your option) any later version
   http://www.gnu.org/licenses/agpl-3.0-standalone.html
-  @link      https://forge.glpi-project.org/projects/surveyticket
+  @link      https://github.com/pluginsGLPI/surveyticket
   @since     2012
 
   ------------------------------------------------------------------------
@@ -44,6 +43,9 @@ if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
 }
 
+/**
+ * Class PluginSurveyticketQuestion
+ */
 class PluginSurveyticketQuestion extends CommonDBTM {
 
    public $dohistory = true;
@@ -60,13 +62,20 @@ class PluginSurveyticketQuestion extends CommonDBTM {
    /**
     * Get name of this type
     *
+    * @param int $nb
     * @return text name of this type by language of the user connected
     *
-    * */
+    */
    static function getTypeName($nb = 0) {
       return _n('Question', 'Questions', $nb, 'surveyticket');
    }
 
+   /**
+    *  Define tabs to display
+    *
+    * @param array $options
+    * @return array
+    */
    function defineTabs($options = array()) {
 
       $ong = array();
@@ -77,7 +86,12 @@ class PluginSurveyticketQuestion extends CommonDBTM {
 
       return $ong;
    }
-   
+
+   /**
+    * Get the Search options for the given Type
+    *
+    * @return array
+    */
    function getSearchOptions() {
 
       $tab = array();
@@ -106,6 +120,12 @@ class PluginSurveyticketQuestion extends CommonDBTM {
       return $tab;
    }
 
+   /**
+    * @param String $field
+    * @param String $values
+    * @param array $options
+    * @return
+    */
    static function getSpecificValueToDisplay($field, $values, array $options = array()) {
       if (!is_array($values)) {
          $values = array($field => $values);
@@ -118,6 +138,12 @@ class PluginSurveyticketQuestion extends CommonDBTM {
       return parent::getSpecificValueToDisplay($field, $values, $options);
    }
 
+   /**
+    * Returns the type of the question
+    *
+    * @param $value
+    * @return mixed
+    */
    static function getQuestionTypeName($value) {
       $elements = PluginSurveyticketQuestion::getQuestionTypeList();
       if (isset($elements[$value])) {
@@ -128,6 +154,7 @@ class PluginSurveyticketQuestion extends CommonDBTM {
 
    /**
     * Return true if $type is (date, input, textarea)
+    *
     * @param type $type
     * @return boolean
     */
@@ -150,7 +177,12 @@ class PluginSurveyticketQuestion extends CommonDBTM {
          default : return TRUE;
       }
    }
-   
+
+   /**
+    * List of question types
+    *
+    * @return array
+    */
    static function getQuestionTypeList() {
       $array = array();
       $array[self::YESNO] = __('Yes') . '/' . __('No');
@@ -163,6 +195,13 @@ class PluginSurveyticketQuestion extends CommonDBTM {
       return $array;
    }
 
+   /**
+    * Print the question form
+    *
+    * @param $items_id
+    * @param array $options
+    * @return bool
+    */
    function showForm($items_id, $options = array()) {
 
       if ($items_id != '') {
@@ -199,7 +238,12 @@ class PluginSurveyticketQuestion extends CommonDBTM {
 
       return true;
    }
-   
+
+   /**
+    * Delete question
+
+    * @param $id
+    */
    function deleteItem($id) {
       $answer = new PluginSurveyticketAnswer();
       $answer->deleteByCriteria(array('plugin_surveyticket_questions_id' => $id));
@@ -208,7 +252,13 @@ class PluginSurveyticketQuestion extends CommonDBTM {
       $surveyquestions->deleteByCriteria(array('plugin_surveyticket_questions_id' => $id));
       
    }
-   
+
+   /**
+    * Returns the name of the question or the translation
+    *
+    * @param $questions_id
+    * @return bool|result
+    */
    static function findQuestion($questions_id) {
       global $DB;
 
@@ -255,5 +305,3 @@ class PluginSurveyticketQuestion extends CommonDBTM {
    }
 
 }
-
-?>

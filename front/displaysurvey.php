@@ -56,5 +56,3 @@ $psSurvey->showFormHelpdesk(Session::getLoginUserID());
 
 
 Html::footer();
-
-?>

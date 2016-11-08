@@ -5,7 +5,6 @@
   Surveyticket
   Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
 
-  https://forge.glpi-project.org/projects/surveyticket
   ------------------------------------------------------------------------
 
   LICENSE
@@ -34,7 +33,6 @@
  * @return bool for success (will die for most error)
  * */
 function update14to15() {
-   global $DB;
 
    $migration = new Migration(15);
 
@@ -45,5 +43,3 @@ function update14to15() {
 
    return true;
 }
-
-?>

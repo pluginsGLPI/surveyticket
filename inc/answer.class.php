@@ -5,7 +5,6 @@
   Surveyticket
   Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
 
-  https://forge.glpi-project.org/projects/surveyticket
   ------------------------------------------------------------------------
 
   LICENSE
@@ -33,7 +32,7 @@
   @copyright Copyright (c) 2012-2016 Surveyticket plugin team
   @license   AGPL License 3.0 or (at your option) any later version
   http://www.gnu.org/licenses/agpl-3.0-standalone.html
-  @link      https://forge.glpi-project.org/projects/surveyticket
+  @link      https://github.com/pluginsGLPI/surveyticket
   @since     2012
 
   ------------------------------------------------------------------------
@@ -44,21 +43,30 @@ if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
 }
 
+/**
+ * Class PluginSurveyticketAnswer
+ */
 class PluginSurveyticketAnswer extends CommonDBTM {
    
    public $dohistory = true;
    static $rightname = "plugin_surveyticket";
 
    /**
-   * Get name of this type
-   *
-   * @return text name of this type by language of the user connected
-   *
-   **/
+    * Get name of this type
+    *
+    * @param int $nb
+    * @return text name of this type by language of the user connected
+    *
+    */
    static function getTypeName($nb = 0) {
       return _n('Answer', 'Answers', $nb, 'surveyticket');
    }
 
+   /**
+    * Get the Search options for the given Type
+    *
+    * @return array
+    */
    function getSearchOptions() {
 
       $tab = array();
@@ -79,6 +87,12 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       return $tab;
    }
 
+   /**
+    * Define tabs to display
+    *
+    * @param array $options
+    * @return array
+    */
    function defineTabs($options = array()) {
 
       $ong = array();
@@ -87,10 +101,13 @@ class PluginSurveyticketAnswer extends CommonDBTM {
 
       return $ong;
    }
-   
+
    /**
     * @see CommonGLPI::getTabNameForItem()
-   **/
+    * @param CommonGLPI $item
+    * @param int $withtemplate
+    * @return array|string
+    */
    function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
       if ($item->getType() == "PluginSurveyticketQuestion") {
          if ($item->fields['type'] == PluginSurveyticketQuestion::RADIO || $item->fields['type'] == PluginSurveyticketQuestion::YESNO ||
@@ -105,9 +122,11 @@ class PluginSurveyticketAnswer extends CommonDBTM {
 
    /**
     * @param $item            CommonGLPI object
-    * @param $tabnum          (default 1)
-    * @param $withtemplate    (default 0)
-   **/
+    * @param $tabnum (default 1)
+    * @param $withtemplate (default 0)
+    *
+    * @return bool|true
+    */
    static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
        if ($item->getType() == "PluginSurveyticketQuestion") {
          self::listAnswers($item->fields['id'], $withtemplate);
@@ -133,11 +152,16 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          return $item->getName();
       }      
    }
-   
-   
-   
+
+
+   /**
+    * List of answers
+    *
+    * @param $questions_id
+    * @param $withtemplate
+    */
    static function listAnswers($questions_id, $withtemplate) {
-      global $DB,$CFG_GLPI;
+      global $CFG_GLPI;
       
       $rand   = mt_rand();
       $psQuestion = new PluginSurveyticketQuestion();
@@ -230,9 +254,15 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          }
       }
    }
-   
-   
-      
+
+
+   /**
+    * Print the answer form
+    *
+    * @param $ID
+    * @param array $options
+    * @return bool
+    */
    function showForm($ID, $options=array()) {
 
       if ($ID!='') {
@@ -341,9 +371,11 @@ class PluginSurveyticketAnswer extends CommonDBTM {
 
       return true;
    }
-   
-   
-   
+
+
+   /**
+    * @param $questions_id
+    */
    function addYesNo($questions_id) {
       global $DB;
       
@@ -380,9 +412,11 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          $this->add($input);
       }
    }
-   
-   
-   
+
+
+   /**
+    * @param $questions_id
+    */
    function removeYesNo($questions_id) {
       global $DB;
       
@@ -401,7 +435,13 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          $this->delete($data);
       }
    }
-   
+
+   /**
+    * Prepare input datas for updating the item
+    *
+    * @param datas $input
+    * @return array|datas
+    */
    function prepareInputForUpdate($input) {
       //case action massive
       if(isset($input['link'])){
@@ -430,7 +470,12 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       }
       return $input;
    }
-   
+
+   /**
+    * @param string $condition
+    * @param string $order
+    * @return array
+    */
    static function findAnswers($condition = "", $order = "") {
       global $DB;
 
@@ -476,6 +521,12 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       return $data;
    }
 
+   /**
+    * Find the answers in the questionnaire
+    *
+    * @param $id
+    * @return bool|result
+    */
    static function findAnswer($id) {
       global $DB;
 
@@ -502,7 +553,6 @@ class PluginSurveyticketAnswer extends CommonDBTM {
 
          $query .= " WHERE `$table`.`id` = ".Toolbox::cleanInteger($id);
 
-      $data   = array();
       if ($result = $DB->query($query)) {
          if ($DB->numrows($result)) {
             while ($line = $DB->fetch_assoc($result)) {
@@ -517,5 +567,3 @@ class PluginSurveyticketAnswer extends CommonDBTM {
    }
    
 }
-
-?>

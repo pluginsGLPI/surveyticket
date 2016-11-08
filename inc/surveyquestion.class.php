@@ -5,7 +5,6 @@
   Surveyticket
   Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
 
-  https://forge.glpi-project.org/projects/surveyticket
   ------------------------------------------------------------------------
 
   LICENSE
@@ -33,7 +32,7 @@
   @copyright Copyright (c) 2012-2016 Surveyticket plugin team
   @license   AGPL License 3.0 or (at your option) any later version
   http://www.gnu.org/licenses/agpl-3.0-standalone.html
-  @link      https://forge.glpi-project.org/projects/surveyticket
+  @link      https://github.com/pluginsGLPI/surveyticket
   @since     2012
 
   ------------------------------------------------------------------------
@@ -44,14 +43,30 @@ if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
 }
 
+/**
+ * Class PluginSurveyticketSurveyQuestion
+ */
 class PluginSurveyticketSurveyQuestion extends CommonDBTM {
    
    static $rightname = 'plugin_surveyticket';
 
+   /**
+    * Get name of this type
+    *
+    * @param int $nb
+    * @return translated
+    */
    static function getTypeName($nb = 0) {
       return _n('Question', 'Questions', $nb, 'surveyticket');
    }
 
+   /**
+    * Get Tab Name used for itemtype
+    *
+    * @param CommonGLPI $item
+    * @param int $withtemplate
+    * @return string|translated
+    */
    function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
 
       if ($item->getType() == 'PluginSurveyticketSurvey') {
@@ -65,9 +80,8 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
     *
     * @param CommonGLPI $item
     * @param integer $tabnum
-    * @param interger $withtemplate
-    *
-    * @return boolean TRUE
+    * @param integer $withtemplate
+    * @return bool TRUE
     */
    static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0) {
       if ($item->getType() == 'PluginSurveyticketSurvey') {
@@ -77,6 +91,13 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       return TRUE;
    }
 
+   /**
+    * Return questions of the questionnaire
+    *
+    * @param $plugin_surveyticket_questions_id
+    * @param array $a_used
+    * @return array
+    */
    static function questionUsed($plugin_surveyticket_questions_id, $a_used = array()) {
       $psAnswer = new PluginSurveyticketAnswer();
       $result = $psAnswer->find("`plugin_surveyticket_questions_id` = " . $plugin_surveyticket_questions_id);
@@ -89,6 +110,12 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       return $a_used;
    }
 
+   /**
+    * Print the form questions
+    *
+    * @param $items_id
+    * @param $withtemplate
+    */
    function showQuestions($items_id, $withtemplate) {
       global $CFG_GLPI;
 
@@ -144,6 +171,12 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       self::showListQuestions($a_questions, $withtemplate);
    }
 
+   /**
+    * Print the list
+    *
+    * @param $a_questions
+    * @param $withtemplate
+    */
    static function showListQuestions($a_questions, $withtemplate) {
        $rand = mt_rand();
       echo "<div class='spaced'>";
@@ -196,6 +229,11 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       echo "</div>";
    }
 
+   /**
+    * Print the question form
+    *
+    * @param $data
+    */
    static function showQuestion($data) {
       global $CFG_GLPI;
       $psQuestion = new PluginSurveyticketQuestion();
@@ -252,6 +290,9 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       self::showLinkQuestion($data['plugin_surveyticket_questions_id']);
    }
 
+   /**
+    * @param $plugin_surveyticket_questions_id
+    */
    static function showLinkQuestion($plugin_surveyticket_questions_id) {
       $psAnswer = new PluginSurveyticketAnswer();
       $result = $psAnswer->find("`plugin_surveyticket_questions_id` = " . $plugin_surveyticket_questions_id);
@@ -305,7 +346,12 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
          return $input;
       }
    }
-   
+
+   /**
+    * Delete survey
+    *
+    * @param $id
+    */
    static function deleteSurveyQuestion($id){
       $temp = new self();
       $temp->deleteByCriteria(array('plugin_surveyticket_surveys_id' => $id));
@@ -338,8 +384,4 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
 
       return $tab;
    }
-   
-
 }
-
-?>

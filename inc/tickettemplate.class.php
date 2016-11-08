@@ -5,7 +5,6 @@
   Surveyticket
   Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
 
-  https://forge.glpi-project.org/projects/surveyticket
   ------------------------------------------------------------------------
 
   LICENSE
@@ -33,7 +32,7 @@
   @copyright Copyright (c) 2012-2016 Surveyticket plugin team
   @license   AGPL License 3.0 or (at your option) any later version
   http://www.gnu.org/licenses/agpl-3.0-standalone.html
-  @link      https://forge.glpi-project.org/projects/surveyticket
+  @link      https://github.com/pluginsGLPI/surveyticket
   @since     2012
 
   ------------------------------------------------------------------------
@@ -44,12 +43,28 @@ if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
 }
 
+/**
+ * Class PluginSurveyticketTicketTemplate
+ */
 class PluginSurveyticketTicketTemplate extends CommonDBTM {
-   
+
+   /**
+    * Get name of this type
+    *
+    * @param int $nb
+    * @return translated
+    */
    static function getTypeName($nb = 0) {
       return __('Template');
    }
-   
+
+   /**
+    * Get Tab Name used for itemtype
+    *
+    * @param CommonGLPI $item
+    * @param int $withtemplate
+    * @return string|translated
+    */
    function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
       if ($item->getType()=='PluginSurveyticketSurvey') {
          return _n('Ticket template', 'Ticket templates', 1);
@@ -58,15 +73,13 @@ class PluginSurveyticketTicketTemplate extends CommonDBTM {
    }
 
 
-
    /**
     * Display content of tab
     *
     * @param CommonGLPI $item
     * @param integer $tabnum
-    * @param interger $withtemplate
-    *
-    * @return boolean TRUE
+    * @param int|integer $withtemplate
+    * @return bool TRUE
     */
    static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
       if ($item->getType() == 'PluginSurveyticketSurvey') {
@@ -75,9 +88,12 @@ class PluginSurveyticketTicketTemplate extends CommonDBTM {
       }
       return TRUE;
    }
-   
-   
-   
+
+
+   /**
+    * Display form
+    * @param $items_id
+    */
    function showTicketTemplate($items_id) {
       global $CFG_GLPI;
       
@@ -179,5 +195,3 @@ class PluginSurveyticketTicketTemplate extends CommonDBTM {
       echo "</table>";
    }
 }
-
-?>

@@ -64,7 +64,7 @@
                     }
                 } 
             });
-        }
+        };
 
 
         /** 
@@ -104,7 +104,7 @@
                 }
             });
 
-        }
+        };
 
         /** 
          * Get url parameter
@@ -117,7 +117,7 @@
             if (results != null) {
                 return results[1] || 0;
             }
-        }
+        };
 
         /** 
          * Is IE navigator
@@ -130,7 +130,7 @@
                 return true;
 
             return false;
-        }
+        };
 
         return this;
     }
