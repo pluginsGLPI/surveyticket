@@ -48,6 +48,8 @@ if (!defined('GLPI_ROOT')) {
  */
 class PluginSurveyticketTicketTemplate extends CommonDBTM {
 
+   static $rightname = "plugin_surveyticket";
+   
    /**
     * Get name of this type
     *
