@@ -118,53 +118,57 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
     */
    function showQuestions($items_id, $withtemplate) {
       global $CFG_GLPI;
-
-      echo "<form method='post' name='form_addquestion' action='" . $CFG_GLPI['root_doc'] .
-      "/plugins/surveyticket/front/surveyquestion.form.php'>";
-
-      echo "<table class='tab_cadre' width='700'>";
-
-      echo "<tr class='tab_bg_1'>";
-      echo "<td>" . _n('Question', 'Questions', 1, 'surveyticket') . "&nbsp;:</td>";
-      echo "<td>";
+      
       $a_questions = $this->find("`plugin_surveyticket_surveys_id`='" . $items_id . "'", "`order`");
-      $a_used = array();
+      $a_used      = array();
       foreach ($a_questions as $data) {
          $a_used[] = $data['plugin_surveyticket_questions_id'];
          //recovery of links to other issues
-         $a_used = self::questionUsed($data['plugin_surveyticket_questions_id'], $a_used);
+         $a_used   = self::questionUsed($data['plugin_surveyticket_questions_id'], $a_used);
       }
 
-      Dropdown::show("PluginSurveyticketQuestion", array("name" => "plugin_surveyticket_questions_id",
-         "used" => $a_used)
-      );
-      echo "</td>";
-      echo "<td>" . __('Position') . "&nbsp;:</td>";
-      echo "<td>";
-      Dropdown::showInteger("order", "0", 0, 20);
-      echo "</td>";
+      if (Session::haveRight("plugin_surveyticket", CREATE)) {
+         echo "<form method='post' name='form_addquestion' action='" . $CFG_GLPI['root_doc'] .
+         "/plugins/surveyticket/front/surveyquestion.form.php'>";
 
-      echo "<td>" . __('Mandatory', 'surveyticket') . "&nbsp;:</td>";
-      echo "<td>";
-      Dropdown::showYesNo('mandatory');
-      echo "</td>";
-      echo "</tr>";
+         echo "<table class='tab_cadre' width='700'>";
+
+         echo "<tr class='tab_bg_1'>";
+         echo "<td>" . _n('Question', 'Questions', 1, 'surveyticket') . "&nbsp;:</td>";
+         echo "<td>";
+
+         Dropdown::show("PluginSurveyticketQuestion", array("name" => "plugin_surveyticket_questions_id",
+                                                            "used" => $a_used)
+         );
+         echo "</td>";
+         echo "<td>" . __('Position') . "&nbsp;:</td>";
+         echo "<td>";
+         Dropdown::showInteger("order", "0", 0, 20);
+         echo "</td>";
+
+         echo "<td>" . __('Mandatory', 'surveyticket') . "&nbsp;:</td>";
+         echo "<td>";
+         Dropdown::showYesNo('mandatory');
+         echo "</td>";
+         echo "</tr>";
 
 
-      echo "<tr>";
-      echo "<td class='tab_bg_2 top' colspan='6'>";
-      echo "<input type='hidden' name='plugin_surveyticket_surveys_id' value='" . $items_id . "'>";
-      echo "<div class='center'>";
-      echo "<input type='submit' name='add' value=\"" . __('Add') . "\" class='submit'>";
-      echo "</div></td></tr>";
+         echo "<tr>";
+         echo "<td class='tab_bg_2 top' colspan='6'>";
+         echo "<input type='hidden' name='plugin_surveyticket_surveys_id' value='" . $items_id . "'>";
+         echo "<div class='center'>";
+         echo "<input type='submit' name='add' value=\"" . __('Add') . "\" class='submit'>";
+         echo "</div></td></tr>";
 
-      echo "</table>";
-      Html::closeForm();
+         echo "</table>";
+         Html::closeForm();
       
-      echo "<form method='post' name='add' action='" . $CFG_GLPI['root_doc'] .
-      "/plugins/surveyticket/front/question.form.php'>";
-      echo "<input type='submit'  value=\"" . __('Create a question', 'surveyticket') . "\" class='submit'>";
-      Html::closeForm();
+      
+         echo "<form method='post' name='add' action='" . $CFG_GLPI['root_doc'] .
+         "/plugins/surveyticket/front/question.form.php'>";
+         echo "<input type='submit'  value=\"" . __('Create a question', 'surveyticket') . "\" class='submit'>";
+         Html::closeForm();
+      }
 
 
       // list questions
@@ -178,15 +182,17 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
     * @param $withtemplate
     */
    static function showListQuestions($a_questions, $withtemplate) {
-       $rand = mt_rand();
+      $rand = mt_rand();
+      $canedit = Session::haveRight(static::$rightname, UPDATE);
+      
       echo "<div class='spaced'>";
-      if ($withtemplate != 2) {
+      if ($canedit && $withtemplate != 2) {
          Html::openMassiveActionsForm('mass' . __CLASS__ . $rand);
          $massiveactionparams = array();
          Html::showMassiveActions($massiveactionparams);
       }
       echo "<table class='tab_cadre_fixe'>";
-      if ($withtemplate != 2) {
+      if ($canedit && $withtemplate != 2) {
          $header_top    = "<th width='10'>".Html::getCheckAllAsCheckbox('mass'.__CLASS__.$rand);
          $header_top    .= "</th>";
       }else{
@@ -214,14 +220,14 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       foreach ($a_questions as $data) {
          self::showQuestion($data);
       }
-      if($withtemplate != 2){
+      if($canedit && $withtemplate != 2){
          echo "<tr class='tab_bg_1'>";
          echo "<th width='10'>".Html::getCheckAllAsCheckbox('mass'.__CLASS__.$rand);
          echo "</th><th colspan='10'></th>";
          echo "</tr>";
       }
       echo "</table>";
-      if ($withtemplate != 2) {
+      if ($canedit && $withtemplate != 2) {
          $massiveactionparams['ontop'] = false;
          Html::showMassiveActions($massiveactionparams);
          Html::closeForm();

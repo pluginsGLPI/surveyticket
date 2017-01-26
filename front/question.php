@@ -40,8 +40,21 @@
 
 
 include ("../../../inc/includes.php");
- Html::header(PluginSurveyticketSurveyQuestion::getTypeName(2),'',"helpdesk","pluginsurveyticketmenu", "question");
 
-Search::show('PluginSurveyticketQuestion');
+$plugin = new Plugin();
 
-Html::footer();
+if ($plugin->isActivated("surveyticket")) {
+   if (Session::haveRightsOr("plugin_surveyticket", array(CREATE, READ, UPDATE))) {
+      Html::header(PluginSurveyticketSurveyQuestion::getTypeName(2),'',"helpdesk","pluginsurveyticketmenu", "question");
+
+      Search::show('PluginSurveyticketQuestion');
+
+      Html::footer();
+  } else {
+      Html::displayRightError();
+   }
+   
+} else {
+   Html::displayRightError();
+   
+}

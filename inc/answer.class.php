@@ -168,20 +168,24 @@ class PluginSurveyticketAnswer extends CommonDBTM {
       
       $_SESSION['glpi_plugins_surveyticket']['questions_id'] = $questions_id;
 
-      echo "<table class='tab_cadre_fixe'>";
+      if (Session::haveRight(static::$rightname, CREATE)) {
+         echo "<table class='tab_cadre_fixe'>";
+
+         echo "<tr class='tab_bg_1'>";
+         echo "<th colspan='6'>";
+         echo _n('Answer', 'Answers', 2, 'surveyticket')." ";
+         echo "<a href='".Toolbox::getItemTypeFormURL('PluginSurveyticketAnswer')."?add=1'>
+            <img src='".$CFG_GLPI["root_doc"]."/pics/add_dropdown.png'/></a>";
+         echo "</th>";
+         echo "</tr></table>";
+      }
       
-      echo "<tr class='tab_bg_1'>";
-      echo "<th colspan='6'>";
-      echo _n('Answer', 'Answers', 2, 'surveyticket')." ";
-      echo "<a href='".Toolbox::getItemTypeFormURL('PluginSurveyticketAnswer')."?add=1'>
-         <img src='".$CFG_GLPI["root_doc"]."/pics/add_dropdown.png'/></a>";
-      echo "</th>";
-      echo "</tr></table>";
+      $canedit = Session::haveRight(static::$rightname, UPDATE);
       
       $answer  = new self();
       $answers = $answer->find('`plugin_surveyticket_questions_id` = ' . $questions_id, "`order`");
       if (count($answers) > 0) {
-         if ($withtemplate != 2) {
+         if ($canedit && $withtemplate != 2) {
             Html::openMassiveActionsForm('mass' . __CLASS__ . $rand);
             $massiveactionparams = array('container' => 'mass' . __CLASS__ . $rand);
             Html::showMassiveActions($massiveactionparams);
@@ -189,7 +193,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          echo "<table class='tab_cadre_fixe'>";
          $header = "<tr class='tab_bg_1'>";
          $header .= "<th width='10'>";
-         if ($withtemplate != 2) {
+         if ($canedit && $withtemplate != 2) {
             $header .= Html::getCheckAllAsCheckbox('mass' . __CLASS__ . $rand);
          }
          $header .= "</th>";
@@ -214,7 +218,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          foreach ($answers as $data) {
             echo "<tr class='tab_bg_1'>";
             echo "<td class='center' width='10'>";
-            if ($withtemplate != 2) {
+            if ($canedit && $withtemplate != 2) {
                Html::showMassiveActionCheckBox(__CLASS__, $data["id"]);
             }
             $answer->getFromDB($data['id']);
@@ -247,7 +251,7 @@ class PluginSurveyticketAnswer extends CommonDBTM {
          }
          echo $header;
          echo "</table>";
-         if ($withtemplate != 2) {
+         if ($canedit && $withtemplate != 2) {
             $massiveactionparams['ontop'] = false;
             Html::showMassiveActions($massiveactionparams);
             Html::closeForm();

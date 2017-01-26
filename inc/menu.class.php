@@ -93,24 +93,29 @@ class PluginSurveyticketMenu extends CommonGLPI {
       $menu['page'] = $plugin_page;
       $menu['links']['search'] = $plugin_page;
       if (Session::haveRight("plugin_surveyticket", READ)) {
-      }
       
-      //Questions
-      $menu['options']['question']['title']            =  _n('Question', 'Questions', 2, 'surveyticket');
-      $menu['options']['question']['page']             = '/plugins/surveyticket/front/question.php';
-      $menu['options']['question']['links']['add']     = '/plugins/surveyticket/front/question.form.php';
-      $menu['options']['question']['links']['search']  = '/plugins/surveyticket/front/question.php';
-   
-      //Surveys
-      $menu['options']['survey']['title']            =  self::getTypeName(2);
-      $menu['options']['survey']['page']             = '/plugins/surveyticket/front/survey.php';
-      $menu['options']['survey']['links']['add']     = '/plugins/surveyticket/front/survey.form.php';
-      $menu['options']['survey']['links']['search']  = '/plugins/surveyticket/front/survey.php';
+         //Questions
+         $menu['options']['question']['title']            =  _n('Question', 'Questions', 2, 'surveyticket');
+         $menu['options']['question']['page']             = '/plugins/surveyticket/front/question.php';
+         if (Session::haveRight("plugin_surveyticket", CREATE)) {
+            $menu['options']['question']['links']['add']     = '/plugins/surveyticket/front/question.form.php';
+         }
+         $menu['options']['question']['links']['search']  = '/plugins/surveyticket/front/question.php';
 
-      //Answers
-      $menu['options']['answer']['title']            =  PluginSurveyticketAnswer::getTypeName(2);
-      $menu['options']['answer']['links']['add']     = '/plugins/surveyticket/front/answer.form.php';
-     
+         //Surveys
+         $menu['options']['survey']['title']            =  self::getTypeName(2);
+         $menu['options']['survey']['page']             = '/plugins/surveyticket/front/survey.php';
+         if (Session::haveRight("plugin_surveyticket", CREATE)) {
+            $menu['options']['survey']['links']['add']     = '/plugins/surveyticket/front/survey.form.php';
+         }
+         $menu['options']['survey']['links']['search']  = '/plugins/surveyticket/front/survey.php';
+
+         //Answers
+         $menu['options']['answer']['title']            =  PluginSurveyticketAnswer::getTypeName(2);
+         if (Session::haveRight("plugin_surveyticket", CREATE)) {
+            $menu['options']['answer']['links']['add']     = '/plugins/surveyticket/front/answer.form.php';
+         }
+      }
       return $menu;
    }
 

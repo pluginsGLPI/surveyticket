@@ -60,17 +60,21 @@ function plugin_init_surveyticket() {
          if (Session::haveRight("config", READ)) {
             $PLUGIN_HOOKS['config_page']['surveyticket'] = 'front/menu.php';
          }
-         if (Session::haveRight("plugin_surveyticket", READ)) {
+         
+         if (Session::haveRight("plugin_surveyticket_use", CREATE)) {
             if (strpos($_SERVER['REQUEST_URI'], "ticket.form.php") !== false ||
                strpos($_SERVER['REQUEST_URI'], "helpdesk.public.php") !== false ||
                strpos($_SERVER['REQUEST_URI'], "tracking.injector.php") !== false) {
                $PLUGIN_HOOKS['add_javascript']['surveyticket'][] = 'scripts/surveyticket.js';
                $PLUGIN_HOOKS['add_javascript']['surveyticket'][] = 'scripts/surveyticket_load_scripts.js';
 
-               $PLUGIN_HOOKS['pre_item_add']['surveyticket'] = array('Ticket' => array('PluginSurveyticketTicket', 'preAddTicket'));
-               $PLUGIN_HOOKS['item_add']['surveyticket'] = array('Ticket' => array('PluginSurveyticketTicket', 'postAddTicket'));
+               $PLUGIN_HOOKS['pre_item_add']['surveyticket'] = array('Ticket' => 
+                                          array('PluginSurveyticketTicket', 'preAddTicket'));
+               $PLUGIN_HOOKS['item_add']['surveyticket'] = array('Ticket' => 
+                                          array('PluginSurveyticketTicket', 'postAddTicket'));
 
-               $PLUGIN_HOOKS['item_empty']['surveyticket']      = array('Ticket'     => array('PluginSurveyticketTicket', 'emptyTicket'));
+               $PLUGIN_HOOKS['item_empty']['surveyticket']      = array('Ticket'     => 
+                                          array('PluginSurveyticketTicket', 'emptyTicket'));
             }
          }
       }
@@ -82,7 +86,8 @@ function plugin_version_surveyticket() {
    return array('name' => __('Survey', 'surveyticket'),
       'shortname' => 'surveyticket',
       'version' => PLUGIN_SURVEYTICKET_VERSION,
-      'author' => '<a href="http://infotel.com/services/expertise-technique/glpi/">Infotel</a> & <a href="mailto:d.durieux@siprossii.com">David DURIEUX</a>',
+      'author' => '<a href="http://infotel.com/services/expertise-technique/glpi/">Infotel</a> & 
+                  <a href="mailto:d.durieux@siprossii.com">David DURIEUX</a>',
       'homepage' => 'https://forge.glpi_project.org/projects/surveyticket/',
       'minGlpiVersion' => '0.90',
       'license' => 'AGPLv3+',
@@ -92,7 +97,7 @@ function plugin_version_surveyticket() {
 // Optional : check prerequisites before install : may print errors or add to message after redirect
 function plugin_surveyticket_check_prerequisites() {
 
-   if (version_compare(GLPI_VERSION, '0.90', 'lt') || version_compare(GLPI_VERSION, '0.91', 'ge')) {
+   if (version_compare(GLPI_VERSION, '0.90', 'lt') || version_compare(GLPI_VERSION, '9.2', 'ge')) {
       _e('Your GLPI version not compatible, require 0.90', 'surveyticket');
       return FALSE;
    }

@@ -79,7 +79,9 @@ class PluginSurveyticketProfile extends CommonDBTM {
          $ID = $item->getID();
          $prof = new self();
 
-         self::addDefaultProfileInfos($ID, array('plugin_surveyticket' => 0));
+         self::addDefaultProfileInfos($ID, 
+            array('plugin_surveyticket'     => 0,
+                  'plugin_surveyticket_use' => 0,));
          $prof->showForm($ID);
       }
       return true;
@@ -90,7 +92,10 @@ class PluginSurveyticketProfile extends CommonDBTM {
     */
    static function createFirstAccess($ID) {
       //85
-      self::addDefaultProfileInfos($ID, array('plugin_surveyticket' => 127), true);
+      $rights = array('plugin_surveyticket' => 127,
+                      'plugin_surveyticket_use' => CREATE);
+      
+      self::addDefaultProfileInfos($ID, $rights, true);
    }
 
    /**
@@ -138,10 +143,11 @@ class PluginSurveyticketProfile extends CommonDBTM {
 
       $profile = new Profile();
       $profile->getFromDB($profiles_id);
+      
       $rights = $this->getAllRights();
-      $profile->displayRightsChoiceMatrix($rights, array('canedit' => $canedit,
-         'default_class' => 'tab_bg_2',
-         'title' => __('General')));
+      $profile->displayRightsChoiceMatrix($rights, array('canedit'       => $canedit,
+                                                         'default_class' => 'tab_bg_2',
+                                                         'title'         => __('General')));
 
       if ($canedit && $closeform) {
          echo "<div class='center'>";
@@ -164,6 +170,11 @@ class PluginSurveyticketProfile extends CommonDBTM {
             'field' => 'plugin_surveyticket'
          ),
       );
+      
+      $rights[] = array('itemtype' => 'PluginSurveyticketTicket',
+                        'label'    => __('Use the questionnaire when creating a ticket', 'surveyticket'),
+                        'field'    => 'plugin_surveyticket_use',
+                        'rights' => array(CREATE => __('Create')));
       return $rights;
    }
 
