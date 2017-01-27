@@ -413,7 +413,9 @@ class PluginSurveyticketTicket extends CommonDBTM {
                }
                $bloc .= "</td>";
                $bloc .= "<td>";
+               $bloc .= "<label for='question" . $questions_id . "-" . $i . "'>";
                $bloc .= $psAnswer->getAnswer($data_answer);
+               $bloc .= "</label>";
                $bloc .= "</td>";
                if (empty($session) || empty($session[$questions_id][$data_answer['id']])) {
                   $bloc .= $this->displayAnswertype($data_answer['answertype'], "text-" . $questions_id . "-" . $data_answer['id'], NULL);
@@ -441,7 +443,9 @@ class PluginSurveyticketTicket extends CommonDBTM {
                }
                $bloc .= "</td>";
                $bloc .= "<td>";
+               $bloc .= "<label for='question" . $questions_id . "-" . $i . "'>";
                $bloc .= $psAnswer->getAnswer($data_answer);
+               $bloc .= "</label>";
                $bloc .= "</td>";
                if (empty($session) || empty($session[$questions_id][$data_answer['id']])) {
                   $bloc .= $this->displayAnswertype($data_answer['answertype'], "text-" . $questions_id . "-" . $data_answer['id'], NULL);
