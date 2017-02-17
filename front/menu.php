@@ -1,36 +1,52 @@
 <?php
 
-if (!defined('GLPI_ROOT')) {
-   define('GLPI_ROOT', '../../..');
-}
+/*
+  ------------------------------------------------------------------------
+  Surveyticket
+  Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
 
-include (GLPI_ROOT."/inc/includes.php");
+  ------------------------------------------------------------------------
 
-Html::header("survey", $_SERVER["PHP_SELF"], "plugins", 
-             "surveyticket", "menu");
+  LICENSE
 
-echo "<table class='tab_cadre' width='250'>";
-      
-echo "<tr class='tab_bg_1'>";
-echo "<th>";
-echo "Menu";
-echo "</th>";
-echo "</tr>";
+  This file is part of Surveyticket plugin project.
 
-echo "<tr class='tab_bg_1'>";
-echo "<td>";
-echo "<a href='".$CFG_GLPI['root_doc']."/plugins/surveyticket/front/survey.php'>Questionnaires</a>";
-echo "</td>";
-echo "</tr>";
+  Surveyticket plugin is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-echo "<tr class='tab_bg_1'>";
-echo "<td>";
-echo "<a href='".$CFG_GLPI['root_doc']."/plugins/surveyticket/front/question.php'>Questions</a>";
-echo "</td>";
-echo "</tr>";
+  Surveyticket plugin is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Affero General Public License for more details.
 
-echo "</table>";
+  You should have received a copy of the GNU Affero General Public License
+  along with Surveyticket plugin. If not, see <http://www.gnu.org/licenses/>.
+
+  ------------------------------------------------------------------------
+
+  @package   Surveyticket plugin
+  @author    David Durieux
+  @author    Infotel
+  @copyright Copyright (c) 2012-2016 Surveyticket plugin team
+  @license   AGPL License 3.0 or (at your option) any later version
+  http://www.gnu.org/licenses/agpl-3.0-standalone.html
+  @link      https://github.com/pluginsGLPI/surveyticket
+  @since     2012
+
+  ------------------------------------------------------------------------
+ */
+
+
+include ("../../../inc/includes.php");
+
+Html::header(PluginSurveyticketMenu::getTypeName(2),'', "helpdesk","pluginsurveyticketmenu", "menu");
+
+$survey = new PluginSurveyticketSurvey();
+$survey->checkGlobal(READ);
+
+$menu = new PluginSurveyticketMenu();
+$menu->showMenu();
 
 Html::footer();
-
-?>

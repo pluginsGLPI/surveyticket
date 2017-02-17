@@ -38,48 +38,19 @@
   ------------------------------------------------------------------------
  */
 
-
+$AJAX_INCLUDE = 1;
 include ("../../../inc/includes.php");
 
-Html::header(PluginSurveyticketSurveyQuestion::getTypeName(2), '', "helpdesk", "pluginsurveyticketmenu", "question");
-$psQuestion = new PluginSurveyticketQuestion();
-$psAnswer = new PluginSurveyticketAnswer();
+header("Content-Type: text/html; charset=UTF-8");
+Html::header_nocache();
 
-if (!isset($_GET["id"]))
-   $_GET["id"] = "";
-
-if (isset($_POST["add"])) {
-   $questions_id = $psQuestion->add($_POST);
-   if ($_POST['type'] == PluginSurveyticketQuestion::YESNO) {
-      $psAnswer->addYesNo($questions_id);
-   } else {
-      $psAnswer->removeYesNo($questions_id);
+Session::checkRight("dropdown", UPDATE);
+if (isset($_POST['itemtype']) && isset($_POST['language'])) {
+   $item = new $_POST['itemtype'];
+   $item->getFromDB($_POST['items_id']);
+   if($item->getType() == "PluginSurveyticketQuestion"){
+      PluginSurveyticketQuestionTranslation::dropdownFields($item, $_POST['language']);
+   }else{
+      PluginSurveyticketAnswerTranslation::dropdownFields($item, $_POST['language']);
    }
-   Html::back();
-} else if (isset($_POST["update"])) {
-   $psQuestion->update($_POST);
-   if ($_POST['type'] == PluginSurveyticketQuestion::YESNO) {
-      $psAnswer->addYesNo($_POST['id']);
-   } else {
-      $psAnswer->removeYesNo($_POST['id']);
-   }
-   Html::back();
-} else if (isset($_POST["delete"])) {
-   $psQuestion->delete($_POST);
-   Html::redirect(Toolbox::getItemTypeSearchURL('PluginSurveyticketQuestion'));
-} else if (isset($_POST["purge"])) {
-   $psQuestion->delete($_POST);
-   //delete item 
-   $psQuestion->deleteItem($_POST['id']);
-   Html::redirect(Toolbox::getItemTypeSearchURL('PluginSurveyticketQuestion'));
 }
-
-
-if (isset($_GET["id"])) {
-   if (!Session::haveRight("plugin_surveyticket", UPDATE)) {
-      $_GET['canedit'] = false;
-   }
-   $psQuestion->display($_GET);
-}
-
-Html::footer();

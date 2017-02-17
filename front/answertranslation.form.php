@@ -38,48 +38,14 @@
   ------------------------------------------------------------------------
  */
 
+include('../../../inc/includes.php');
 
-include ("../../../inc/includes.php");
-
-Html::header(PluginSurveyticketSurveyQuestion::getTypeName(2), '', "helpdesk", "pluginsurveyticketmenu", "question");
-$psQuestion = new PluginSurveyticketQuestion();
-$psAnswer = new PluginSurveyticketAnswer();
-
-if (!isset($_GET["id"]))
-   $_GET["id"] = "";
-
-if (isset($_POST["add"])) {
-   $questions_id = $psQuestion->add($_POST);
-   if ($_POST['type'] == PluginSurveyticketQuestion::YESNO) {
-      $psAnswer->addYesNo($questions_id);
-   } else {
-      $psAnswer->removeYesNo($questions_id);
-   }
-   Html::back();
-} else if (isset($_POST["update"])) {
-   $psQuestion->update($_POST);
-   if ($_POST['type'] == PluginSurveyticketQuestion::YESNO) {
-      $psAnswer->addYesNo($_POST['id']);
-   } else {
-      $psAnswer->removeYesNo($_POST['id']);
-   }
-   Html::back();
-} else if (isset($_POST["delete"])) {
-   $psQuestion->delete($_POST);
-   Html::redirect(Toolbox::getItemTypeSearchURL('PluginSurveyticketQuestion'));
-} else if (isset($_POST["purge"])) {
-   $psQuestion->delete($_POST);
-   //delete item 
-   $psQuestion->deleteItem($_POST['id']);
-   Html::redirect(Toolbox::getItemTypeSearchURL('PluginSurveyticketQuestion'));
+$translation = new PluginSurveyticketAnswerTranslation();
+if (isset($_POST['add'])) {
+   $translation->add($_POST);
+} else if (isset($_POST['update'])) {
+   $translation->update($_POST);
+} else if (isset($_POST['purge'])) {
+   $translation->delete($_POST,1);
 }
-
-
-if (isset($_GET["id"])) {
-   if (!Session::haveRight("plugin_surveyticket", UPDATE)) {
-      $_GET['canedit'] = false;
-   }
-   $psQuestion->display($_GET);
-}
-
-Html::footer();
+Html::back();

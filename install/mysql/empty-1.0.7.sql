@@ -1,5 +1,4 @@
 DROP TABLE IF EXISTS `glpi_plugin_surveyticket_questions`;
-
 CREATE TABLE `glpi_plugin_surveyticket_questions` (
    `id` int(11) NOT NULL AUTO_INCREMENT,
    `name` varchar(255) DEFAULT NULL,
@@ -12,9 +11,7 @@ CREATE TABLE `glpi_plugin_surveyticket_questions` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
 
-
 DROP TABLE IF EXISTS `glpi_plugin_surveyticket_answers`;
-
 CREATE TABLE `glpi_plugin_surveyticket_answers` (
    `id` int(11) NOT NULL AUTO_INCREMENT,
    `name` varchar(255) DEFAULT NULL,
@@ -25,13 +22,12 @@ CREATE TABLE `glpi_plugin_surveyticket_answers` (
    `is_no` tinyint(1) NOT NULL DEFAULT '0',
    `plugin_surveyticket_questions_id` int(11) NOT NULL DEFAULT '0',
    `link` int(11) NOT NULL DEFAULT '0',
+   `order` tinyint(2) NOT NULL DEFAULT '0',
+   `mandatory` tinyint(1) NOT NULL DEFAULT '0',
    PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
-
-
 DROP TABLE IF EXISTS `glpi_plugin_surveyticket_surveys`;
-
 CREATE TABLE `glpi_plugin_surveyticket_surveys` (
    `id` int(11) NOT NULL AUTO_INCREMENT,
    `name` varchar(255) DEFAULT NULL,
@@ -42,22 +38,17 @@ CREATE TABLE `glpi_plugin_surveyticket_surveys` (
    PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
-
-
 DROP TABLE IF EXISTS `glpi_plugin_surveyticket_surveyquestions`;
-
 CREATE TABLE `glpi_plugin_surveyticket_surveyquestions` (
    `id` int(11) NOT NULL AUTO_INCREMENT,
    `plugin_surveyticket_surveys_id` int(11) NOT NULL DEFAULT '0',
    `plugin_surveyticket_questions_id` int(11) NOT NULL DEFAULT '0',
    `order` tinyint(2) NOT NULL DEFAULT '0',
+   `mandatory` tinyint(1) NOT NULL DEFAULT '0',
    PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
-
-
 DROP TABLE IF EXISTS `glpi_plugin_surveyticket_tickettemplates`;
-
 CREATE TABLE `glpi_plugin_surveyticket_tickettemplates` (
    `id` int(11) NOT NULL AUTO_INCREMENT,
    `plugin_surveyticket_surveys_id` tinyint(1) NOT NULL DEFAULT '0',
@@ -68,3 +59,24 @@ CREATE TABLE `glpi_plugin_surveyticket_tickettemplates` (
    PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
+DROP TABLE IF EXISTS `glpi_plugin_surveyticket_answertranslations`;
+CREATE TABLE `glpi_plugin_surveyticket_answertranslations` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `items_id` int(11) NOT NULL DEFAULT '0',
+   `itemtype` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+   `language` varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,
+   `field` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+   `value` text COLLATE utf8_unicode_ci DEFAULT NULL,
+   PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
+
+DROP TABLE IF EXISTS `glpi_plugin_surveyticket_questiontranslations`;
+CREATE TABLE `glpi_plugin_surveyticket_questiontranslations` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `items_id` int(11) NOT NULL DEFAULT '0',
+   `itemtype` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+   `language` varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,
+   `field` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+   `value` text COLLATE utf8_unicode_ci DEFAULT NULL,
+   PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;

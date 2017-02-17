@@ -1,126 +1,110 @@
 <?php
 
+/*
+  ------------------------------------------------------------------------
+  Surveyticket
+  Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
 
-define ("PLUGIN_SURVEYTICKET_VERSION","1.0.0");
+  ------------------------------------------------------------------------
+
+  LICENSE
+
+  This file is part of Surveyticket plugin project.
+
+  Surveyticket plugin is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  Surveyticket plugin is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with Surveyticket plugin. If not, see <http://www.gnu.org/licenses/>.
+
+  ------------------------------------------------------------------------
+
+  @package   Surveyticket plugin
+  @author    David Durieux
+  @author    Infotel
+  @copyright Copyright (c) 2012-2016 Surveyticket plugin team
+  @license   AGPL License 3.0 or (at your option) any later version
+  http://www.gnu.org/licenses/agpl-3.0-standalone.html
+  @link      https://github.com/pluginsGLPI/surveyticket
+  @since     2012
+
+  ------------------------------------------------------------------------
+ */
+
+define ("PLUGIN_SURVEYTICKET_VERSION", "0.90+1.1");
 
 // Init the hooks of surveyticket
 function plugin_init_surveyticket() {
-   global $PLUGIN_HOOKS,$CFG_GLPI,$LANG;
+   global $PLUGIN_HOOKS;
 
    $PLUGIN_HOOKS['csrf_compliant']['surveyticket'] = true;
-   
-      if (isset($_SESSION["glpiID"])) {
 
-         $plugin = new Plugin();
-         if ($plugin->isActivated('surveyticket')) {
-//            if ($_SESSION["glpiactiveprofile"]["interface"] == "helpdesk") {
-//               if (isset($_GET['create_ticket'])) {
-//                  Html::redirect($CFG_GLPI['root_doc']."/plugins/surveyticket/front/displaysurvey.php");
-//                  exit;
-//               }
-            if ((strpos($_SERVER['PHP_SELF'],"ticket.form.php") 
-                        && !isset($_GET['id']))
-                 || (strpos($_SERVER['PHP_SELF'],"helpdesk.public.php")
-                        && isset($_GET['create_ticket']))
-                 || (strpos($_SERVER['PHP_SELF'],"tracking.injector.php"))) {
-               
-//               register_shutdown_function('plugin_surveyticket_on_exit');
-               $profile_User = new Profile_User();
-               register_shutdown_function(array('Plugin', 'doOneHook'), 'surveyticket', 'on_exit');
-               if (isset($_SESSION["helpdeskSaved"])) {
-                  $_SESSION["plugin_surveyticket_helpdeskSaved"] = $_SESSION["helpdeskSaved"];
-               }
-               ob_start();
-            }
-            
-            $PLUGIN_HOOKS['menu_entry']['surveyticket'] = true;
-//            $PLUGIN_HOOKS['helpdesk_menu_entry']['surveyticket'] = true;
-            
+   if (isset($_SESSION["glpiID"])) {
+
+      $plugin = new Plugin();
+      if ($plugin->isActivated('surveyticket')) {
+         Plugin::registerClass('PluginSurveyticketProfile', array('addtabon' => array('Profile')));
+
+         $PLUGIN_HOOKS['change_profile']['surveyticket'] = array('PluginSurveyticketProfile', 'initProfile');
+
+         if (Session::haveRight("plugin_surveyticket", READ)) {
+            $PLUGIN_HOOKS['menu_toadd']['surveyticket'] = array('helpdesk' => 'PluginSurveyticketMenu');
+         }
+         if (Session::haveRight("config", READ)) {
             $PLUGIN_HOOKS['config_page']['surveyticket'] = 'front/menu.php';
          }
          
-         // Icons add, search...
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['add']['questions'] = 'front/question.form.php?add=1';
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['search']['questions'] = 'front/question.php';
-         
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['add']['survey'] = 'front/survey.form.php?add=1';
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['search']['survey'] = 'front/survey.php';
+         if (Session::haveRight("plugin_surveyticket_use", CREATE)) {
+            if (strpos($_SERVER['REQUEST_URI'], "ticket.form.php") !== false ||
+               strpos($_SERVER['REQUEST_URI'], "helpdesk.public.php") !== false ||
+               strpos($_SERVER['REQUEST_URI'], "tracking.injector.php") !== false) {
+               $PLUGIN_HOOKS['add_javascript']['surveyticket'][] = 'scripts/surveyticket.js';
+               $PLUGIN_HOOKS['add_javascript']['surveyticket'][] = 'scripts/surveyticket_load_scripts.js';
 
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['add']['answers'] = 'front/answer.form.php?add=1';
-         
-         
-         // Fil ariane
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['questions']['title'] = "Questions";
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['questions']['page']  = '/plugins/surveyticket/front/question.php';
+               $PLUGIN_HOOKS['pre_item_add']['surveyticket'] = array('Ticket' => 
+                                          array('PluginSurveyticketTicket', 'preAddTicket'));
+               $PLUGIN_HOOKS['item_add']['surveyticket'] = array('Ticket' => 
+                                          array('PluginSurveyticketTicket', 'postAddTicket'));
 
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['answers']['title'] = "Answers";
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['answers']['page']  = '/plugins/surveyticket/front/answer.php';
-         
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['survey']['title'] = "Surveys";
-         $PLUGIN_HOOKS['submenu_entry']['surveyticket']['options']['survey']['page']  = '/plugins/surveyticket/front/survey.php';
-
+               $PLUGIN_HOOKS['item_empty']['surveyticket']      = array('Ticket'     => 
+                                          array('PluginSurveyticketTicket', 'emptyTicket'));
+            }
+         }
       }
+   }
 }
 
 // Name and Version of the plugin
 function plugin_version_surveyticket() {
-   return array('name'           => 'Survey ticket',
-                'shortname'      => 'surveyticket',
-                'version'        => PLUGIN_SURVEYTICKET_VERSION,
-                'author'         =>'<a href="mailto:d.durieux@siprossii.com">David DURIEUX</a>',
-                'homepage'       =>'',
-                'minGlpiVersion' => '0.83'
+   return array('name' => __('Survey', 'surveyticket'),
+      'shortname' => 'surveyticket',
+      'version' => PLUGIN_SURVEYTICKET_VERSION,
+      'author' => '<a href="http://infotel.com/services/expertise-technique/glpi/">Infotel</a> & 
+                  <a href="mailto:d.durieux@siprossii.com">David DURIEUX</a>',
+      'homepage' => 'https://forge.glpi_project.org/projects/surveyticket/',
+      'minGlpiVersion' => '0.90',
+      'license' => 'AGPLv3+',
    );
 }
 
-
 // Optional : check prerequisites before install : may print errors or add to message after redirect
 function plugin_surveyticket_check_prerequisites() {
-   global $LANG;
-   if (GLPI_VERSION >= '0.83') {
-      return true;
-   } else {
-      echo "error";
+
+   if (version_compare(GLPI_VERSION, '0.90', 'lt') || version_compare(GLPI_VERSION, '9.2', 'ge')) {
+      _e('Your GLPI version not compatible, require 0.90', 'surveyticket');
+      return FALSE;
    }
+
+   return TRUE;
 }
 
 function plugin_surveyticket_check_config() {
-   return true;
+   return TRUE;
 }
-
-function plugin_surveyticket_haveTypeRight($type,$right) {
-   return true;
-}
-
-
-//function plugin_surveyticket_on_exit() {
-//   global $DB;
-//   
-//   $DB->connect();
-//   
-//   $out = ob_get_contents();
-//   ob_end_clean();
-////echo $out;
-//
-//   $a_match = array();
-//   preg_match("/select name='type' id='dropdown_type(?:\d+)' (?:.*)option value\='(\d)' selected /", $out, $a_match);
-//   if (!isset($a_match[1])) {
-//      echo $out;
-//      return;
-//   }
-//   $type = $a_match[1];
-//   
-//   include_once 'inc/tickettemplate.class.php';
-//   include_once 'inc/survey.class.php';
-//   include_once 'inc/surveyquestion.class.php';
-//   include_once 'inc/question.class.php';
-//   include_once 'inc/answer.class.php';
-//   
-//   if ($_SESSION['glpiactiveprofile']['interface'] == 'central') {
-//      PluginSurveyticketSurvey::getCentral($out);
-//   } else {
-//      PluginSurveyticketSurvey::getHelpdesk($out);
-//   }   
-//}
-
-?>
