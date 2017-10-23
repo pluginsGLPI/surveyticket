@@ -3,7 +3,7 @@
 /*
   ------------------------------------------------------------------------
   Surveyticket
-  Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
+  Copyright (C) 2012-2017 by the Surveyticket plugin Development Team.
 
   ------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@
   @package   Surveyticket plugin
   @author    David Durieux
   @author    Infotel
-  @copyright Copyright (c) 2012-2016 Surveyticket plugin team
+  @copyright Copyright (c) 2012-2017 Surveyticket plugin team
   @license   AGPL License 3.0 or (at your option) any later version
   http://www.gnu.org/licenses/agpl-3.0-standalone.html
   @link      https://github.com/pluginsGLPI/surveyticket
@@ -43,18 +43,8 @@
  * Class PluginSurveyticketMenu
  */
 class PluginSurveyticketMenu extends CommonGLPI {
-   static $rightname = 'plugin_surveyticket';
+   static $rightname = 'config';
 
-   /**
-    * Get name of this type
-    *
-    * @param int $nb
-    * @return translated
-    */
-   static function getTypeName($nb = 0) {
-      return _n('Survey', 'Surveys', $nb, 'surveyticket');
-   }
-   
    function showMenu(){
       global $CFG_GLPI;
       echo "<table class='tab_cadre' width='250'>";
@@ -82,49 +72,31 @@ class PluginSurveyticketMenu extends CommonGLPI {
       echo "</table>";
    }
 
+
+   static function getMenuName() {
+      return __('Survey', 'surveyticket');
+   }
+
+
    /**
     * @return array
     */
    static function getMenuContent() {
-      $menu = array();
-      $plugin_page = "/plugins/surveyticket/front/menu.php";
-      //Menu entry in helpdesk
-      $menu['title'] = self::getTypeName(1);
-      $menu['page'] = $plugin_page;
-      $menu['links']['search'] = $plugin_page;
-      if (Session::haveRight("plugin_surveyticket", READ)) {
-      
-         //Questions
-         $menu['options']['question']['title']            =  _n('Question', 'Questions', 2, 'surveyticket');
-         $menu['options']['question']['page']             = '/plugins/surveyticket/front/question.php';
-         if (Session::haveRight("plugin_surveyticket", CREATE)) {
-            $menu['options']['question']['links']['add']     = '/plugins/surveyticket/front/question.form.php';
-         }
-         $menu['options']['question']['links']['search']  = '/plugins/surveyticket/front/question.php';
+      $menu          = array();
+      $menu['title'] = self::getMenuName();
+      $menu['page']  = '/plugins/surveyticket/front/menu.php';
 
-         //Surveys
-         $menu['options']['survey']['title']            =  self::getTypeName(2);
-         $menu['options']['survey']['page']             = '/plugins/surveyticket/front/survey.php';
-         if (Session::haveRight("plugin_surveyticket", CREATE)) {
-            $menu['options']['survey']['links']['add']     = '/plugins/surveyticket/front/survey.form.php';
-         }
-         $menu['options']['survey']['links']['search']  = '/plugins/surveyticket/front/survey.php';
-
-         //Answers
-         $menu['options']['answer']['title']            =  PluginSurveyticketAnswer::getTypeName(2);
-         if (Session::haveRight("plugin_surveyticket", CREATE)) {
-            $menu['options']['answer']['links']['add']     = '/plugins/surveyticket/front/answer.form.php';
-         }
-      }
       return $menu;
    }
 
+
+
    static function removeRightsFromSession() {
       if (isset($_SESSION['glpimenu']['assets']['types']['PluginSurveyticketMenu'])) {
-         unset($_SESSION['glpimenu']['assets']['types']['PluginSurveyticketMenu']); 
+         unset($_SESSION['glpimenu']['assets']['types']['PluginSurveyticketMenu']);
       }
       if (isset($_SESSION['glpimenu']['assets']['content']['PluginSurveyticketMenu'])) {
-         unset($_SESSION['glpimenu']['assets']['content']['PluginSurveyticketMenu']); 
+         unset($_SESSION['glpimenu']['assets']['content']['PluginSurveyticketMenu']);
       }
    }
 }

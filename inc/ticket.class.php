@@ -3,7 +3,7 @@
 /*
   ------------------------------------------------------------------------
   Surveyticket
-  Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
+  Copyright (C) 2012-2017 by the Surveyticket plugin Development Team.
 
   ------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@
   @package   Surveyticket plugin
   @author    David Durieux
   @author    Infotel
-  @copyright Copyright (c) 2012-2016 Surveyticket plugin team
+  @copyright Copyright (c) 2012-2017 Surveyticket plugin team
   @license   AGPL License 3.0 or (at your option) any later version
   http://www.gnu.org/licenses/agpl-3.0-standalone.html
   @link      https://github.com/pluginsGLPI/surveyticket
@@ -164,6 +164,8 @@ class PluginSurveyticketTicket extends CommonDBTM {
     * @return array
     */
    static function getSurveyTicket($type, $itilcategories_id, $entities_id, $interface) {
+      global $DB;
+
       // If values are saved in session we retrieve it
       if (isset($_SESSION['glpi_plugin_surveyticket_ticket'])) {
          $session = $_SESSION['glpi_plugin_surveyticket_ticket'];
@@ -178,22 +180,61 @@ class PluginSurveyticketTicket extends CommonDBTM {
       $psTicketTemplate = new PluginSurveyticketTicketTemplate();
       $plugin_surveyticket_surveys_id = 0;
       if ($interface == 'central') {
-         $a_tickettemplates = current($psTicketTemplate->find("`tickettemplates_id`='" . $ticketTemplate->fields['id'] . "'
-                                              AND `type`='" . $type . "'
-                                              AND `is_central`='1'"));
+         $sql = "SELECT * FROM `glpi_plugin_surveyticket_tickettemplates`"
+                 . " LEFT JOIN `glpi_plugin_surveyticket_surveys` "
+                 . "    ON `plugin_surveyticket_surveys_id` = `glpi_plugin_surveyticket_surveys`.`id`"
+                 . " WHERE `tickettemplates_id`='" . $ticketTemplate->fields['id'] . "' "
+                 . "    AND `type`='" . $type . "'"
+                 . "    AND `is_central`='1'";
+         $result = $DB->query($sql);
+         $list = [];
+         if ($result) {
+            while ($data = $DB->fetch_array($result)) {
+               $list[$data['entities_id']] = $data['plugin_surveyticket_surveys_id'];
+            }
+         }
+         if (isset($list[$entities_id])) {
+            $plugin_surveyticket_surveys_id = $list[$entities_id];
+         } else {
+            foreach (getAncestorsOf('glpi_entities', $entities_id) as $ent_id) {
+               if (isset($list[$ent_id])) {
+                  $plugin_surveyticket_surveys_id = $list[$ent_id];
+                  break;
+               }
+            }
+         }
       } else {
-         $a_tickettemplates = current($psTicketTemplate->find("`tickettemplates_id`='" . $ticketTemplate->fields['id'] . "'
-                                              AND `type`='" . $type . "'
-                                              AND `is_helpdesk`='1'"));
+         $sql = "SELECT * FROM `glpi_plugin_surveyticket_tickettemplates`"
+                 . " LEFT JOIN `glpi_plugin_surveyticket_surveys` "
+                 . "    ON `plugin_surveyticket_surveys_id` = `glpi_plugin_surveyticket_surveys`.`id`"
+                 . " WHERE `tickettemplates_id`='" . $ticketTemplate->fields['id'] . "' "
+                 . "    AND `type`='" . $type . "'"
+                 . "    AND `is_helpdesk`='1'";
+         $result = $DB->query($sql);
+         $list = [];
+         if ($result) {
+            while ($data = $DB->fetch_array($result)) {
+               $list[$data['entities_id']] = $data['plugin_surveyticket_surveys_id'];
+            }
+         }
+         if (isset($list[$entities_id])) {
+            $plugin_surveyticket_surveys_id = $list[$entities_id];
+         } else {
+            foreach (getAncestorsOf('glpi_entities', $entities_id) as $ent_id) {
+               if (isset($list[$ent_id])) {
+                  $plugin_surveyticket_surveys_id = $list[$ent_id];
+                  break;
+               }
+            }
+         }
       }
       //if template exists
-      if (isset($a_tickettemplates['plugin_surveyticket_surveys_id'])) {
+      if ($plugin_surveyticket_surveys_id > 0) {
          $psSurvey = new PluginSurveyticketSurvey();
-         $psSurvey->getFromDB($a_tickettemplates['plugin_surveyticket_surveys_id']);
+         $psSurvey->getFromDB($plugin_surveyticket_surveys_id);
          if ($psSurvey->fields['is_active'] == 1) {
-            $plugin_surveyticket_surveys_id = $a_tickettemplates['plugin_surveyticket_surveys_id'];
             $surveyTicket = new PluginSurveyticketTicket();
-            
+
             if (isset($session['add']) && $session['add'] == false) {
                foreach ($session as $key => $value) {
                   if (!is_array($value)) {
@@ -201,13 +242,13 @@ class PluginSurveyticketTicket extends CommonDBTM {
                   }
                }
             }
-            $bloc = $surveyTicket->startSurvey($plugin_surveyticket_surveys_id, $session);
+            $surveyTicket->startSurvey($plugin_surveyticket_surveys_id, $session);
             unset($session);
-            return array('response' => true, 'survey' => $bloc);
+            return true;
          }
       }
       unset($session);
-      return array('response' => false);
+      return false;
    }
 
    /**
@@ -225,11 +266,10 @@ class PluginSurveyticketTicket extends CommonDBTM {
       $a_questions = $psSurveyQuestion->find(
          "`plugin_surveyticket_surveys_id`='" . $plugin_surveyticket_surveys_id . "'", "`order`");
 
-      $bloc = "<input name='plugin_surveyticket_surveys_id' type='hidden' value='" . $plugin_surveyticket_surveys_id . "'/>";
+      echo "<input name='plugin_surveyticket_surveys_id' type='hidden' value='" . $plugin_surveyticket_surveys_id . "'/>";
       foreach ($a_questions as $data) {
-         $bloc .= $this->displaySurvey($data['plugin_surveyticket_questions_id'], $plugin_surveyticket_surveys_id, $session);
+         $this->displaySurvey($data['plugin_surveyticket_questions_id'], $plugin_surveyticket_surveys_id, $session);
       }
-      return $bloc;
    }
 
    /**
@@ -248,40 +288,39 @@ class PluginSurveyticketTicket extends CommonDBTM {
 
       if ($data != false) {
          //////////////                              Titre des questions alignÃ©s Ã  gauche                                      /////////////
-         $bloc = "<table class='tab_cadre' style='margin: 0;' width='700' >";
-         $bloc .= "<tr class='tab_bg_1'>";
-         $bloc .= "<th colspan='3' style='text-align: left;'>";
+         echo  "<table class='tab_cadre_fixe'>";
+         echo "<tr>";
+         echo "<th colspan='4'><span class='fa fa-comments-o fa-2x' aria-hidden='true'></span> ";
          if ($plugin_surveyticket_surveys_id == -1) {
             $answer = new PluginSurveyticketAnswer();
             $answer->getFromDB($answer_id);
             if ($answer->getFromDB($answer_id) && $answer->fields['mandatory']) {
-               $bloc .= $data['name'] . " <span class='red'>&nbsp;*&nbsp;</span>";
+               echo $data['name'] . " <span class='red'>&nbsp;*&nbsp;</span>";
             } else {
-               $bloc .= $data['name'] . " ";
+               echo $data['name'] . " ";
             }
          } else {
             $surveyquestion = new PluginSurveyticketSurveyQuestion();
             $surveyquestion->getFromDBByQuery("WHERE `plugin_surveyticket_questions_id` = " . $data['id'] . " AND `plugin_surveyticket_surveys_id` = " . $plugin_surveyticket_surveys_id);
             if ($surveyquestion->fields['mandatory']) {
-               $bloc .= $data['name'] . " <span class='red'>&nbsp;*&nbsp;</span>";
+               echo $data['name'] . " <span class='red'>&nbsp;*&nbsp;</span>";
             } else {
-               $bloc .= $data['name'] . " ";
+               echo $data['name'] . " ";
             }
          }
-         $bloc .= Html::showToolTip($data['comment'], array('display' => false));
-         $bloc .= "</th>";
-         $bloc .= "</tr>";
+         Html::showToolTip($data['comment']);
+         echo "</th>";
+         echo "</tr>";
          //display answer for each question
          $array       = $this->displayAnswers($questions_id, $session);
          $nb_answer   = $array['count'];
          $tab_answers = $array['answers'];
-         $bloc .= $array['bloc'];
+         echo $array['bloc'];
 
-         $bloc .= "</table>";
-         $bloc .= $this->displayLink($questions_id, $session, $data, $nb_answer, $tab_answers);
+         echo "</table>";
+         $this->displayLink($questions_id, $session, $data, $nb_answer, $tab_answers);
 
-         $bloc .= "<br/><div id='nextquestion" . $questions_id . "'></div>";
-         return $bloc;
+         echo "<br/><div id='nextquestion" . $questions_id . "'></div>";
       }
    }
 
@@ -297,12 +336,12 @@ class PluginSurveyticketTicket extends CommonDBTM {
     */
    function displayLink($questions_id, $session, $psQuestion, $nb_answer, $answers) {
       global $CFG_GLPI;
-      $bloc = "";
+
       //javascript for links between issues
       if ($psQuestion['type'] == PluginSurveyticketQuestion::RADIO || $psQuestion['type'] == PluginSurveyticketQuestion::YESNO) {
 
          $a_ids = array();
-         //table id of all responses 
+         //table id of all responses
          for ($i = 0; $i < $nb_answer; $i++) {
             $a_ids[$answers[$i]] = 'question' . $questions_id . "-" . $i;
          }
@@ -324,44 +363,43 @@ class PluginSurveyticketTicket extends CommonDBTM {
       }
       //script to detect if a change in response to a question
       if (PluginSurveyticketQuestion::isQuestionTypeText($psQuestion['type'])) {
-         $bloc .= "<script type='text/javascript'>";
-         $bloc .= Ajax::updateItemJsCode("nextquestion" . $questions_id, $CFG_GLPI["root_doc"] . "/plugins/surveyticket/ajax/displaysurvey.php", $params, $a_ids, false);
-         $bloc .= "</script>";
+         echo "<script type='text/javascript'>";
+         echo Ajax::updateItemJsCode("nextquestion" . $questions_id, $CFG_GLPI["root_doc"] . "/plugins/surveyticket/ajax/displaysurvey.php", $params, $a_ids, false);
+         echo "</script>";
       } elseif ($psQuestion['type'] != PluginSurveyticketQuestion::CHECKBOX) {
-         $bloc .= "<script type='text/javascript'>";
+         echo "<script type='text/javascript'>";
          if (!is_array($a_ids)) {
             $a_ids = array($a_ids);
          }
          foreach ($a_ids as $key => $a_id) {
 //            $params['answer_id'] = $key;
             $params['answer_id'] = '__VALUE__';
-            $bloc .= Ajax::updateItemOnEventJsCode($a_id, "nextquestion" . $questions_id, $CFG_GLPI["root_doc"] . "/plugins/surveyticket/ajax/displaysurvey.php", $params, array('change'), -1, -1, array(), FALSE);
+            echo Ajax::updateItemOnEventJsCode($a_id, "nextquestion" . $questions_id, $CFG_GLPI["root_doc"] . "/plugins/surveyticket/ajax/displaysurvey.php", $params, array('change'), -1, -1, array(), FALSE);
          }
-         $bloc .= "</script>";
+         echo "</script>";
          // Link to other issues loading the script
          if (!empty($session)) {
             $params['session'] = $session;
-            $bloc .= "<script type='text/javascript'>";
+            echo "<script type='text/javascript'>";
             if ($psQuestion['type'] == PluginSurveyticketQuestion::DROPDOWN) {
                //dropdown load on the issue
-               $bloc .= Ajax::updateItemJsCode("nextquestion" . $questions_id, $CFG_GLPI["root_doc"] . "/plugins/surveyticket/ajax/displaysurvey.php", $params, "question" . $questions_id, false);
+               echo Ajax::updateItemJsCode("nextquestion" . $questions_id, $CFG_GLPI["root_doc"] . "/plugins/surveyticket/ajax/displaysurvey.php", $params, "question" . $questions_id, false);
             } elseif ($psQuestion['type'] == PluginSurveyticketQuestion::RADIO || $psQuestion['type'] == PluginSurveyticketQuestion::YESNO) {
-               //load on the selected response 
+               //load on the selected response
                $psAnswer = new PluginSurveyticketAnswer();
                $result = $psAnswer->find("`plugin_surveyticket_questions_id` = " . $psQuestion['id']);
                $i = 0;
                foreach ($result as $data) {
                   $params['answer_id'] = $data['id'];
                   if (!empty($session[$questions_id]) && array_key_exists($data['id'], $session[$questions_id])) {
-                     $bloc .= Ajax::updateItemJsCode("nextquestion" . $questions_id, $CFG_GLPI["root_doc"] . "/plugins/surveyticket/ajax/displaysurvey.php", $params, $a_ids[$data['id']], false);
+                     echo Ajax::updateItemJsCode("nextquestion" . $questions_id, $CFG_GLPI["root_doc"] . "/plugins/surveyticket/ajax/displaysurvey.php", $params, $a_ids[$data['id']], false);
                   }
                   $i++;
                }
             }
-            $bloc .= "</script>";
+            echo "</script>";
          }
       }
-      return $bloc;
    }
 
    /**
@@ -375,8 +413,17 @@ class PluginSurveyticketTicket extends CommonDBTM {
 
       $psQuestion = new PluginSurveyticketQuestion();
       $psAnswer = new PluginSurveyticketAnswer();
+      $psQuestion_Ticket = new PluginSurveyticketQuestion_Ticket();
 
       $a_answers = $psAnswer->findAnswers("`plugin_surveyticket_questions_id`='" . $questions_id . "'", "`order`");
+
+      $disabled = '';
+      if (isset($_GET['id']) && $_GET['id'] > 0) {
+         $answers = $psQuestion_Ticket->find("`tickets_id`='".$_GET['id']."'");
+         if (count($answers) > 0) {
+            $disabled = 'disabled';
+         }
+      }
 
       $psQuestion->getFromDB($questions_id);
       $bloc = "";
@@ -384,11 +431,22 @@ class PluginSurveyticketTicket extends CommonDBTM {
       switch ($psQuestion->fields['type']) {
          case PluginSurveyticketQuestion::DROPDOWN:
             $bloc .= "<tr class='tab_bg_1'>";
+            $bloc .= "<th style='width:13%'></th>";
             $bloc .= "<td colspan='2'>";
-            $bloc .= "<select name='question" . $questions_id . "' id='question" . $questions_id . "' >";
+            $bloc .= "<select name='question" . $questions_id . "' id='question" . $questions_id . "' ".$disabled.">";
             $bloc .= "<option>" . Dropdown::EMPTY_VALUE . "</option>";
             foreach ($a_answers as $data_answer) {
-               if (empty($session) || empty($session[$questions_id][$data_answer['id']])) {
+               $selected = False;
+               if (isset($_GET['id']) && $_GET['id'] > 0) {
+                  $answers = $psQuestion_Ticket->find("`plugin_surveyticket_questions_id`='".$questions_id."' "
+                          . " AND `tickets_id`='".$_GET['id']."' and `value`='".$data_answer['id']."'");
+                  if (count($answers) > 0) {
+                     $selected = True;
+                  }
+               }
+               if ($selected) {
+                  $bloc .= "<option selected value='" . $data_answer['id'] . "'>" . $psAnswer->getAnswer($data_answer) . "</option>";
+               } else if (empty($session) || empty($session[$questions_id][$data_answer['id']])) {
                   $bloc .= "<option value='" . $data_answer['id'] . "'>" . $psAnswer->getAnswer($data_answer) . "</option>";
                } else {
                   $bloc .= "<option selected value='" . $data_answer['id'] . "'>" . $psAnswer->getAnswer($data_answer) . "</option>";
@@ -403,13 +461,25 @@ class PluginSurveyticketTicket extends CommonDBTM {
             $i = 0;
             foreach ($a_answers as $data_answer) {
                $bloc .= "<tr class='tab_bg_1'>";
+               $bloc .= "<th style='width:13%'></th>";
                $bloc .= "<td width='40' >";
-               if (empty($session) || empty($session[$questions_id][$data_answer['id']])) {
+               $checked = False;
+               if (isset($_GET['id']) && $_GET['id'] > 0) {
+                  $answers = $psQuestion_Ticket->find("`plugin_surveyticket_questions_id`='".$questions_id."' "
+                          . " AND `tickets_id`='".$_GET['id']."' and `value`='".$data_answer['id']."'");
+                  if (count($answers) > 0) {
+                     $checked = True;
+                  }
+               }
+               if ($checked) {
                   $bloc .= "<input type='checkbox' name='question" . $questions_id . "[]' id='question" . $questions_id . "-" . $i . "'
-                     value='" . $data_answer['id'] . "' />";
+                     value='" . $data_answer['id'] . "' checked ".$disabled." />";
+               } else if (empty($session) || empty($session[$questions_id][$data_answer['id']])) {
+                  $bloc .= "<input type='checkbox' name='question" . $questions_id . "[]' id='question" . $questions_id . "-" . $i . "'
+                     value='" . $data_answer['id'] . "' ".$disabled." />";
                } else {
                   $bloc .= "<input type='checkbox' name='question" . $questions_id . "[]' id='question" . $questions_id . "-" . $i . "'
-                     value='" . $data_answer['id'] . "' checked />";
+                     value='" . $data_answer['id'] . "' checked ".$disabled." />";
                }
                $bloc .= "</td>";
                $bloc .= "<td>";
@@ -433,13 +503,25 @@ class PluginSurveyticketTicket extends CommonDBTM {
             $i = 0;
             foreach ($a_answers as $data_answer) {
                $bloc .= "<tr class='tab_bg_1'>";
+               $bloc .= "<th style='width:13%'></th>";
                $bloc .= "<td width='40'>";
-               if (empty($session) || empty($session[$questions_id][$data_answer['id']])) {
+               $checked = False;
+               if (isset($_GET['id']) && $_GET['id'] > 0) {
+                  $answers = $psQuestion_Ticket->find("`plugin_surveyticket_questions_id`='".$questions_id."' "
+                          . " AND `tickets_id`='".$_GET['id']."' and `value`='".$data_answer['id']."'");
+                  if (count($answers) > 0) {
+                     $checked = True;
+                  }
+               }
+               if ($checked) {
                   $bloc .= "<input type='radio' name='question" . $questions_id . "' id='question" . $questions_id . "-" . $i . "'
-                     value='" . $data_answer['id'] . "' />";
+                     value='" . $data_answer['id'] . "' checked ".$disabled." />";
+               } else if (empty($session) || empty($session[$questions_id][$data_answer['id']])) {
+                  $bloc .= "<input type='radio' name='question" . $questions_id . "' id='question" . $questions_id . "-" . $i . "'
+                     value='" . $data_answer['id'] . "' ".$disabled." />";
                } else {
                   $bloc .= "<input type='radio' name='question" . $questions_id . "' id='question" . $questions_id . "-" . $i . "'
-                     value='" . $data_answer['id'] . "' checked/>";
+                     value='" . $data_answer['id'] . "' checked ".$disabled." />";
                }
                $bloc .= "</td>";
                $bloc .= "<td>";
@@ -460,6 +542,7 @@ class PluginSurveyticketTicket extends CommonDBTM {
 
          case PluginSurveyticketQuestion::DATE :
             $bloc .= "<tr class='tab_bg_1'>";
+            $bloc .= "<th style='width:13%'></th>";
             $bloc .= "<td colspan='2'>";
             $data_answer = current($a_answers);
             if (empty($session) || empty($session[$questions_id][$data_answer])) {
@@ -467,19 +550,31 @@ class PluginSurveyticketTicket extends CommonDBTM {
             } else {
                $bloc .= Html::showDateTimeField("question" . $questions_id, array('rand' => "question" . $questions_id, "display" => false, 'value' => $session[$questions_id]));
             }
-            $bloc .= '<input type="hidden" name="realquestion' . $questions_id . '" id="realquestion' . $questions_id . '" value="' . $data_answer['id'] . '" />';
+            $bloc .= '<input type="hidden" name="realquestion' . $questions_id . '" id="realquestion' . $questions_id . '" value="' . $data_answer['id'] . '" '.$disabled.' />';
             $bloc .= "</td>";
             $bloc .= "</tr>";
             break;
 
          case PluginSurveyticketQuestion::INPUT :
             $bloc .= "<tr class='tab_bg_1'>";
+            $bloc .= "<th style='width:13%'></th>";
             $bloc .= "<td colspan='2'>";
             $data_answer = current($a_answers);
-            if (empty($session) || empty($session[$questions_id])) {
-               $bloc .= '<input type="text" name="question' . $questions_id . '" id="question' . $questions_id . '" value="" size="100" />';
+            $value = '';
+            if (isset($_GET['id']) && $_GET['id'] > 0) {
+               $answers = $psQuestion_Ticket->find("`plugin_surveyticket_questions_id`='".$questions_id."' "
+                       . " AND `tickets_id`='".$_GET['id']."'");
+               if (count($answers) > 0) {
+                  $answer = current($answers);
+                  $value = $answer['value'];
+               }
+            }
+            if ($value != '') {
+               $bloc .= '<input type="text" name="question' . $questions_id . '" id="question' . $questions_id . '" value="'.$value.'" size="100" '.$disabled.' />';
+            } else if (empty($session) || empty($session[$questions_id])) {
+               $bloc .= '<input type="text" name="question' . $questions_id . '" id="question' . $questions_id . '" value="" size="100" '.$disabled.' />';
             } else {
-               $bloc .= '<input type="text" name="question' . $questions_id . '" id="question' . $questions_id . '" value="' . Html::cleanPostForTextArea($session[$questions_id]) . '" size="100" />';
+               $bloc .= '<input type="text" name="question' . $questions_id . '" id="question' . $questions_id . '" value="' . Html::cleanPostForTextArea($session[$questions_id]) . '" size="100" '.$disabled.' />';
             }
             $bloc .= '<input type="hidden" name="realquestion' . $questions_id . '" id="realquestion' . $questions_id . '" value="' . $data_answer['id'] . '" />';
             $bloc .= "</td>";
@@ -488,12 +583,13 @@ class PluginSurveyticketTicket extends CommonDBTM {
 
          case PluginSurveyticketQuestion::TEXTAREA :
             $bloc .= "<tr class='tab_bg_1'>";
+            $bloc .= "<th style='width:13%'></th>";
             $bloc .= "<td colspan='2'>";
             $data_answer = current($a_answers);
             if (empty($session) || empty($session[$questions_id])) {
-               $bloc .= '<textarea name="question' . $questions_id . '"  cols="90" rows="4"></textarea>';
+               $bloc .= '<textarea name="question' . $questions_id . '"  cols="90" rows="4" '.$disabled.'></textarea>';
             } else {
-               $bloc .= '<textarea name="question' . $questions_id . '"  cols="90" rows="4" >' . Html::cleanPostForTextArea($session[$questions_id]) . '</textarea>';
+               $bloc .= '<textarea name="question' . $questions_id . '"  cols="90" rows="4" '.$disabled.'>' . Html::cleanPostForTextArea($session[$questions_id]) . '</textarea>';
             }
             $bloc .= '<input type="hidden" name="realquestion' . $questions_id . '" id="realquestion' . $questions_id . '" value="' . $data_answer['id'] . '" />';
             $bloc .= "</td>";
@@ -636,12 +732,17 @@ class PluginSurveyticketTicket extends CommonDBTM {
       self::setSessions($ticket->input, true);
       if (self::checkMandatoryFields($ticket)) {
          //Recovery of the survey to put in the content of the ticket
-         $psQuestion  = new PluginSurveyticketQuestion();
-         $psAnswer    = new PluginSurveyticketAnswer();
+         $psQuestion        = new PluginSurveyticketQuestion();
+         $psAnswer          = new PluginSurveyticketAnswer();
          $description = '';
+         $ticket->input['_question_answer'] = [];
          foreach ($ticket->input as $question => $answer) {
             if (preg_match("/^question/", $question) && !preg_match("/^realquestion/", $question)) {
                $dataQuestion = $psQuestion->findQuestion(str_replace("question", "", $question));
+               $input = [
+                   'tickets_id' => 0,
+                   'plugin_surveyticket_questions_id' => $dataQuestion['id']
+               ];
 
                if (is_array($answer)) {
                   // Checkbox
@@ -650,6 +751,8 @@ class PluginSurveyticketTicket extends CommonDBTM {
 //                     if ($psAnswer->getFromDB($answers_id)) {
                      $dataAnswer = $psAnswer->findAnswer($answers_id);
                      if ($dataAnswer != false) {
+                        $input['value'] = $answers_id;
+                        $ticket->input['_question_answer'][] = $input;
                         $description .= _n('Answer', 'Answers', 1, 'surveyticket') . " : " . $dataAnswer['name'] . "\n";
                         $qid = str_replace("question", "", $question);
                         if (isset($ticket->input["text-" . $qid . "-" . $answers_id])
@@ -673,13 +776,19 @@ class PluginSurveyticketTicket extends CommonDBTM {
                   if (!PluginSurveyticketQuestion::isQuestionTypeText($dataQuestion['type'])) {
                      if ($real == 1) {
                         $description .= _n('Answer', 'Answers', 1, 'surveyticket') . " : " . $realanswer . "\n";
+                        $input['value'] = $realanswer;
+                        $ticket->input['_question_answer'][] = $input;
                      } else {
                         //check if it is an id
                         if(is_numeric($answer)){
                            $dataAnswer = $psAnswer->findAnswer($answer);
-                           $description .= _n('Answer', 'Answers', 1, 'surveyticket') . " : " . $dataAnswer['name'] . "\n";
+                           $description .= _n('Answer', 'Answers', 1, 'surveyticket') . " : " . $dataAnswer['id'] . "\n";
+                           $input['value'] = $dataAnswer['id'];
+                           $ticket->input['_question_answer'][] = $input;
                         } else {
                            $description .= _n('Answer', 'Answers', 1, 'surveyticket') . " : " . $answer . "\n";
+                           $input['value'] = $answer;
+                           $ticket->input['_question_answer'][] = $input;
                         }
                      }
                      $qid = str_replace("question", "", $question);
@@ -692,6 +801,8 @@ class PluginSurveyticketTicket extends CommonDBTM {
                   } else {
                      $description .= __('Text', 'surveyticket') . " : " . str_replace('\r', "", $answer) . "\n";
                      $description .= "\n";
+                     $input['value'] = $answer;
+                     $ticket->input['_question_answer'][] = $input;
                      unset($ticket->input[$question]);
                   }
                }
@@ -712,8 +823,25 @@ class PluginSurveyticketTicket extends CommonDBTM {
     * @param Ticket $ticket
     */
    static function postAddTicket(Ticket $ticket) {
+      $psQuestion_Ticket = new PluginSurveyticketQuestion_Ticket();
+      foreach ($ticket->input['_question_answer'] as $input) {
+         $input['tickets_id'] = $ticket->fields['id'];
+         $psQuestion_Ticket->add($input);
+      }
+
+
       if (isset($_SESSION['glpi_plugin_surveyticket_ticket'])) {
          unset($_SESSION['glpi_plugin_surveyticket_ticket']);
+      }
+   }
+
+
+   static function postForm($params) {
+      if (isset($params['item']) && $params['item'] instanceof CommonDBTM) {
+         if ($params['item']->getType() == 'Ticket') {
+            $psTicket = new PluginSurveyticketTicket();
+            $psTicket->getSurveyTicket(Ticket::INCIDENT_TYPE, $params['item']->fields['itilcategories_id'], $params['item']->fields['entities_id'], 'central');
+         }
       }
    }
 }

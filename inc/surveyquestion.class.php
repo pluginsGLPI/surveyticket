@@ -3,7 +3,7 @@
 /*
   ------------------------------------------------------------------------
   Surveyticket
-  Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
+  Copyright (C) 2012-2017 by the Surveyticket plugin Development Team.
 
   ------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@
   @package   Surveyticket plugin
   @author    David Durieux
   @author    Infotel
-  @copyright Copyright (c) 2012-2016 Surveyticket plugin team
+  @copyright Copyright (c) 2012-2017 Surveyticket plugin team
   @license   AGPL License 3.0 or (at your option) any later version
   http://www.gnu.org/licenses/agpl-3.0-standalone.html
   @link      https://github.com/pluginsGLPI/surveyticket
@@ -47,7 +47,7 @@ if (!defined('GLPI_ROOT')) {
  * Class PluginSurveyticketSurveyQuestion
  */
 class PluginSurveyticketSurveyQuestion extends CommonDBTM {
-   
+
    static $rightname = 'plugin_surveyticket';
 
    /**
@@ -118,7 +118,7 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
     */
    function showQuestions($items_id, $withtemplate) {
       global $CFG_GLPI;
-      
+
       $a_questions = $this->find("`plugin_surveyticket_surveys_id`='" . $items_id . "'", "`order`");
       $a_used      = array();
       foreach ($a_questions as $data) {
@@ -143,7 +143,7 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
          echo "</td>";
          echo "<td>" . __('Position') . "&nbsp;:</td>";
          echo "<td>";
-         Dropdown::showInteger("order", "0", 0, 20);
+         Dropdown::showNumber("order", ['value' => 0, 'min' => 0, 'max' => 20]);
          echo "</td>";
 
          echo "<td>" . __('Mandatory', 'surveyticket') . "&nbsp;:</td>";
@@ -162,8 +162,8 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
 
          echo "</table>";
          Html::closeForm();
-      
-      
+
+
          echo "<form method='post' name='add' action='" . $CFG_GLPI['root_doc'] .
          "/plugins/surveyticket/front/question.form.php'>";
          echo "<input type='submit'  value=\"" . __('Create a question', 'surveyticket') . "\" class='submit'>";
@@ -184,7 +184,7 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
    static function showListQuestions($a_questions, $withtemplate) {
       $rand = mt_rand();
       $canedit = Session::haveRight(static::$rightname, UPDATE);
-      
+
       echo "<div class='spaced'>";
       if ($canedit && $withtemplate != 2) {
          Html::openMassiveActionsForm('mass' . __CLASS__ . $rand);
@@ -198,7 +198,7 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       }else{
          $header_top    = "<th width='10'></th>";
       }
-      
+
       $header_begin = "<tr class='tab_bg_1'>";
       $header_end = "<th>";
       $header_end .= _n('Question', 'Questions', 1, 'surveyticket');
@@ -215,7 +215,7 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       $header_end .= "<th>";
       $header_end .= "</th>";
       $header_end .= "</tr>";
-      
+
       echo $header_begin.$header_top.$header_end;
       foreach ($a_questions as $data) {
          self::showQuestion($data);
@@ -320,7 +320,7 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
 
    /**
     * Actions done before update
-    * 
+    *
     * @param type $input
     * @return type
     */
@@ -362,9 +362,9 @@ class PluginSurveyticketSurveyQuestion extends CommonDBTM {
       $temp = new self();
       $temp->deleteByCriteria(array('plugin_surveyticket_surveys_id' => $id));
    }
-   
+
    /**
-    * 
+    *
     * @return string
     */
    function getSearchOptions() {

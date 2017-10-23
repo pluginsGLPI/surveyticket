@@ -30,6 +30,18 @@ CREATE TABLE `glpi_plugin_surveyticket_answers` (
 
 
 
+DROP TABLE IF EXISTS `glpi_plugin_surveyticket_questions_tickets`;
+
+CREATE TABLE `glpi_plugin_surveyticket_questions_tickets` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `plugin_surveyticket_questions_id` int(11) NOT NULL DEFAULT '0',
+   `tickets_id` int(11) NOT NULL DEFAULT '0',
+   `value` varchar(255) DEFAULT NULL,
+   PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
+
+
+
 DROP TABLE IF EXISTS `glpi_plugin_surveyticket_surveys`;
 
 CREATE TABLE `glpi_plugin_surveyticket_surveys` (

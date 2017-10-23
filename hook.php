@@ -3,7 +3,7 @@
 /*
   ------------------------------------------------------------------------
   Surveyticket
-  Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
+  Copyright (C) 2012-2017 by the Surveyticket plugin Development Team.
 
   ------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@
   @package   Surveyticket plugin
   @author    David Durieux
   @author    Infotel
-  @copyright Copyright (c) 2012-2016 Surveyticket plugin team
+  @copyright Copyright (c) 2012-2017 Surveyticket plugin team
   @license   AGPL License 3.0 or (at your option) any later version
   http://www.gnu.org/licenses/agpl-3.0-standalone.html
   @link      https://github.com/pluginsGLPI/surveyticket
@@ -62,6 +62,11 @@ function plugin_surveyticket_install() {
       include(GLPI_ROOT . "/plugins/surveyticket/install/update15_16.php");
       update15to16();
    }
+   if (!TableExists('glpi_plugin_surveyticket_questions_tickets')) {
+      include(GLPI_ROOT . "/plugins/surveyticket/install/update16_92.php");
+      update16to92();
+   }
+
    PluginSurveyticketProfile::initProfile();
    PluginSurveyticketProfile::createFirstAccess($_SESSION['glpiactiveprofile']['id']);
    $migration = new Migration("1.0.5");

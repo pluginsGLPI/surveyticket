@@ -28,29 +28,28 @@
 
   @package   Surveyticket plugin
   @author    David Durieux
-  @author    Infotel
+  @author
   @copyright Copyright (c) 2012-2017 Surveyticket plugin team
   @license   AGPL License 3.0 or (at your option) any later version
   http://www.gnu.org/licenses/agpl-3.0-standalone.html
   @link      https://github.com/pluginsGLPI/surveyticket
-  @since     2012
+  @since     2017
 
   ------------------------------------------------------------------------
  */
 
-$AJAX_INCLUDE = 1;
-include ("../../../inc/includes.php");
 
-header("Content-Type: text/html; charset=UTF-8");
-Html::header_nocache();
+if (!defined('GLPI_ROOT')) {
+   die("Sorry. You can't access directly to this file");
+}
 
-Session::checkRight("dropdown", UPDATE);
-if (isset($_POST['itemtype']) && isset($_POST['language'])) {
-   $item = new $_POST['itemtype'];
-   $item->getFromDB($_POST['items_id']);
-   if($item->getType() == "PluginSurveyticketQuestion"){
-      PluginSurveyticketQuestionTranslation::dropdownFields($item, $_POST['language']);
-   }else{
-      PluginSurveyticketAnswerTranslation::dropdownFields($item, $_POST['language']);
-   }
+/**
+ * Class PluginSurveyticketAnswer
+ */
+class PluginSurveyticketQuestion_Ticket extends CommonDBTM {
+
+   public $dohistory = true;
+   static $rightname = "plugin_surveyticket";
+
+
 }

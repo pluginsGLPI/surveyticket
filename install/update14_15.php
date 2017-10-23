@@ -3,7 +3,7 @@
 /*
   ------------------------------------------------------------------------
   Surveyticket
-  Copyright (C) 2012-2016 by the Surveyticket plugin Development Team.
+  Copyright (C) 2012-2017 by the Surveyticket plugin Development Team.
 
   ------------------------------------------------------------------------
 
