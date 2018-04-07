@@ -42,7 +42,7 @@
 include ("../../../inc/includes.php");
 
 
-Html::header(PluginSurveyticketSurvey::getTypeName(2), '', "helpdesk", "pluginsurveyticketmenu", 'survey');
+Html::header(PluginSurveyticketSurvey::getTypeName(2), '', "config", "PluginSurveyticketMenu", 'survey');
 Search::show('PluginSurveyticketSurvey');
 
 Html::footer();

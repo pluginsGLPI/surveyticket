@@ -79,7 +79,7 @@ class PluginSurveyticketProfile extends CommonDBTM {
          $ID = $item->getID();
          $prof = new self();
 
-         self::addDefaultProfileInfos($ID, 
+         self::addDefaultProfileInfos($ID,
             array('plugin_surveyticket'     => 0,
                   'plugin_surveyticket_use' => 0,));
          $prof->showForm($ID);
@@ -94,7 +94,7 @@ class PluginSurveyticketProfile extends CommonDBTM {
       //85
       $rights = array('plugin_surveyticket' => 127,
                       'plugin_surveyticket_use' => CREATE);
-      
+
       self::addDefaultProfileInfos($ID, $rights, true);
    }
 
@@ -143,7 +143,7 @@ class PluginSurveyticketProfile extends CommonDBTM {
 
       $profile = new Profile();
       $profile->getFromDB($profiles_id);
-      
+
       $rights = $this->getAllRights();
       $profile->displayRightsChoiceMatrix($rights, array('canedit'       => $canedit,
                                                          'default_class' => 'tab_bg_2',
@@ -170,7 +170,7 @@ class PluginSurveyticketProfile extends CommonDBTM {
             'field' => 'plugin_surveyticket'
          ),
       );
-      
+
       $rights[] = array('itemtype' => 'PluginSurveyticketTicket',
                         'label'    => __('Use the questionnaire when creating a ticket', 'surveyticket'),
                         'field'    => 'plugin_surveyticket_use',
@@ -209,7 +209,7 @@ class PluginSurveyticketProfile extends CommonDBTM {
    static function migrateOneProfile($profiles_id) {
       global $DB;
       //Cannot launch migration if there's nothing to migrate...
-      if (!TableExists('glpi_plugin_surveyticket_profiles')) {
+      if (!$DB->tableExists('glpi_plugin_surveyticket_profiles')) {
          return true;
       }
 
@@ -219,8 +219,8 @@ class PluginSurveyticketProfile extends CommonDBTM {
          $current_rights = ProfileRight::getProfileRights($profiles_id, array_values($matching));
          foreach ($matching as $old => $new) {
             if (!isset($current_rights[$old])) {
-               $query = "UPDATE `glpi_profilerights` 
-                         SET `rights`='" . self::translateARight($profile_data[$old]) . "' 
+               $query = "UPDATE `glpi_profilerights`
+                         SET `rights`='" . self::translateARight($profile_data[$old]) . "'
                          WHERE `name`='$new' AND `profiles_id`='$profiles_id'";
                $DB->query($query);
             }
@@ -247,8 +247,8 @@ class PluginSurveyticketProfile extends CommonDBTM {
          self::migrateOneProfile($prof['id']);
       }
       foreach ($DB->request("SELECT *
-                           FROM `glpi_profilerights` 
-                           WHERE `profiles_id`='" . $_SESSION['glpiactiveprofile']['id'] . "' 
+                           FROM `glpi_profilerights`
+                           WHERE `profiles_id`='" . $_SESSION['glpiactiveprofile']['id'] . "'
                               AND `name` LIKE '%plugin_surveyticket%'") as $prof) {
          $_SESSION['glpiactiveprofile'][$prof['name']] = $prof['rights'];
       }

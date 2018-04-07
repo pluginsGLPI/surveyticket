@@ -41,12 +41,12 @@
 
 include ("../../../inc/includes.php");
 
-Html::header(PluginSurveyticketSurveyQuestion::getTypeName(2), '', "helpdesk", "pluginsurveyticketmenu", "question");
+Html::header(PluginSurveyticketSurveyQuestion::getTypeName(2),'',"config","PluginSurveyticketMenu", "question");
 $psQuestion = new PluginSurveyticketQuestion();
 $psAnswer = new PluginSurveyticketAnswer();
 
 if (!isset($_GET["id"]))
-   $_GET["id"] = "";
+   $_GET["id"] = 0;
 
 if (isset($_POST["add"])) {
    $questions_id = $psQuestion->add($_POST);
@@ -69,16 +69,13 @@ if (isset($_POST["add"])) {
    Html::redirect(Toolbox::getItemTypeSearchURL('PluginSurveyticketQuestion'));
 } else if (isset($_POST["purge"])) {
    $psQuestion->delete($_POST);
-   //delete item 
+   //delete item
    $psQuestion->deleteItem($_POST['id']);
    Html::redirect(Toolbox::getItemTypeSearchURL('PluginSurveyticketQuestion'));
 }
 
 
 if (isset($_GET["id"])) {
-   if (!Session::haveRight("plugin_surveyticket", UPDATE)) {
-      $_GET['canedit'] = false;
-   }
    $psQuestion->display($_GET);
 }
 

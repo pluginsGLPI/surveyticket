@@ -41,7 +41,7 @@
 
 include ("../../../inc/includes.php");
 
-Html::header(PluginSurveyticketSurvey::getTypeName(2),'',"helpdesk","pluginsurveyticketmenu", "survey");
+Html::header(PluginSurveyticketSurvey::getTypeName(2), '', "config", "PluginSurveyticketMenu", 'survey');
 $psSurvey = new PluginSurveyticketSurvey();
 
 if (isset ($_POST["add"])) {
@@ -54,7 +54,7 @@ if (isset ($_POST["add"])) {
    if($psSurvey->delete($_POST)){
       PluginSurveyticketSurveyQuestion::deleteSurveyQuestion($_POST['id']);
    }
-   
+
    Html::redirect(Toolbox::getItemTypeSearchURL('PluginSurveyticketSurvey'));
 }
 

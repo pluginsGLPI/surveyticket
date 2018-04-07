@@ -45,7 +45,7 @@ $plugin = new Plugin();
 
 if ($plugin->isActivated("surveyticket")) {
    if (Session::haveRightsOr("plugin_surveyticket", array(CREATE, READ, UPDATE))) {
-      Html::header(PluginSurveyticketSurveyQuestion::getTypeName(2),'',"helpdesk","pluginsurveyticketmenu", "question");
+      Html::header(PluginSurveyticketSurveyQuestion::getTypeName(2),'',"config","PluginSurveyticketMenu", "question");
 
       Search::show('PluginSurveyticketQuestion');
 
@@ -53,8 +53,8 @@ if ($plugin->isActivated("surveyticket")) {
   } else {
       Html::displayRightError();
    }
-   
+
 } else {
    Html::displayRightError();
-   
+
 }

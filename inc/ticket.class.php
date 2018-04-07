@@ -343,7 +343,9 @@ class PluginSurveyticketTicket extends CommonDBTM {
          $a_ids = array();
          //table id of all responses
          for ($i = 0; $i < $nb_answer; $i++) {
-            $a_ids[$answers[$i]] = 'question' . $questions_id . "-" . $i;
+            if (isset($answers[$i])) {
+               $a_ids[$answers[$i]] = 'question' . $questions_id . "-" . $i;
+            }
          }
          $params = array("question" . $questions_id => '__VALUE__',
             'rand' => $questions_id,

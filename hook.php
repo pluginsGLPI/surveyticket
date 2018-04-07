@@ -47,22 +47,22 @@ function plugin_surveyticket_install() {
 
    include_once (GLPI_ROOT . "/plugins/surveyticket/inc/profile.class.php");
 
-   if (!TableExists('glpi_plugin_surveyticket_questions')) {
+   if (!$DB->tableExists('glpi_plugin_surveyticket_questions')) {
       $DB->runFile(GLPI_ROOT . "/plugins/surveyticket/install/mysql/empty-1.0.7.sql");
    }
-   if (!FieldExists("glpi_plugin_surveyticket_surveyquestions", "mandatory")) {
+   if (!$DB->fieldExists("glpi_plugin_surveyticket_surveyquestions", "mandatory")) {
       include(GLPI_ROOT . "/plugins/surveyticket/install/update13_14.php");
       update13to14();
    }
-   if (!FieldExists("glpi_plugin_surveyticket_answers", "mandatory")) {
+   if (!$DB->fieldExists("glpi_plugin_surveyticket_answers", "mandatory")) {
       include(GLPI_ROOT . "/plugins/surveyticket/install/update14_15.php");
       update14to15();
    }
-   if (!FieldExists("glpi_plugin_surveyticket_answers", "order")) {
+   if (!$DB->fieldExists("glpi_plugin_surveyticket_answers", "order")) {
       include(GLPI_ROOT . "/plugins/surveyticket/install/update15_16.php");
       update15to16();
    }
-   if (!TableExists('glpi_plugin_surveyticket_questions_tickets')) {
+   if (!$DB->tableExists('glpi_plugin_surveyticket_questions_tickets')) {
       include(GLPI_ROOT . "/plugins/surveyticket/install/update16_92.php");
       update16to92();
    }
