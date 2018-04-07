@@ -96,8 +96,8 @@ function plugin_version_surveyticket() {
 // Optional : check prerequisites before install : may print errors or add to message after redirect
 function plugin_surveyticket_check_prerequisites() {
 
-   if (version_compare(GLPI_VERSION, '9.1', 'lt') || version_compare(GLPI_VERSION, '9.3', 'ge')) {
-      _e('Your GLPI version not compatible, require 9.1 or 9.2', 'surveyticket');
+   if (version_compare(GLPI_VERSION, '9.2', 'lt') || version_compare(GLPI_VERSION, '9.3', 'ge')) {
+      _e('Your GLPI version not compatible, require 9.2', 'surveyticket');
       return FALSE;
    }
 
