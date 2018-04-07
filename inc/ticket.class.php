@@ -810,7 +810,7 @@ class PluginSurveyticketTicket extends CommonDBTM {
                }
             }
             if ($description != '') {
-               $ticket->input['content'] = $description;
+               $ticket->input['content'] = Toolbox::addslashes_deep($description);
             }
          }
       } else {
