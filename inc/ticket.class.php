@@ -723,9 +723,9 @@ class PluginSurveyticketTicket extends CommonDBTM {
     * @return bool|Ticket
     */
    static function preAddTicket(Ticket $ticket) {
-      if($_SESSION['glpiactiveprofile']['interface'] == 'central'){
+      if ($_SESSION['glpiactiveprofile']['interface'] == 'central'){
          $response = self::isSurveyTicket($ticket->fields['type'], $ticket->fields['itilcategories_id'], $ticket->fields['entities_id'], $_SESSION['glpiactiveprofile']['interface']);
-      }else{
+      } else {
          $response = self::isSurveyTicket($ticket->input['type'], $ticket->input['itilcategories_id'], $ticket->input['entities_id'], $_SESSION['glpiactiveprofile']['interface']);
       }
       if (!$response) {
@@ -825,6 +825,7 @@ class PluginSurveyticketTicket extends CommonDBTM {
     * @param Ticket $ticket
     */
    static function postAddTicket(Ticket $ticket) {
+
       $psQuestion_Ticket = new PluginSurveyticketQuestion_Ticket();
       foreach ($ticket->input['_question_answer'] as $input) {
          $input['tickets_id'] = $ticket->fields['id'];
@@ -839,10 +840,15 @@ class PluginSurveyticketTicket extends CommonDBTM {
 
 
    static function postForm($params) {
-      if (isset($params['item']) && $params['item'] instanceof CommonDBTM) {
-         if ($params['item']->getType() == 'Ticket') {
+      if (isset($params['item'])
+            && $params['item'] instanceof CommonDBTM
+            && $params['item']->getType() == 'Ticket') {
+         if (isset($params['item']->fields['itilcategories_id'])) {
             $psTicket = new PluginSurveyticketTicket();
-            $psTicket->getSurveyTicket(Ticket::INCIDENT_TYPE, $params['item']->fields['itilcategories_id'], $params['item']->fields['entities_id'], 'central');
+            $psTicket->getSurveyTicket(Ticket::INCIDENT_TYPE, $params['item']->fields['itilcategories_id'], $params['item']->fields['entities_id'], $_SESSION['glpiactiveprofile']['interface']);
+         } else if (isset($params['options']['itilcategories_id'])) {
+            $psTicket = new PluginSurveyticketTicket();
+            $psTicket->getSurveyTicket(Ticket::INCIDENT_TYPE, $params['options']['itilcategories_id'], $params['options']['entities_id'], $_SESSION['glpiactiveprofile']['interface']);
          }
       }
    }
