@@ -18,7 +18,7 @@ foreach (readdir(DIRHANDLE)){
                         $lang=$_;
                         $lang=~s/\.po//;
 
-                        `wget --user=$user --password=$password --output-document=../locales/$_ http://www.transifex.net/api/2/project/glpi_surveyticket/resource/plugin-08410/translation/$lang/?file=$_`;
+                        `wget --no-check-certificate --user=$user --password=$password --output-document=../locales/$_ https://www.transifex.com/api/2/project/glpi_surveyticket/resource/92xx/translation/$lang/?file=PO`;
                      }
             }
 
