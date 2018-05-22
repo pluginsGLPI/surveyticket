@@ -38,7 +38,7 @@
   ------------------------------------------------------------------------
  */
 
-define ("PLUGIN_SURVEYTICKET_VERSION", "9.2+1.0");
+define ("PLUGIN_SURVEYTICKET_VERSION", "9.2+1.1");
 
 // Init the hooks of surveyticket
 function plugin_init_surveyticket() {
