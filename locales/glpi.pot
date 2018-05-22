@@ -1,37 +1,37 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR SurveyTicket Development Team
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the GLPI - SurveyTicket plugin package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: GLPI - SurveyTicket plugin 1.1\n"
+"Project-Id-Version: GLPI - SurveyTicket plugin 9.2+1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-26 14:33+0100\n"
+"POT-Creation-Date: 2018-05-22 12:13+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language-Team: none\n"
+"Language: en_GB\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: setup.php:86 inc/menu.class.php:55 inc/menu.class.php:71
+#: setup.php:85 inc/menu.class.php:61 inc/menu.class.php:77
 #: inc/profile.class.php:169 inc/survey.class.php:61
 msgid "Survey"
 msgid_plural "Surveys"
 msgstr[0] ""
 msgstr[1] ""
 
-#: setup.php:101
-msgid "Your GLPI version not compatible, require 0.90"
+#: setup.php:100
+msgid "Your GLPI version not compatible, require 9.2"
 msgstr ""
 
 #: inc/answer.class.php:62 inc/answer.class.php:176 inc/answer.class.php:286
-#: inc/surveyquestion.class.php:312 inc/ticket.class.php:649
-#: inc/ticket.class.php:671 inc/ticket.class.php:676 inc/ticket.class.php:678
+#: inc/surveyquestion.class.php:312 inc/ticket.class.php:758
+#: inc/ticket.class.php:780 inc/ticket.class.php:787 inc/ticket.class.php:791
 msgid "Answer"
 msgid_plural "Answers"
 msgstr[0] ""
@@ -70,14 +70,14 @@ msgstr ""
 msgid "Please delete the questionnaire if you want to add it."
 msgstr ""
 
-#: inc/menu.class.php:64
+#: inc/menu.class.php:54
 msgid "Menu"
 msgstr ""
 
-#: inc/menu.class.php:78 inc/menu.class.php:98 inc/question.class.php:70
+#: inc/menu.class.php:68 inc/question.class.php:70
 #: inc/surveyquestion.class.php:60 inc/surveyquestion.class.php:73
 #: inc/surveyquestion.class.php:137 inc/surveyquestion.class.php:204
-#: inc/ticket.class.php:644 inc/ticket.class.php:667
+#: inc/ticket.class.php:751 inc/ticket.class.php:776
 msgid "Question"
 msgid_plural "Questions"
 msgstr[0] ""
@@ -110,11 +110,11 @@ msgid ""
 "Please delete the questionnaire if you want to add it."
 msgstr ""
 
-#: inc/ticket.class.php:571
+#: inc/ticket.class.php:673
 #, php-format
 msgid "Mandatory questions are not filled. Please correct: %s"
 msgstr ""
 
-#: inc/ticket.class.php:653 inc/ticket.class.php:684 inc/ticket.class.php:689
+#: inc/ticket.class.php:762 inc/ticket.class.php:799 inc/ticket.class.php:804
 msgid "Text"
 msgstr ""

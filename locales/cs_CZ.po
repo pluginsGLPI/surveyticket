@@ -11,19 +11,21 @@ msgstr ""
 "POT-Creation-Date: 2018-05-22 12:13+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: David Durieux <david@durieux.family>, 2018\n"
-"Language-Team: Portuguese (Brazil) (https://www.transifex.com/ddurieux/teams/695/pt_BR/)\n"
+"Language-Team: Czech (Czech Republic) (https://www.transifex.com/ddurieux/teams/695/cs_CZ/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: pt_BR\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Language: cs_CZ\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
 
 #: setup.php:85 inc/menu.class.php:61 inc/menu.class.php:77
 #: inc/profile.class.php:169 inc/survey.class.php:61
 msgid "Survey"
 msgid_plural "Surveys"
-msgstr[0] "Pesquisa"
-msgstr[1] "Pesquisas"
+msgstr[0] "Průzkum"
+msgstr[1] "Průzkumy"
+msgstr[2] "Průzkumů"
+msgstr[3] "Průzkumů"
 
 #: setup.php:100
 msgid "Your GLPI version not compatible, require 9.2"
@@ -34,28 +36,30 @@ msgstr ""
 #: inc/ticket.class.php:780 inc/ticket.class.php:787 inc/ticket.class.php:791
 msgid "Answer"
 msgid_plural "Answers"
-msgstr[0] "Resposta"
-msgstr[1] "Respostas"
+msgstr[0] "Odpověď"
+msgstr[1] "Odpovědi"
+msgstr[2] "Odpovědí"
+msgstr[3] "Odpovědí"
 
 #: inc/answer.class.php:210 inc/answer.class.php:318
 msgid "+ field"
-msgstr "+ campo"
+msgstr "+ kolonka"
 
 #: inc/answer.class.php:213 inc/answer.class.php:358
 msgid "Go to question"
-msgstr "Ir para pergunta"
+msgstr "Přejít na otázku"
 
 #: inc/answer.class.php:302 inc/question.class.php:193
 msgid "Short text"
-msgstr "Texto curto"
+msgstr "Krátký text"
 
 #: inc/answer.class.php:305 inc/question.class.php:194
 msgid "Long text"
-msgstr ""
+msgstr "Dlouhý text"
 
 #: inc/answer.class.php:347
 msgid "Linked to question"
-msgstr "Vinculado a pergunta"
+msgstr "Spojeno s otázkou"
 
 #: inc/answer.class.php:366 inc/surveyquestion.class.php:149
 #: inc/surveyquestion.class.php:213 inc/surveyquestion.class.php:383
@@ -72,7 +76,7 @@ msgstr ""
 
 #: inc/menu.class.php:54
 msgid "Menu"
-msgstr ""
+msgstr "Nabídka"
 
 #: inc/menu.class.php:68 inc/question.class.php:70
 #: inc/surveyquestion.class.php:60 inc/surveyquestion.class.php:73
@@ -80,8 +84,10 @@ msgstr ""
 #: inc/ticket.class.php:751 inc/ticket.class.php:776
 msgid "Question"
 msgid_plural "Questions"
-msgstr[0] "Pergunta"
-msgstr[1] "Perguntas"
+msgstr[0] "Otázka"
+msgstr[1] "Otázky"
+msgstr[2] "Otázek"
+msgstr[3] "Otázek"
 
 #: inc/profile.class.php:175
 msgid "Use the questionnaire when creating a ticket"
@@ -89,15 +95,15 @@ msgstr ""
 
 #: inc/question.class.php:189
 msgid "dropdown"
-msgstr "lista suspensa"
+msgstr "rozbalovací nabídka"
 
 #: inc/question.class.php:190
 msgid "checkbox"
-msgstr "lista de seleção"
+msgstr "zaškrtávací kolonka"
 
 #: inc/question.class.php:191
 msgid "radio"
-msgstr "menu de opção"
+msgstr "přepínač"
 
 #: inc/surveyquestion.class.php:169
 msgid "Create a question"
@@ -117,4 +123,4 @@ msgstr ""
 
 #: inc/ticket.class.php:762 inc/ticket.class.php:799 inc/ticket.class.php:804
 msgid "Text"
-msgstr ""
+msgstr "Text"

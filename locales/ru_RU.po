@@ -11,19 +11,21 @@ msgstr ""
 "POT-Creation-Date: 2018-05-22 12:13+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: David Durieux <david@durieux.family>, 2018\n"
-"Language-Team: Portuguese (Brazil) (https://www.transifex.com/ddurieux/teams/695/pt_BR/)\n"
+"Language-Team: Russian (https://www.transifex.com/ddurieux/teams/695/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: pt_BR\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Language: ru\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
 
 #: setup.php:85 inc/menu.class.php:61 inc/menu.class.php:77
 #: inc/profile.class.php:169 inc/survey.class.php:61
 msgid "Survey"
 msgid_plural "Surveys"
-msgstr[0] "Pesquisa"
-msgstr[1] "Pesquisas"
+msgstr[0] "Опрос"
+msgstr[1] "Опросы"
+msgstr[2] "Опросы"
+msgstr[3] "Опросы"
 
 #: setup.php:100
 msgid "Your GLPI version not compatible, require 9.2"
@@ -34,28 +36,30 @@ msgstr ""
 #: inc/ticket.class.php:780 inc/ticket.class.php:787 inc/ticket.class.php:791
 msgid "Answer"
 msgid_plural "Answers"
-msgstr[0] "Resposta"
-msgstr[1] "Respostas"
+msgstr[0] "Ответ"
+msgstr[1] "Ответы"
+msgstr[2] "Ответы"
+msgstr[3] "Ответы"
 
 #: inc/answer.class.php:210 inc/answer.class.php:318
 msgid "+ field"
-msgstr "+ campo"
+msgstr "+ поле"
 
 #: inc/answer.class.php:213 inc/answer.class.php:358
 msgid "Go to question"
-msgstr "Ir para pergunta"
+msgstr "К вопросам"
 
 #: inc/answer.class.php:302 inc/question.class.php:193
 msgid "Short text"
-msgstr "Texto curto"
+msgstr "Короткий текст"
 
 #: inc/answer.class.php:305 inc/question.class.php:194
 msgid "Long text"
-msgstr ""
+msgstr "Полный текст"
 
 #: inc/answer.class.php:347
 msgid "Linked to question"
-msgstr "Vinculado a pergunta"
+msgstr "Связан с вопросом"
 
 #: inc/answer.class.php:366 inc/surveyquestion.class.php:149
 #: inc/surveyquestion.class.php:213 inc/surveyquestion.class.php:383
@@ -72,7 +76,7 @@ msgstr ""
 
 #: inc/menu.class.php:54
 msgid "Menu"
-msgstr ""
+msgstr "Меню"
 
 #: inc/menu.class.php:68 inc/question.class.php:70
 #: inc/surveyquestion.class.php:60 inc/surveyquestion.class.php:73
@@ -80,8 +84,10 @@ msgstr ""
 #: inc/ticket.class.php:751 inc/ticket.class.php:776
 msgid "Question"
 msgid_plural "Questions"
-msgstr[0] "Pergunta"
-msgstr[1] "Perguntas"
+msgstr[0] "Вопрос"
+msgstr[1] "Вопросы"
+msgstr[2] "Вопросы"
+msgstr[3] "Вопросы"
 
 #: inc/profile.class.php:175
 msgid "Use the questionnaire when creating a ticket"
@@ -89,15 +95,15 @@ msgstr ""
 
 #: inc/question.class.php:189
 msgid "dropdown"
-msgstr "lista suspensa"
+msgstr "выпадающий список"
 
 #: inc/question.class.php:190
 msgid "checkbox"
-msgstr "lista de seleção"
+msgstr "чекбокс"
 
 #: inc/question.class.php:191
 msgid "radio"
-msgstr "menu de opção"
+msgstr "переключатель"
 
 #: inc/surveyquestion.class.php:169
 msgid "Create a question"
@@ -117,4 +123,4 @@ msgstr ""
 
 #: inc/ticket.class.php:762 inc/ticket.class.php:799 inc/ticket.class.php:804
 msgid "Text"
-msgstr ""
+msgstr "Текст"
