@@ -86,8 +86,8 @@ class PluginSurveyticketMenu extends CommonGLPI {
       $menu['title'] = self::getMenuName();
       $menu['page']  = '/plugins/surveyticket/front/menu.php';
 
-     $itemtypes = ['PluginSurveyticketSurvey'         => 'survey',
-                   'PluginSurveyticketSurveyQuestion' => 'question'];
+     $itemtypes = ['PluginSurveyticketSurvey'   => 'survey',
+                   'PluginSurveyticketQuestion' => 'question'];
 
       foreach ($itemtypes as $itemtype => $option) {
          $menu['options'][$option]['title']           = $itemtype::getTypeName(2);
