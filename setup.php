@@ -38,7 +38,7 @@
   ------------------------------------------------------------------------
  */
 
-define ("PLUGIN_SURVEYTICKET_VERSION", "9.2+1.1");
+define ("PLUGIN_SURVEYTICKET_VERSION", "9.3+1.0");
 
 // Init the hooks of surveyticket
 function plugin_init_surveyticket() {
@@ -88,7 +88,7 @@ function plugin_version_surveyticket() {
       'author' => '<a href="mailto:david@durieux.family">David DURIEUX</a> &
                   <a href="http://infotel.com/services/expertise-technique/glpi/">Infotel</a>',
       'homepage' => 'https://github.com/pluginsGLPI/surveyticket',
-      'minGlpiVersion' => '9.2',
+      'minGlpiVersion' => '9.3',
       'license' => 'AGPLv3+',
    );
 }
@@ -96,8 +96,8 @@ function plugin_version_surveyticket() {
 // Optional : check prerequisites before install : may print errors or add to message after redirect
 function plugin_surveyticket_check_prerequisites() {
 
-   if (version_compare(GLPI_VERSION, '9.2', 'lt') || version_compare(GLPI_VERSION, '9.3', 'ge')) {
-      _e('Your GLPI version not compatible, require 9.2', 'surveyticket');
+   if (version_compare(GLPI_VERSION, '9.3', 'lt') || version_compare(GLPI_VERSION, '9.4', 'ge')) {
+      _e('Your GLPI version not compatible, require 9.3', 'surveyticket');
       return FALSE;
    }
 
